@@ -1,0 +1,14 @@
+{application, conferl,
+ [
+  {description,
+   "An awesome application called conferl"},
+  {vsn, "0.1"},
+  {applications,
+    [kernel,
+     stdlib,
+     lager
+    ]},
+  {modules, []},
+  {mod, {conferl, []}}
+ ]
+}.

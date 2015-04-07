@@ -1,0 +1,14 @@
+{application, conferl,
+ [
+  {description,
+   "Auto-Conference Service in Erlang (similar to Disqus)"},
+  {vsn, "0.0.1"},
+  {applications,
+    [kernel,
+     stdlib,
+     lager
+    ]},
+  {modules, []},
+  {mod, {conferl, []}}
+ ]
+}.

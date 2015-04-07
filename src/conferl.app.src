@@ -1,8 +1,8 @@
 {application, conferl,
  [
   {description,
-   "An awesome application called conferl"},
-  {vsn, "0.1"},
+   "Auto-Conference Service in Erlang (similar to Disqus)"},
+  {vsn, "0.0.1"},
   {applications,
     [kernel,
      stdlib,

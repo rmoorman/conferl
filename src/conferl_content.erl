@@ -1,13 +1,9 @@
 -module(conferl_content).
+-author('david.cao@inakanetworks.com').
 
 -export([]).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Public Api
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%
-%%
 
 -type message() ::
         #{
@@ -33,21 +29,27 @@
           , fetch_content/1
           , list_contents/1 ]).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Public Api
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% @doc functions definitions for content
+
 -spec register_content(Url :: iodata()) -> 
   conferl_contents:content() | error.
 
 register_content(Url) -> #{}.
 %% todo
 
--spec unregister_content(ContentId :: integer()) -> ok | error.
+-spec unregister_content(ContentId :: integer()) -> ok | error .
 
-unregister_content(ContentId ) -> ok.
+unregister_content(ContentId ) ->  error .
 %% todo
 
 -spec fetch_content(ContentId :: integer()) -> 
    notfound | conferl_contents:content().
 
-fetch_content(ContentId :: integer()) ->   notfound.   
+fetch_content(ContentId) ->   notfound.   
 %% todo
 
 -spec list_contents(Domain :: iodata()) -> [conferl_contents:content()].

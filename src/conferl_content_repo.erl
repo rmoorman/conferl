@@ -35,3 +35,11 @@ delete( Content ) ->
 
 -spec delete_all() -> integer(). 
 delete_all() -> sumo:delete(conferl_content, Content). 
+
+-spec find(integer()) -> not_found | conferl_content:content().
+find(Id) when is_integer(Id) ->
+  sumo:find(conferl_content, Id).
+
+-spec find_by_user(integer()) -> not_found | conferl_content:content().
+find(UserIdUserId) when is_integer(UserId) ->
+  sumo:find_by(conferl_content,[{user, UserId}]).

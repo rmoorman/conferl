@@ -1,33 +1,35 @@
+% This file is licensed to you under the Apache License,
+% Version 2.0 (the "License"); you may not use this file
+% except in compliance with the License.  You may obtain
+% a copy of the License at
+% 
+% http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing,
+% software distributed under the License is distributed on an
+% "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+% KIND, either express or implied.  See the License for the
+% specific language governing permissions and limitations
+% under the License.
 -module(conferl_content).
 -author('david.cao@inakanetworks.com').
 
--export([]).
-
-
-
--type message() ::
-        #{
-           id => integer(),
-           message => string(),
-           user => string()
-           %date
-         }.
-
 -type content() ::
         #{
-           id => integer(),
+           id      => integer(),
            message => [message],
-           user => string()
+           user    => string()
            %date
          }.
 
--export_type( [content/0
-              , message/0]).
+-export_type( [content/0]).
 
 -export([ register_content/1
           , unregister_content/1
           , fetch_content/1
           , list_contents/1 ]).
+
+-behavior(sumo_doc).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Public Api
@@ -54,4 +56,25 @@ fetch_content(ContentId) ->   notfound.
 
 -spec list_contents(Domain :: iodata()) -> [conferl_contents:content()].
 list_contents(Domain) -> [ #{} ].
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% BEHAVIOUR CALLBACKS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% @doc Part of the sumo_doc behavior.
+-spec sumo_wakeup(sumo:doc()) -> content().
+sumo_wakeup(Data) ->  Data.
+
+%% @doc Part of the sumo_doc behavior.
+-spec sumo_sleep(content()) -> sumo:doc().
+sumo_sleep(Content) ->  Content.
+
+%% @doc Part of the sumo_doc behavior.
+-spec sumo_schema() -> sumo:schema().
+sumo_schema() ->
+    sumo:new_schema(?MODULE, [
+    sumo:new_field(id, integer,         [not_null, auto_increment, id]),
+    sumo:new_field(user, string,        [{length, 128}, not_null, unique]),
+    sumo:new_field(message_id, integer, [index])
+  ]).
 %% todo

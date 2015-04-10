@@ -26,3 +26,51 @@
 
 
 -export_type( [message/0]).
+
+-export(sumo_doc).
+
+
+-spec write_message(ContentId :: integer()
+                    , UserId :: integer()
+                    , Text :: iodata()) -> conferl_messages:message().
+
+-spec write_message(ContentId :: integer()
+                    , UserId :: integer()
+                    , ReplyToMsgId :: integer()
+                    , Text :: iodata()) -> conferl_messages:message().
+
+-spec fetch_message(MessageId :: integer()) ->
+  notfound | conferl_messages:message().
+
+-spec  list_messages(ContentId :: integer()) -> [conferl_messages:message()].
+
+-spec list_replies(MessageId :: integer()) -> [conferl_messages:message()].
+
+-spec list_top_level_messages(ContentId :: integer()) -> 
+  [conferl_messages:message()].
+  
+-spec list_user_messages(UserId :: integer()) -> [conferl_messages:message()].
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% BEHAVIOUR CALLBACKS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% @doc Part of the sumo_doc behavior.
+%%
+
+-spec sumo_wakeup(sumo:doc()) -> message().
+sumo_wakeup(Data) -> Data.
+
+%% @doc Part of the sumo_doc behavior.
+-spec sumo_sleep(message()) -> sumo:doc().
+sumo_sleep(Message) -> Message.
+
+%% @doc Part of the sumo_doc behavior.
+-spec sumo_schema() -> sumo:schema().
+sumo_schema() ->
+  sumo:new_schema(?MODULE, [
+    sumo:new_field(id, integer,     [not_null, auto_increment, id]),
+    sumo:new_field(message, string, [{length, 256}, not_null]),
+    sumo:new_field(user, string,    [{length, 128}, not_null])
+  ]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

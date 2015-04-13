@@ -5,7 +5,7 @@
 -export(
   [ create/3
   , update/1
-  , delete/3
+  , delete/1
   , delete_all/2
   , delete_by/3
   , find_all/2
@@ -16,12 +16,18 @@
   ]).
 
 
+
+
 -spec create( Id       :: integer()
-            , Messages :: [message]
-            , User     :: integer()) -> conferl_content:content().
+            , User     :: integer()
+            , Url      :: iodata()) -> conferl_content:content().
 create(  Id  ,Messages ,User ) ->
   Content = conferl_content:new( Id ,Messages , User),
   sumo:persist(conferl_content, Content).
+
+-spec create(conferl_content:content()) -> conferl_content:content().
+create( Content ) ->
+  create(id(Content), user(Content), url(Content)).  
 
 
 -spec update(conferl_content:content()) -> conferl_content:content().
@@ -39,6 +45,10 @@ delete_all() -> sumo:delete(conferl_content, Content).
 -spec find(integer()) -> not_found | conferl_content:content().
 find(Id) when is_integer(Id) ->
   sumo:find(conferl_content, Id).
+
+-spec find_by_url(iodata()) -> not_found | conferl_content:content().
+find_by_url( Url) ->
+  sumo:find(conferl_content, [{url,Url}]).  
 
 -spec find_by_user(integer()) -> not_found | conferl_content:content().
 find(UserIdUserId) when is_integer(UserId) ->

@@ -14,23 +14,28 @@
 -module(conferl_content).
 -author('david.cao@inakanetworks.com').
 
-
+%% Codigo de referencia %%%%%
 -type message() ::
         #{
-           id      => integer(),
-           message => string(),
-           user    => integer()
+           id              => integer(),
+           id_content      => integer(),
+           message         => string(),
+           user            => integer()
            %date
          }.
 
 
 -export_type( [message/0]).
 
+%% Fin de Codigo de referencia %%%%%
+
 -type content() ::
         #{
-           id      => integer(),
-           messages => [message()],
-           user    => integer()
+           id       => integer(),
+           url      => iodata(),
+           user     => integer(),           
+           messages => [message()]
+
            %date
          }.
 
@@ -38,7 +43,7 @@
 %%% sumo_db callbacks
 -export([sumo_schema/0, sumo_wakeup/1, sumo_sleep/1]).
 
--export([   new/3
+-export([   new/4
           , register_content/1
           , unregister_content/1
           , fetch_content/1
@@ -66,7 +71,8 @@ sumo_schema() ->
     sumo:new_schema(?MODULE, [
     sumo:new_field(id  , integer,       [not_null, auto_increment, id]),
     sumo:new_field(user, integer,       [not_null]),
-    sumo:new_field(message_id, integer, [index])
+    sumo:new_field(url, string,         [not_null])
+    %sumo:new_field(message_id, integer, [index])
   ]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -76,17 +82,18 @@ sumo_schema() ->
 %% @doc functions definitions for content
 
 
--spec new( integer(),[message()], integer()) -> content().
-new( Id , Messages, User ) -> 
+-spec new( integer(), iodata(), [message()], integer()) -> content().
+new( Id , Url, Messages, User ) -> 
         #{
            id       => Id,
+           url      => Url,
            messages => Messages,
            user     => User
            %date
          }.
 
 
-%% Getters/Setters
+%% Getters/Setters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec id(content()) -> integer().
 id(Content) ->
   maps:get(id, Content).
@@ -94,6 +101,14 @@ id(Content) ->
 -spec id(content(), integer()) -> content().
 id(Content, Id) ->
   Content#{id => Id} .
+
+-spec url(content()) -> iodata().
+url(Content) ->
+  maps:get(url, Content).
+
+-spec url(content(), iodata()) -> content().
+url(Content, Url) ->
+  Content#{ url => Url}.
 
 -spec messages(content()) -> [message()].
 messages(Content) ->
@@ -111,23 +126,21 @@ user(Content) ->
 user(Content, User) -> 
   Content#{user => User}.  
 
--spec register_content(Url :: iodata()) -> 
-  conferl_contents:content() | error.
+-spec register_content(content()) -> conferl_contents:content() | error.
+register_content(Content) -> 
+  conferl_content_repo:create(Content).
 
-
-register_content(Url) -> #{}.
-%% todo
-
--spec unregister_content(ContentId :: integer()) -> ok | error .
-
-unregister_content(ContentId ) ->  error .
+-spec unregister_content(content()) -> ok | error .
+unregister_content(Content) ->  
+  conferl_content_repo:delete(Content).
 %% todo
 
 -spec fetch_content(ContentId :: integer()) -> 
    notfound | conferl_contents:content().
-
-fetch_content(ContentId) ->   notfound.   
+fetch_content(ContentId) -> 
+  conferl_content_repo:find(ContentId).   
 %% todo
 
 -spec list_contents(Domain :: iodata()) -> [conferl_contents:content()].
 list_contents(Domain) -> [ #{} ].
+%% todo

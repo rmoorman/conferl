@@ -40,6 +40,7 @@
          }.
 
 -export_type( [content/0]).
+
 %%% sumo_db callbacks
 -export([sumo_schema/0, sumo_wakeup/1, sumo_sleep/1]).
 
@@ -47,9 +48,11 @@
           , register_content/1
           , unregister_content/1
           , fetch_content/1
-          , list_contents/1 ]).
+          , list_contents/1 
+          , get_domain/1]).
 
 -behavior(sumo_doc).
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -140,6 +143,12 @@ unregister_content(Content) ->
 fetch_content(ContentId) -> 
   conferl_content_repo:find(ContentId).   
 %% todo
+
+
+-spec get_domain(string()) -> string().
+get_domain(Url) -> 
+  {ok,{_,_,Domain,_,_,_}} = http_uri:parse(Url),
+  Domain.
 
 -spec list_contents(Domain :: iodata()) -> [conferl_contents:content()].
 list_contents(Domain) -> [ #{} ].

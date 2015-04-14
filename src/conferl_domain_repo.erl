@@ -46,8 +46,8 @@ delete(Domain) ->
 
 -spec find_by_url(string()) -> conferl_domain:domain().
 find_by_url(Url) -> 
-	sumo:find_by(conferl_domain, [{url, conferl_domain:url(Url)}]).	
+	sumo:find_by(conferl_domain, [{url, Url}]).	
 
 -spec find_by_id(integer()) -> conferl_domain:domain().
 find_by_url(Id) -> 
-	sumo:find_by(conferl_domain, [{id, conferl_domain:url(Id)}]).	
+	sumo:find_by(conferl_domain, [{id, Id}]).	

@@ -29,6 +29,7 @@
 %%% sumo_db callbacks
 -export([sumo_schema/0, sumo_wakeup/1, sumo_sleep/1]).
 
+-export([ get_domain/1]).
 
 -behavior(sumo_doc).
 
@@ -49,6 +50,13 @@ id(Domain) ->
 -spec url(domain(), string()) -> domain().
 id(Domain, Url) -> 
 	Domain#{ url => Url}.		
+
+-spec get_domain(string()) -> {ok,string()} | {error,no_scheme}.
+get_domain(Url) -> 
+  case http_uri:parse(Url) of
+    {error,no_scheme}       -> {error,no_scheme};
+    {ok,{_,_,Domain,_,_,_}} -> {ok, Domain}
+  end.  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% BEHAVIOUR CALLBACKS

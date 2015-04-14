@@ -36,28 +36,28 @@
 all() -> [Fun || {Fun, 1} <- module_info(exports), Fun =/= module_info].
 
 %% @doc definion of init_per_testcases
-init_per_testcase(well_formed_Url, _Config) -> 
-  [{url, "http://inaka.net/"} ];
-init_per_testcase(mal_formed_Url, _Config)  -> 
-  [{url, "qweqwettyuiuy"} ].
+%init_per_testcase(well_formed_Url, _Config) -> 
+%  [{url, "http://inaka.net/"} ];
+%init_per_testcase(mal_formed_Url, _Config)  -> 
+%  [{url, "qweqwettyuiuy"} ].
 
 
 %% @doc definion of end_per_testcase
-end_per_testcase(_ , Config) ->  Config.
+%end_per_testcase(_ , Config) ->  Config.
 
 %% @doc tests for register_content
 
--spec well_formed_Url(config()) -> ok.
-well_formed_Url( Config ) ->
-  Url = proplists:get_value(url, Config),
-  conferl_content:register_content(Url),
-  ok.
+%-spec well_formed_Url(config()) -> ok.
+%well_formed_Url( Config ) ->
+%  Url = proplists:get_value(url, Config),
+%  conferl_content:register_content(Url),
+%  ok.
 
--spec mal_formed_Url(config()) -> ok.
-mal_formed_Url( Config) ->
-  Url = proplists:get_value(url, Config),
-  conferl_content:register_content(Url),
-  ok.
+%-spec mal_formed_Url(config()) -> ok.
+%mal_formed_Url( Config) ->
+%  Url = proplists:get_value(url, Config),
+%  conferl_content:register_content(Url),
+%  ok.
 
  -spec doble_registration(Url :: iodata()) -> ok. 
  doble_registration(Url) ->

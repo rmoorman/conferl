@@ -31,10 +31,11 @@
 
 -type content() ::
         #{
-           id       => integer(),
-           url      => iodata(),
-           user     => integer(),           
-           messages => [message()]
+           id        => integer(),
+           id_domain => integer(),
+           url       => iodata(),
+           user      => integer(),           
+           messages  => [message()]
 
            %date
          }.
@@ -72,9 +73,10 @@ sumo_sleep(Content) ->  Content.
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
     sumo:new_schema(?MODULE, [
-    sumo:new_field(id  , integer,       [not_null, auto_increment, id]),
-    sumo:new_field(user, integer,       [not_null]),
-    sumo:new_field(url, string,         [not_null])
+    sumo:new_field(id       , integer,       [id, not_null, auto_increment]),
+    sumo:new_field(id_domain, integer,       [not_null]),
+    sumo:new_field(user     , integer,       [not_null]),
+    sumo:new_field(url      , string ,       [not_null])
     %sumo:new_field(message_id, integer, [index])
   ]).
 
@@ -143,12 +145,6 @@ unregister_content(Content) ->
 fetch_content(ContentId) -> 
   conferl_content_repo:find(ContentId).   
 %% todo
-
-
--spec get_domain(string()) -> string().
-get_domain(Url) -> 
-  {ok,{_,_,Domain,_,_,_}} = http_uri:parse(Url),
-  Domain.
 
 -spec list_contents(Domain :: iodata()) -> [conferl_contents:content()].
 list_contents(Domain) -> [ #{} ].

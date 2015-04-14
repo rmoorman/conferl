@@ -13,7 +13,7 @@
 % under the License.
 
 -module(conferl_domain_repo).
--author('david.cao@inakanetworks.com').
+-author('David Cao <david.cao@inakanetworks.com>').
 
 %%% General repo functions.
 -export(

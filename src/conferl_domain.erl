@@ -13,7 +13,7 @@
 % under the License.
 
 -module(conferl_domain).
--author('david.cao@inakanetworks.com').
+-author('David Cao <david.cao@inakanetworks.com>').
 
 %% Codigo de referencia %%%%%
 -type domain() ::
@@ -51,7 +51,7 @@ id(Domain) ->
 id(Domain, Url) -> 
 	Domain#{ url => Url}.		
 
--spec get_domain(string()) -> {ok,string()} | {error,no_scheme}.
+-spec get_domain(string()) -> {ok, string()} | {error, no_scheme}.
 get_domain(Url) -> 
   case http_uri:parse(Url) of
     {error,no_scheme}       -> {error,no_scheme};
@@ -75,7 +75,7 @@ sumo_sleep(Domain) ->  Domain.
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
     sumo:new_schema(?MODULE, [
-    sumo:new_field(id  , integer,       [not_null, auto_increment, id]),
-    sumo:new_field(url, string,         [not_null])
+    sumo:new_field(id , integer,        [not_null, auto_increment, id]),
+    sumo:new_field(url, string,         [not_null,unique])
     %sumo:new_field(message_id, integer, [index])
   ]).	

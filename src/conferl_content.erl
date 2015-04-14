@@ -12,7 +12,7 @@
 % specific language governing permissions and limitations
 % under the License.
 -module(conferl_content).
--author('david.cao@inakanetworks.com').
+-author('David Cao <david.cao@inakanetworks.com>').
 
 %% Codigo de referencia %%%%%
 -type message() ::
@@ -147,5 +147,9 @@ fetch_content(ContentId) ->
 %% todo
 
 -spec list_contents(Domain :: iodata()) -> [conferl_contents:content()].
-list_contents(Domain) -> [ #{} ].
+  id_domain = conferl_domain_repo:find_by_url(Domain);
+  conferl_content_repo = conferl_content_repo:find_by_id_domain(id_domain);
+  conferl_content_repo.
+
+%%list_contents(Domain) -> [ #{} ].
 %% todo

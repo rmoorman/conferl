@@ -14,7 +14,7 @@
 
 -module(conferl_content_SUITE).
 
--author('david.cao@inakanetworks.com').
+-author('David Cao <david.cao@inakanetworks.com>').
 
 -export([ all/0
         , init_per_testcase/2
@@ -65,15 +65,7 @@ all() -> [Fun || {Fun, 1} <- module_info(exports), Fun =/= module_info].
   error = conferl_content:register_content(Url ),
   ok.
 
-  %% @doc tests for unregister_content
-  
- -spec doble_unregistration(Url :: iodata()) -> ok. 
- doble_unregistration(Url) ->
-  ok    = conferl_content:unregister_content(Url),
-  error = conferl_content:unregister_content(Url),
-  ok.
-
- %% @doc tests for fetch_content
+   %% @doc tests for fetch_content
   -spec fetch_notfound_content(conferl_contents:content()) -> ok.
   fetch_notfound_content(#{}) -> 
    notfound = conferl_content:fetch_content(#{}),

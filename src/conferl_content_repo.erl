@@ -12,7 +12,7 @@
 % specific language governing permissions and limitations
 % under the License.
 -module(conferl_content_repo).
--author('david.cao@inakanetworks.com').
+-author('David Cao <david.cao@inakanetworks.com>').
 
 %%% General repo functions.
 -export(
@@ -64,3 +64,9 @@ find_by_url( Url) ->
 -spec find_by_user(integer()) -> not_found | conferl_content:content().
 find(UserIdUserId) when is_integer(UserId) ->
   sumo:find_by(conferl_content,[{user, UserId}]).
+
+-spec find_by_id_domain(integer()) -> not_found | conferl_content:content().
+find(Id_Domain) when is_integer(Id_Domain) ->
+  sumo:find_by(conferl_content,[{id_domain, Id_Domain}]).  
+
+  

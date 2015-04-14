@@ -17,12 +17,9 @@
 -author('David Cao <david.cao@inakanetworks.com>').
 
 -export([ all/0
-        , init_per_testcase/2
-        , end_per_testcase/2
+        , doble_registration/1
+        , fetch_notfound_content/1
         ]).
-
--export([ well_formed_Url/1
-        , mal_formed_Url/1]).
 
 -type config() :: [{atom(), term()}].
 

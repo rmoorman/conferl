@@ -19,11 +19,13 @@
   [ create/3
   , update/1
   , delete/1
-  , delete_all/2
-  , delete/3
-  , find/1
+  , delete_all/0
   , find_by_url/1
   , find_by_user/1
+  , register_content/1
+  , unregister_content/1
+  , fetch_content/1
+  , list_contents/1
   ]).
 
 
@@ -51,22 +53,40 @@ delete( Content ) ->
   sumo:delete_by(conferl_content, [{id, Id}]).
 
 -spec delete_all() -> integer(). 
-delete_all() -> sumo:delete(conferl_content, Content). 
-
--spec find(integer()) -> not_found | conferl_content:content().
-find(Id) when is_integer(Id) ->
-  sumo:find(conferl_content, Id).
+delete_all() -> sumo:delete_all(conferl_content). 
+  
 
 -spec find_by_url(iodata()) -> not_found | conferl_content:content().
 find_by_url( Url) ->
   sumo:find(conferl_content, [{url,Url}]).  
 
 -spec find_by_user(integer()) -> not_found | conferl_content:content().
-find(UserIdUserId) when is_integer(UserId) ->
-  sumo:find_by(conferl_content,[{user, UserId}]).
+find_by_user(UserIdUserId)  ->
+  sumo:find_by(conferl_content,[{user, UserIdUserId}]).
 
 -spec find_by_id_domain(integer()) -> not_found | conferl_content:content().
-find(Id_Domain) when is_integer(Id_Domain) ->
+find_by_id_domain(Id_Domain) ->
   sumo:find_by(conferl_content,[{id_domain, Id_Domain}]).  
+
+-spec register_content(conferl_contents:content()) -> conferl_contents:content() | error.
+register_content(Content) -> 
+  create(Content).
+
+-spec unregister_content(conferl_contents:content()) -> ok | error .
+unregister_content(Content) ->  
+  delete(Content).
+%% todo
+
+-spec fetch_content(ContentId :: integer()) -> 
+   notfound | conferl_contents:content().
+fetch_content(ContentId) -> 
+  sumo:find(conferl_content, ContentId).
+%% todo
+
+-spec list_contents(Domain :: iodata())
+  -> [conferl_contents:content()] | notfound.
+list_contents(Domain) ->
+  DomainId = find_by_url(Domain),
+  find_by_id_domain(DomainId).  
 
   

@@ -29,7 +29,10 @@
 %%% sumo_db callbacks
 -export([sumo_schema/0, sumo_wakeup/1, sumo_sleep/1]).
 
--export([ get_domain/1]).
+-export([ get_domain/1
+          , url/1
+          , url/2
+          , id/1 ]).
 
 -behavior(sumo_doc).
 
@@ -39,16 +42,12 @@
 id(Domain) -> 
 	maps:get(Domain, id).
 
--spec id(domain(), integer()) -> domain().
-id(Domain, Id) -> 
-	Domain#{ id => Id}.	
-
 -spec url(domain()) -> string().
-id(Domain) -> 
+url(Domain) -> 
 	maps:get(Domain, url).
 
 -spec url(domain(), string()) -> domain().
-id(Domain, Url) -> 
+url(Domain, Url) -> 
 	Domain#{ url => Url}.		
 
 -spec get_domain(string()) -> {ok, string()} | {error, no_scheme}.

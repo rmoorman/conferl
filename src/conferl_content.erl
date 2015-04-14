@@ -46,11 +46,14 @@
 -export([sumo_schema/0, sumo_wakeup/1, sumo_sleep/1]).
 
 -export([   new/4
-          , register_content/1
-          , unregister_content/1
-          , fetch_content/1
-          , list_contents/1 
-          , get_domain/1]).
+          , id/1
+          , url/1
+          , url/2
+          , messages/1
+          , messages/2
+          , user/1
+          , user/2
+          ]).
 
 -behavior(sumo_doc).
 
@@ -103,9 +106,6 @@ new( Id , Url, Messages, User ) ->
 id(Content) ->
   maps:get(id, Content).
 
--spec id(content(), integer()) -> content().
-id(Content, Id) ->
-  Content#{id => Id} .
 
 -spec url(content()) -> iodata().
 url(Content) ->
@@ -131,25 +131,7 @@ user(Content) ->
 user(Content, User) -> 
   Content#{user => User}.  
 
--spec register_content(content()) -> conferl_contents:content() | error.
-register_content(Content) -> 
-  conferl_content_repo:create(Content).
 
--spec unregister_content(content()) -> ok | error .
-unregister_content(Content) ->  
-  conferl_content_repo:delete(Content).
-%% todo
-
--spec fetch_content(ContentId :: integer()) -> 
-   notfound | conferl_contents:content().
-fetch_content(ContentId) -> 
-  conferl_content_repo:find(ContentId).   
-%% todo
-
--spec list_contents(Domain :: iodata()) -> [conferl_contents:content()].
-  id_domain = conferl_domain_repo:find_by_url(Domain);
-  conferl_content_repo = conferl_content_repo:find_by_id_domain(id_domain);
-  conferl_content_repo.
 
 %%list_contents(Domain) -> [ #{} ].
 %% todo

@@ -17,12 +17,9 @@
 
 %%% General repo functions.
 -export(
-  [ create/2
+  [ create/1
   , update/1
   , delete/1
-  , delete_all/2
-  , delete/3
-  , find/1
   , find_by_url/1
   , find_by_id/1
   ]).
@@ -38,16 +35,12 @@ update(Domain) ->
 
 -spec delete(conferl_domain:domain()) -> integer().
 delete(Domain) ->
-	sumo:delete_by(conferl_domain,[{id, conferl_domain:id(Domain)}])	
-
--spec delete_all(conferl_domain:conferl()) -> integer().
--spec delete_all(Domain)
-	sumo:delete(conferl_domain, Domain).
+	sumo:delete_by(conferl_domain,[{id, conferl_domain:id(Domain)}]).	
 
 -spec find_by_url(string()) -> conferl_domain:domain().
 find_by_url(Url) -> 
 	sumo:find_by(conferl_domain, [{url, Url}]).	
 
 -spec find_by_id(integer()) -> conferl_domain:domain().
-find_by_url(Id) -> 
+find_by_id(Id) -> 
 	sumo:find_by(conferl_domain, [{id, Id}]).	

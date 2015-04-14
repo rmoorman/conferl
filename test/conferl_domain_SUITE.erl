@@ -14,15 +14,13 @@
 
 -module(conferl_domain_SUITE).
 
--author('david.cao@inakanetworks.com').
+-author('David Cao <david.cao@inakanetworks.com>').
 
 -export([ all/0
         , init_per_testcase/2
         , end_per_testcase/2
-        ]).
-
--export([ well_formed_Url/1
-        , mal_formed_Url/1]).
+        , wellformed_Url/1
+        , malformed_Url/1]).
 
 -type config() :: [{atom(), term()}].
 
@@ -31,9 +29,9 @@ all() -> [Fun || {Fun, 1} <- module_info(exports), Fun =/= module_info].
 
 
 %% @doc definion of init_per_testcases
-init_per_testcase(well_formed_Url, _Config) -> 
+init_per_testcase(wellformed_Url, _Config) -> 
   [{url, "http://inaka.net/"} ];
-init_per_testcase(mal_formed_Url, _Config)  -> 
+init_per_testcase(malformed_Url, _Config)  -> 
   [{url, "qweqwettyuiuy.null"} ].
 
 
@@ -42,16 +40,16 @@ end_per_testcase(_ , Config) ->  Config.
 
 %% @doc tests for register_content
 
--spec well_formed_Url(config()) -> ok.
-well_formed_Url( Config ) ->
+-spec wellformed_Url(config()) -> ok.
+wellformed_Url( Config ) ->
   Url = proplists:get_value(url, Config),
   case conferl_domain:get_domain(Url) of
   	{ok,   _} -> ok;
   	{error,_} -> error
   end.
 
--spec mal_formed_Url(config()) -> ok.
-mal_formed_Url( Config) ->
+-spec malformed_Url(config()) -> ok.
+malformed_Url( Config) ->
   Url = proplists:get_value(url, Config),
   case conferl_domain:get_domain(Url) of
   	{ok,   _} -> error;

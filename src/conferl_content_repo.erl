@@ -16,31 +16,26 @@
 
 %%% General repo functions.
 -export(
-  [ create/3
+  [ create/1
   , update/1
   , delete/1
   , delete_all/0
   , find_by_url/1
   , find_by_user/1
-  , register_content/1
+  , register_content/2
   , unregister_content/1
   , fetch_content/1
   , list_contents/1
   ]).
 
 
-
-
--spec create( Id       :: integer()
-            , User     :: integer()
-            , Url      :: iodata()) -> conferl_content:content().
-create(  Id  ,Messages ,User ) ->
-  Content = conferl_content:new( Id ,Messages , User),
-  sumo:persist(conferl_content, Content).
-
--spec create(conferl_content:content()) -> conferl_content:content().
+-spec create(conferl_content:content()) -> 
+  conferl_content:content() | duplicate_content.
 create( Content ) ->
-  sumo:persist(conferl_content, Content).
+  case find_by_url( conferl_content:url(Content) ) of
+    notfound  -> sumo:persist(conferl_content, Content);
+    _         -> throw(duplicate_content)
+  end.
 
 
 -spec update(conferl_content:content()) -> conferl_content:content().
@@ -56,37 +51,49 @@ delete( Content ) ->
 delete_all() -> sumo:delete_all(conferl_content). 
   
 
--spec find_by_url(iodata()) -> not_found | conferl_content:content().
-find_by_url( Url) ->
-  sumo:find(conferl_content, [{url,Url}]).  
+-spec find_by_url(string()) -> not_found | conferl_content:content().
+find_by_url(Url) ->
+  case sumo:find_by(conferl_content, [{url,Url}]) of
+    []        -> notfound ;
+    [Content] -> Content
+  end. 
 
 -spec find_by_user(integer()) -> not_found | conferl_content:content().
 find_by_user(UserIdUserId)  ->
-  sumo:find_by(conferl_content,[{user, UserIdUserId}]).
+  case sumo:find_by(conferl_content,[{user, UserIdUserId}]) of
+    []        -> notfound ;
+    [Content] -> Content
+  end. 
 
--spec find_by_id_domain(integer()) -> not_found | conferl_content:content().
-find_by_id_domain(Id_Domain) ->
-  sumo:find_by(conferl_content,[{id_domain, Id_Domain}]).  
+-spec find_by_domain(string()) -> not_found | conferl_content:content().
+find_by_domain(Domain) ->
+  case sumo:find_by(conferl_content, [{domain,Domain}]) of
+    []        -> notfound ;
+    [Content] -> Content
+  end.   
 
--spec register_content(conferl_contents:content()) -> conferl_contents:content() | error.
-register_content(Content) -> 
+-spec register_content(string(), integer()) -> 
+conferl_contents:content() | invalid_url | duplicate_content.
+register_content(Url, User) -> 
+  Content = conferl_content:new(Url, User),
   create(Content).
 
--spec unregister_content(conferl_contents:content()) -> ok | error .
+-spec unregister_content(string()) -> ok | error .
 unregister_content(Content) ->  
   delete(Content).
 %% todo
 
--spec fetch_content(ContentId :: integer()) -> 
-   notfound | conferl_contents:content().
+-spec fetch_content(integer()) -> notfound | conferl_content:content().
 fetch_content(ContentId) -> 
-  sumo:find(conferl_content, ContentId).
+    case sumo:find(conferl_content,ContentId) of
+      notfound  -> throw(notfound);
+      Content   -> Content
+    end.  
 %% todo
 
--spec list_contents(Domain :: iodata())
+-spec list_contents(Domain :: string())
   -> [conferl_contents:content()] | notfound.
 list_contents(Domain) ->
-  DomainId = find_by_url(Domain),
-  find_by_id_domain(DomainId).  
+  find_by_domain(Domain).  
 
   

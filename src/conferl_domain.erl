@@ -29,9 +29,9 @@
 %%% sumo_db callbacks
 -export([sumo_schema/0, sumo_wakeup/1, sumo_sleep/1]).
 
--export([ get_domain/1
-          , url/1
+-export([   url/1
           , url/2
+          , new/1
           , id/1 ]).
 
 -behavior(sumo_doc).
@@ -50,12 +50,17 @@ url(Domain) ->
 url(Domain, Url) -> 
 	Domain#{ url => Url}.		
 
--spec get_domain(string()) -> {ok, string()} | {error, no_scheme}.
-get_domain(Url) -> 
-  case http_uri:parse(Url) of
-    {error,no_scheme}       -> {error,no_scheme};
-    {ok,{_,_,Domain,_,_,_}} -> {ok, Domain}
-  end.  
+-spec new(string()) -> domain().
+new(Url) ->
+  DomainUrl = Url,
+  #{ id => undefined, url => DomainUrl}. 
+
+%-spec get_domain(string()) -> string(). %%{ok, string()}.
+%get_domain(Url) -> 
+%  case http_uri:parse(Url) of
+%    {error,no_scheme}       -> throw(invalid_url); %%{error,no_scheme};
+%    {ok,{_,_,Domain,_,_,_}} -> Domain
+%  end.  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% BEHAVIOUR CALLBACKS
@@ -74,7 +79,7 @@ sumo_sleep(Domain) ->  Domain.
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
     sumo:new_schema(?MODULE, [
-    sumo:new_field(id , integer,        [not_null, auto_increment, id]),
-    sumo:new_field(url, string,         [not_null,unique])
+    sumo:new_field(id , integer,        [id, auto_increment, not_null]),
+    sumo:new_field(url, string,         [not_null])
     %sumo:new_field(message_id, integer, [index])
   ]).	

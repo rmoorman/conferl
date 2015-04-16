@@ -18,6 +18,7 @@
 %%% General repo functions.
 -export(
   [ create/1
+  , create/2
   , update/1
   , delete/1
   , find_by_url/1
@@ -28,6 +29,10 @@
 -spec create(conferl_domain:domain()) -> conferl_domain:domain().
 create(Domain) ->
 	sumo:persist(conferl_domain, Domain).
+
+-spec create(integer(), string()) -> conferl_domain:domain() | invalid_url.
+create(Id, Url) ->
+  sumo:persist(conferl_domain, conferl_domain:new(Id, Url) ).  
 
 -spec update(conferl_domain:domain()) -> conferl_domain:domain().
 update(Domain) ->
@@ -43,4 +48,4 @@ find_by_url(Url) ->
 
 -spec find_by_id(integer()) -> conferl_domain:domain().
 find_by_id(Id) -> 
-	sumo:find_by(conferl_domain, [{id, Id}]).	
+	sumo:find(conferl_domain, Id).	

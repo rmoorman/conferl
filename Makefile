@@ -10,6 +10,17 @@ include erlang.mk
 ERLC_OPTS += +'{parse_transform, lager_transform}'
 TEST_ERLC_OPTS += +'{parse_transform, lager_transform}'
 
-CT_OPTS = -erl_args -config rel/sys.config
+CT_OPTS = -erl_args -config rel/sys.config.dave
 
-SHELL_OPTS = -name ${PROJECT}@`hostname` -s sync -s ${PROJECT} -config rel/sys.config
+SHELL_OPTS = -name ${PROJECT}@`hostname` -s sync -s ${PROJECT} -config rel/sys.config.dave
+
+testshell: 
+	erl -pa ebin -pa deps/*/ebin -pa test -config rel/sys.config.dave -s sync
+
+quicktests: app build-ct-suites
+	@if [ -d "test" ] ; \
+	then \
+		mkdir -p logs/ ; \
+		$(CT_RUN) -suite $(addsuffix _SUITE,$(CT_SUITES)) $(CT_OPTS) ; \
+	fi
+	$(gen_verbose) rm -f test/*.beam

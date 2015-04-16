@@ -10,3 +10,6 @@ rel/example_project
 .rebar
 .DS_Store
 logs/
+log/
+*.log
+sys.config.dave.config

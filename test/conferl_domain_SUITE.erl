@@ -16,17 +16,34 @@
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
+
 -export([ all/0
         , init_per_testcase/2
         , end_per_testcase/2
+        , init_per_suite/1
+        , end_per_suite/1       
         , wellformed_Url/1
         , malformed_Url/1]).
 
 -type config() :: [{atom(), term()}].
 
--spec all() -> [atom()].
-all() -> [Fun || {Fun, 1} <- module_info(exports), Fun =/= module_info].
+-spec ignored_funs() -> [atom()].
+ignored_funs() ->
+  [ module_info
+  , init_per_suite
+  , end_per_suite
+  ].
 
+-spec all() -> [atom()].
+all() -> 
+  [Fun || {Fun, 1} <- module_info(exports), 
+          not lists:member(Fun, ignored_funs())].
+
+%% @doc definion of init_per_suite
+-spec init_per_suite(config()) -> config().
+init_per_suite(Config) ->
+  conferl_domain:sumo_schema(),
+  Config.
 
 %% @doc definion of init_per_testcases
 init_per_testcase(wellformed_Url, _Config) -> 
@@ -37,6 +54,10 @@ init_per_testcase(malformed_Url, _Config)  ->
 
 %% @doc definion of end_per_testcase
 end_per_testcase(_ , Config) ->  Config.
+
+-spec end_per_suite(config()) -> config().
+end_per_suite(Config) ->
+  Config.
 
 %% @doc tests for register_content
 

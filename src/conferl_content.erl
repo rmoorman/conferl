@@ -32,10 +32,10 @@
 -type content() ::
         #{
            id        => integer(),
-           id_domain => integer(),
-           url       => iodata(),
-           user      => integer(),           
-           messages  => [message()]
+           url       => string(),
+           domain    => string(),
+           user      => integer()        
+           %messages  => [message()]
 
            %date
          }.
@@ -45,12 +45,12 @@
 %%% sumo_db callbacks
 -export([sumo_schema/0, sumo_wakeup/1, sumo_sleep/1]).
 
--export([   new/4
+-export([   new/2
           , id/1
           , url/1
           , url/2
-          , messages/1
-          , messages/2
+          %, messages/1
+          %, messages/2
           , user/1
           , user/2
           ]).
@@ -76,10 +76,10 @@ sumo_sleep(Content) ->  Content.
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
     sumo:new_schema(?MODULE, [
-    sumo:new_field(id       , integer,       [id, not_null, auto_increment]),
-    sumo:new_field(id_domain, integer,       [not_null]),
-    sumo:new_field(user     , integer,       [not_null]),
-    sumo:new_field(url      , string ,       [not_null])
+    sumo:new_field(id       , integer,        [id, auto_increment, not_null]),
+    sumo:new_field(user     , integer,        [not_null]),
+    sumo:new_field(url      , string ,        [not_null]),
+    sumo:new_field(domain   , string ,        [not_null])
     %sumo:new_field(message_id, integer, [index])
   ]).
 
@@ -89,16 +89,25 @@ sumo_schema() ->
 %%
 %% @doc functions definitions for content
 
+-spec get_domain(string()) -> string() | invalid_url. 
+get_domain(Url) -> 
+  case http_uri:parse(Url) of
+    {error,no_scheme}       -> throw(invalid_url); 
+    {ok,{_,_,Domain,_,_,_}} -> Domain
+  end.  
 
--spec new( integer(), iodata(), [message()], integer()) -> content().
-new( Id , Url, Messages, User ) -> 
+-spec new( string(), integer()) -> content() | invalid_url.
+new(  Url, User ) -> 
         #{
-           id       => Id,
+           id       => undefined,
            url      => Url,
-           messages => Messages,
+           domain   => get_domain(Url),
+           %messages => Messages,
            user     => User
            %date
          }.
+
+
 
 
 %% Getters/Setters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -107,21 +116,21 @@ id(Content) ->
   maps:get(id, Content).
 
 
--spec url(content()) -> iodata().
+-spec url(content()) -> string().
 url(Content) ->
   maps:get(url, Content).
 
--spec url(content(), iodata()) -> content().
+-spec url(content(), string()) -> content().
 url(Content, Url) ->
   Content#{ url => Url}.
 
--spec messages(content()) -> [message()].
-messages(Content) ->
- maps:get(messages, Content).
-
- -spec messages(content(), [message()]) -> content().
-messages(Content, Messages) ->
- Content#{messages => Messages}.
+%-spec messages(content()) -> [message()].
+%messages(Content) ->
+% maps:get(messages, Content).
+%
+% -spec messages(content(), [message()]) -> content().
+%messages(Content, Messages) ->
+% Content#{messages => Messages}.
 
 -spec user(content()) -> integer().
 user(Content) -> 

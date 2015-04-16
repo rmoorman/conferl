@@ -47,8 +47,6 @@
           , id/1
           , url/1
           , url/2
-          %, messages/1
-          %, messages/2
           , user/1
           , user/2
           ]).
@@ -99,12 +97,9 @@ new(  Url, User ) ->
            id       => undefined,
            url      => Url,
            domain   => get_domain(Url),
-           %messages => Messages,
            user     => User
            %date
          }.
-
-
 
 
 %% Getters/Setters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -128,8 +123,3 @@ user(Content) ->
 -spec user(content(), integer()) -> content().
 user(Content, User) -> 
   Content#{user => User}.  
-
-
-
-%%list_contents(Domain) -> [ #{} ].
-%% todo

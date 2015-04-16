@@ -20,9 +20,10 @@
         , init_per_suite/1
         , end_per_suite/1
         , init_per_testcase/2
-        , test_create_user/1
+        , test_create_content/1
         , test_create_user_bad/1 
         , double_registration_bad/1
+        , test_list_contents/1
         , fetch_notfound_content/1
         ]).
 
@@ -47,14 +48,6 @@ all() ->
           not lists:member(Fun, ignored_funs())].
 
 %% @doc definion of init_per_testcases
-%init_per_testcase(well_formed_Url, _Config) -> 
-%  [{url, "http://inaka.net/"} ];
-%init_per_testcase(mal_formed_Url, _Config)  -> 
-%  [{url, "qweqwettyuiuy"} ].
-
-
-%% @doc definion of end_per_testcase
-%end_per_testcase(_ , Config) ->  Config.
 
 -spec init_per_suite(config()) -> config().
 init_per_suite(Config) ->
@@ -68,7 +61,7 @@ end_per_suite(Config) ->
   Config.
 
 %% @doc definion of init_per_testcases
-init_per_testcase(test_create_user, _Config) -> 
+init_per_testcase(test_create_content, _Config) -> 
   [{url, "http://inaka.net/"}
   ,{user, 10}
   ];
@@ -84,13 +77,23 @@ init_per_testcase(double_registration_bad, _Config) ->
   ];
 init_per_testcase(fetch_notfound_content, _Config)  -> 
   [{id, 999999}];
+init_per_testcase(test_list_contents, _Config)  -> 
+  [{urls, [ {"http://inaka.net/11",11}
+          ,{"http://inaka.net/12",12}
+          ,{"http://inaka.net/13",13}
+          ,{"http://yahoo.com/"  ,14}
+          ,{"https://github.com",15} 
+          ]}
+  ,{domain, "inaka.net" }
+  ];
+
 init_per_testcase(_, Config)  -> 
   Config.
 
 
 %% @doc tests for register_content
--spec test_create_user(config()) -> ok.
-test_create_user(Config) ->
+-spec test_create_content(config()) -> ok.
+test_create_content(Config) ->
   Url     = proplists:get_value(url, Config),
   User    = proplists:get_value(user, Config),
   conferl_content:new(Url, User).
@@ -100,7 +103,7 @@ test_create_user_bad(Config) ->
   Url     = proplists:get_value(url, Config),
   User    = proplists:get_value(user, Config),
   try conferl_content:new(Url, User) of
-    _Content -> ct:fail("Resultado NO esperado")
+    _Content -> ct:fail("Unexpected result (!)")
   catch 
     throw:invalid_url -> ok
   end.  
@@ -111,10 +114,10 @@ double_registration_bad(Config) ->
   User    = proplists:get_value(user, Config),
   conferl_content_repo:register_content(Url, User),
   try conferl_content_repo:register_content(Url, User) of
-    _Content -> ct:fail("Resultado NO esperado") 
+    _Content -> ct:fail("Unexpected result (!)") 
   catch
-    Error:Reason -> ct:pal("~p ~p", [Error, Reason]);
-    _when_others            -> ct:fail("Resultado NO esperado") 
+    Error:Reason            -> ct:pal("~p ~p", [Error, Reason]);
+    throw:duplicate_content -> ok
   end.
 
 %% @doc tests for fetch_content
@@ -122,15 +125,26 @@ double_registration_bad(Config) ->
 fetch_notfound_content(Config) -> 
   ContentId   = proplists:get_value(id, Config),
   try conferl_content_repo:fetch_content(ContentId) of
-    _Content -> ct:fail("")
+    _Content -> ct:fail("Unexpected result (!)")
   catch 
-    throw:notfound  -> ok;
-    _               -> error
+    throw:notfound  -> ok
   end.
  
 
 %% @doc tests for list_contents
-%% list_contents(Domain) -> [ #{} ].
+-spec test_list_contents(config()) -> ok.
+test_list_contents(Config) ->
+  Urls = proplists:get_value(urls, Config),
+  [conferl_content_repo:register_content(Url, User) || {Url, User} <- Urls ],
+  Domain = proplists:get_value(domain, Config),
+  Contents = conferl_content_repo:list_contents(Domain),
+  FilterFun = fun(Content) -> 
+                maps:get(domain, Content) == proplists:get_value(domain, Config) 
+              end,
+  [ ct:fail("Unexpected result (!)") || lists:all( FilterFun , Contents)].
+
+
+
 %% todo
 
 

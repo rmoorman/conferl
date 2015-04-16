@@ -51,25 +51,25 @@ delete( Content ) ->
 delete_all() -> sumo:delete_all(conferl_content). 
   
 
--spec find_by_url(string()) -> not_found | conferl_content:content().
+-spec find_by_url(string()) -> not_found | [conferl_content:content()].
 find_by_url(Url) ->
   case sumo:find_by(conferl_content, [{url,Url}]) of
     []        -> notfound ;
-    [Content] -> Content
+    Content -> Content
   end. 
 
--spec find_by_user(integer()) -> not_found | conferl_content:content().
+-spec find_by_user(integer()) -> not_found | [conferl_content:content()].
 find_by_user(UserIdUserId)  ->
   case sumo:find_by(conferl_content,[{user, UserIdUserId}]) of
     []        -> notfound ;
-    [Content] -> Content
+    Content -> Content
   end. 
 
--spec find_by_domain(string()) -> not_found | conferl_content:content().
+-spec find_by_domain(string()) -> not_found | [conferl_content:content()].
 find_by_domain(Domain) ->
   case sumo:find_by(conferl_content, [{domain,Domain}]) of
-    []        -> notfound ;
-    [Content] -> Content
+    []      -> notfound ;
+    Content -> Content 
   end.   
 
 -spec register_content(string(), integer()) -> 

@@ -34,9 +34,7 @@
            id        => integer(),
            url       => string(),
            domain    => string(),
-           user      => integer()        
-           %messages  => [message()]
-
+           user      => integer() 
            %date
          }.
 
@@ -80,7 +78,6 @@ sumo_schema() ->
     sumo:new_field(user     , integer,        [not_null]),
     sumo:new_field(url      , string ,        [not_null]),
     sumo:new_field(domain   , string ,        [not_null])
-    %sumo:new_field(message_id, integer, [index])
   ]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -123,14 +120,6 @@ url(Content) ->
 -spec url(content(), string()) -> content().
 url(Content, Url) ->
   Content#{ url => Url}.
-
-%-spec messages(content()) -> [message()].
-%messages(Content) ->
-% maps:get(messages, Content).
-%
-% -spec messages(content(), [message()]) -> content().
-%messages(Content, Messages) ->
-% Content#{messages => Messages}.
 
 -spec user(content()) -> integer().
 user(Content) -> 

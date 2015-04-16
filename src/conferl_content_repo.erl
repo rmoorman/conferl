@@ -93,7 +93,6 @@ fetch_content(ContentId) ->
 
 -spec list_contents(Domain :: string())
   -> [conferl_contents:content()] | notfound.
-list_contents(Domain) ->
-  find_by_domain(Domain).  
+list_contents(Domain) -> find_by_domain(Domain).  
 
   

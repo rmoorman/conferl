@@ -49,7 +49,7 @@ register(Url, User) ->
     _   -> throw(duplicate_content)
 end.
 
--spec unregister(string()) -> ok | error .
+-spec unregister(string()) -> non_neg_integer.
 unregister(Content) ->  
   Id = conferl_content:id(Content),
   sumo:delete_by(conferl_content, [{id, Id}]).

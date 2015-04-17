@@ -10,12 +10,12 @@ include erlang.mk
 ERLC_OPTS += +'{parse_transform, lager_transform}'
 TEST_ERLC_OPTS += +'{parse_transform, lager_transform}'
 
-CT_OPTS = -erl_args -config rel/sys.config.dave
+CT_OPTS = -erl_args -config rel/sys.config
 
-SHELL_OPTS = -name ${PROJECT}@`hostname` -s sync -s ${PROJECT} -config rel/sys.config.dave
+SHELL_OPTS = -name ${PROJECT}@`hostname` -s sync -s ${PROJECT} -config rel/sys.config
 
 testshell: 
-	erl -pa ebin -pa deps/*/ebin -pa test -config rel/sys.config.dave -s sync
+	erl -pa ebin -pa deps/*/ebin -pa test -config rel/sys.config -s sync
 
 quicktests: app build-ct-suites
 	@if [ -d "test" ] ; \

@@ -8,8 +8,4 @@ ebin
 rel/example_project
 .concrete/DEV_MODE
 .rebar
-.DS_Store
-logs/
-log/
-*.log
-sys.config.dave.config
+.erlang.mk.packages.v2

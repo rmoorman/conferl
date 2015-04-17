@@ -14,7 +14,7 @@
 -module(conferl_content).
 -author('David Cao <david.cao@inakanetworks.com>').
 
--type content() ::
+-opaque content() ::
         #{  id        => integer()
           , url       => string()
           , domain    => string()

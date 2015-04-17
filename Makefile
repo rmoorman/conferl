@@ -5,10 +5,9 @@ dep_lager = git https://github.com/basho/lager.git 2.1.0
 dep_sync =  git https://github.com/inaka/sync.git 0.1.3
 dep_sumo =  git https://github.com/inaka/sumo_db.git 0.3.5
 
-
+PLT_APPS := inets
 DIALYZER_DIRS := ebin/
-DIALYZER_OPTS := --verbose --statistics -Werror_handling \
-                 -Wrace_conditions #-Wunmatched_returns
+DIALYZER_OPTS := --verbose --statistics -Wrace_conditions
 
 include erlang.mk
 

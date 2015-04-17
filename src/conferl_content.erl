@@ -51,7 +51,7 @@
 get_domain(Url) -> 
   case http_uri:parse(Url) of
     {error, _}              -> throw(invalid_url); 
-    {ok,{_,_,Domain,_,_,_}} -> Domain
+    {ok, {_ , _, Domain, _, _, _}} -> Domain
   end.  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

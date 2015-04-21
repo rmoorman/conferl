@@ -16,14 +16,14 @@
 -author('David Cao <david.cao@inakanetworks.com>').
 
 -export([ write_message/1
-				, delete_message/1
-				, delete_by_content_id/1
-				, list_messages/1
-				, list_replies/1
-				, list_top_level_messages/1
-				, list_user_messages/1
-				, delete_all/0
-				]).
+        , delete_message/1
+        , delete_by_content_id/1
+        , list_messages/1
+        , list_replies/1
+        , list_top_level_messages/1
+        , list_user_messages/1
+        , delete_all/0
+        ]).
 
 
 -spec write_message(conferl_messages:message()) -> conferl_messages:message().
@@ -40,16 +40,16 @@ delete_by_content_id(ContentId) ->
 
 -spec list_messages(integer()) -> [conferl_messages:message()].
  list_messages(ContentId) -> 
- 	sumo:find_by(conferl_message, [{content_id,ContentId}]).
+  sumo:find_by(conferl_message, [{content_id, ContentId}]).
 
 -spec list_replies(integer()) -> [conferl_messages:message()].
 list_replies(MessageResponseId) ->
- 	sumo:find_by(conferl_message, [{response_id, MessageResponseId}]).
- 	% sumo:find_by(conferl_message, [{id_response,'==', MessageResponseId}]).
+  sumo:find_by(conferl_message, [{response_id, MessageResponseId}]).
+  % sumo:find_by(conferl_message, [{id_response,'==', MessageResponseId}]).
 
 -spec list_top_level_messages(integer()) -> [conferl_messages:message()].
 list_top_level_messages(ContentId) -> 
-	sumo:find_by(conferl_message, [ {content_id,  ContentId}
+  sumo:find_by(conferl_message, [ {content_id,  ContentId}
                                 , {response_id, 'null'}
                                 ]).
 

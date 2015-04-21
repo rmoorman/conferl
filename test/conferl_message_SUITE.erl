@@ -61,21 +61,21 @@ end_per_suite(Config) ->
 %% @doc definion of init_per_testcases
 init_per_testcase(top_message_create, _Config) -> 
   TopMesages = 
-    lists:map(fun(N) -> conferl_message:new(1,undefined, "Top message", N) end
+    lists:map(fun(N) -> conferl_message:new(1, undefined, "Top m", N) end
               , lists:seq(1, 10)),
   [ {top_messages, TopMesages}
   , {top_messages_content_id, 1} 
   ];
   init_per_testcase(test_delete_by_id_content, _Config) -> 
   TopMesages = 
-    lists:map(fun(N) -> conferl_message:new(1,undefined, "Top message", N) end
+    lists:map(fun(N) -> conferl_message:new(1, undefined, "Top m", N) end
               , lists:seq(1, 10)),
   [ {top_messages, TopMesages}
   , {top_messages_content_id, 1} 
   ];
   init_per_testcase(test_list_top_message, _Config) -> 
   TopMesages = 
-    lists:map(fun(N) -> conferl_message:new(1,undefined, "Top message", N) end
+    lists:map(fun(N) -> conferl_message:new(1, undefined, "Top m", N) end
               , lists:seq(1, 10)),
   [ {top_messages, TopMesages}
   , {top_messages_content_id, 1} 
@@ -83,7 +83,7 @@ init_per_testcase(top_message_create, _Config) ->
 
   init_per_testcase(_Function, _Config) -> 
   TopMesages = 
-    lists:map(fun(N) -> conferl_message:new(1,undefined, "Top message", N) end
+    lists:map(fun(N) -> conferl_message:new(1, undefined, "Top m", N) end
              , lists:seq(1, 10)),
   [ {top_messages, TopMesages}
   , {top_messages_content_id, 1} 
@@ -95,7 +95,7 @@ top_message_create(Config) ->
   [conferl_message_repo:write_message(Message) || Message <- TopMesages],
   ContentId = proplists:get_value(top_messages_content_id, Config),
   PersistedTopMessage = conferl_message_repo:list_messages(ContentId),
-  true = lists:all(fun conferl_message:is_top_message/1 ,PersistedTopMessage),
+  true = lists:all(fun conferl_message:is_top_message/1 , PersistedTopMessage),
   ok.
 
 -spec test_delete_by_content(config()) -> ok.
@@ -116,7 +116,7 @@ test_list_top_message(Config) ->
   [ conferl_message_repo:write_message(Message) || Message <- TopMesages],
   ContentId = proplists:get_value(top_messages_content_id, Config),
   PersistedTopM = conferl_message_repo:list_top_level_messages(ContentId),
-  true = lists:all(fun conferl_message:is_top_message/1 ,PersistedTopM),
+  true = lists:all(fun conferl_message:is_top_message/1 , PersistedTopM),
   ok.
 
 

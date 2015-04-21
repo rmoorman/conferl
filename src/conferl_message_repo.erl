@@ -17,7 +17,7 @@
 
 -export([ write_message/1
 				, delete_message/1
-				, delete_by_id_content/1
+				, delete_by_content_id/1
 				, list_messages/1
 				, list_replies/1
 				, list_top_level_messages/1
@@ -34,8 +34,8 @@ delete_message(Message) ->
   Id = conferl_message:id(Message),
   sumo:delete_by(conferl_message, [{id, Id}]).
 
- -spec delete_by_id_content(integer()) -> non_neg_integer().
-delete_by_id_content(ContentId) -> 
+ -spec delete_by_content_id(integer()) -> non_neg_integer().
+delete_by_content_id(ContentId) -> 
   sumo:delete_by(conferl_message, [{content_id, ContentId}]).
 
 -spec list_messages(integer()) -> [conferl_messages:message()].
@@ -49,12 +49,13 @@ list_replies(MessageResponseId) ->
 
 -spec list_top_level_messages(integer()) -> [conferl_messages:message()].
 list_top_level_messages(ContentId) -> 
-	sumo:find_by(conferl_message, [ {content_id, ContentId}
-																, {response_id,'null'}
-																]).
+	sumo:find_by(conferl_message, [ {content_id,  ContentId}
+                                , {response_id, 'null'}
+                                ]).
 
 -spec list_user_messages(integer()) -> [conferl_messages:message()].
 list_user_messages(UserId) -> sumo:find_by(conferl_message, [{user, UserId}]).
 
 -spec delete_all() -> integer().
-	delete_all() -> sumo:delete_all(conferl_message).
+  delete_all()  -> sumo:delete_all(conferl_message).
+

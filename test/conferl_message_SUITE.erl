@@ -21,7 +21,8 @@
         , end_per_suite/1
         , init_per_testcase/2
         , top_message_create/1
-        , test_delete_by_id_content/1
+        , test_delete_by_content/1
+        , test_list_top_message/1
         ]).
 
 -type config() :: [{atom(), term()}].
@@ -58,24 +59,32 @@ end_per_suite(Config) ->
   Config.
 
 %% @doc definion of init_per_testcases
-init_per_testcase(top_message_create, Config) -> 
+init_per_testcase(top_message_create, _Config) -> 
   TopMesages = 
     lists:map(fun(N) -> conferl_message:new(1,undefined, "Top message", N) end
               , lists:seq(1, 10)),
   [ {top_messages, TopMesages}
   , {top_messages_content_id, 1} 
   ];
-  init_per_testcase(test_delete_by_id_content, Config) -> 
+  init_per_testcase(test_delete_by_id_content, _Config) -> 
   TopMesages = 
     lists:map(fun(N) -> conferl_message:new(1,undefined, "Top message", N) end
               , lists:seq(1, 10)),
   [ {top_messages, TopMesages}
   , {top_messages_content_id, 1} 
   ];
-  init_per_testcase(_Function, Config) -> 
+  init_per_testcase(test_list_top_message, _Config) -> 
   TopMesages = 
     lists:map(fun(N) -> conferl_message:new(1,undefined, "Top message", N) end
               , lists:seq(1, 10)),
+  [ {top_messages, TopMesages}
+  , {top_messages_content_id, 1} 
+  ];
+
+  init_per_testcase(_Function, _Config) -> 
+  TopMesages = 
+    lists:map(fun(N) -> conferl_message:new(1,undefined, "Top message", N) end
+             , lists:seq(1, 10)),
   [ {top_messages, TopMesages}
   , {top_messages_content_id, 1} 
   ].
@@ -84,15 +93,31 @@ init_per_testcase(top_message_create, Config) ->
 top_message_create(Config) ->
   TopMesages = proplists:get_value(top_messages, Config),
   [conferl_message_repo:write_message(Message) || Message <- TopMesages],
-  PersistedTopMessage = conferl_message_repo:list_messages(1),
-  false = lists:all(fun conferl_message:is_top_message/1 ,PersistedTopMessage).
+  ContentId = proplists:get_value(top_messages_content_id, Config),
+  PersistedTopMessage = conferl_message_repo:list_messages(ContentId),
+  true = lists:all(fun conferl_message:is_top_message/1 ,PersistedTopMessage),
+  ok.
 
--spec test_delete_by_id_content(config()) -> ok.
-test_delete_by_id_content(Config) ->
-   ContentId = proplists:get_value(top_messages_content_id, Config),
-   10 = conferl_message_repo:delete_by_id_content(ContentId).
+-spec test_delete_by_content(config()) -> ok.
+test_delete_by_content(Config) ->
+  conferl_message_repo:delete_all(),
+  top_message_create(Config),
+  TopMesages = proplists:get_value(top_messages, Config),
+  Lenght     = length(TopMesages),
+  ContentId  = proplists:get_value(top_messages_content_id, Config),
+  Lenght     = conferl_message_repo:delete_by_content_id(ContentId),
+  ok.
 
-
+-spec test_list_top_message(config()) -> ok.
+test_list_top_message(Config) ->
+  conferl_message_repo:delete_all(),
+  top_message_create(Config),
+  TopMesages = proplists:get_value(top_messages, Config),
+  [ conferl_message_repo:write_message(Message) || Message <- TopMesages],
+  ContentId = proplists:get_value(top_messages_content_id, Config),
+  PersistedTopM = conferl_message_repo:list_top_level_messages(ContentId),
+  true = lists:all(fun conferl_message:is_top_message/1 ,PersistedTopM),
+  ok.
 
 
 

@@ -47,7 +47,7 @@ register(Url, User) ->
   case find_by_url( conferl_content:url(Content) ) of
     []  -> sumo:persist(conferl_content, Content);
     _   -> throw(duplicate_content)
-end.
+  end.
 
 -spec unregister(conferl_content:content()) -> non_neg_integer().
 unregister(Content) ->  

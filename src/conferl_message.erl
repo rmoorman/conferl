@@ -50,9 +50,14 @@
 %%
 
 %%% sumo_db callbacks
+-spec replace_null(sumo:doc()) -> message().
+replace_null(Message = #{response_id := null}) -> 
+  Message#{response_id => undefined};  
+replace_null(Message) ->  
+  Message.
 
 -spec sumo_wakeup(sumo:doc()) -> message().
-sumo_wakeup(Data) -> Data.
+sumo_wakeup(Data) -> replace_null(Data).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(message()) -> sumo:doc().
@@ -74,7 +79,6 @@ sumo_schema() ->
 %%
 %% @doc functions definitions for message
 
-
 -spec new(integer(), integer(), string(), integer()) -> message().
 new( ContentId, ResponseId, Message, User) -> 
   #{  id           => undefined
@@ -92,7 +96,7 @@ id(Message) -> maps:get(id, Message).
 -spec content_id(message()) -> integer().
 content_id(Message) ->  maps:get(content_id, Message). 
 
--spec response_id(message()) -> integer().
+-spec response_id(message()) -> integer() | undefined.
 response_id(Message) ->  maps:get(response_id, Message). 
 
 -spec message_text(message()) -> string().

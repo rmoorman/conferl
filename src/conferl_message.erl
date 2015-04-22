@@ -21,7 +21,7 @@
     , response_id  => integer()
     , message_text => string()
     , user         => integer()
-    , created_at   => conferl_utils:datetime()
+    , created_at   => conferl_utils:datetime() | undefined
     }.
 
 -export_type( [message/0]).
@@ -81,7 +81,7 @@ sumo_schema() ->
 %% @doc functions definitions for message
 
 -spec new(integer()
-          , integer()
+          , integer() | undefined
           , string()
           , integer()
           , conferl_utils:datetime()) -> message().
@@ -131,11 +131,11 @@ replace_null(Message = #{response_id := null}) ->
   Message#{response_id => undefined};  
 replace_null(Message) -> Message.
 
--spec message_date_to_binary(message()) -> message().
+-spec message_date_to_binary(message()) -> sumo:doc().
 message_date_to_binary(Message) -> 
-  Message#{created_at => term_to_binary(created_at(Message))}.
+  Message#{created_at => term_to_binary(maps:get(created_at, Message))}.
 
--spec message_binary_to_date(message()) -> message().
+-spec message_binary_to_date(sumo:doc()) -> message().
 message_binary_to_date(Message) -> 
-  Message#{created_at => binary_to_term(created_at(Message))}.
+  Message#{created_at => binary_to_term(maps:get(created_at, Message))}.
 

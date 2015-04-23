@@ -137,7 +137,7 @@ test_list_top_message(Config) ->
     || {C, M, U, CrAt} <- TopMessages],
   ContentId = proplists:get_value(top_messages_content_id, Config),
   PersistedTopM = conferl_message_repo:list_top_level(ContentId),
-  true = all_list_top(PersistedTopM), % lists:all(fun conferl_message:is_top_message/1 , PersistedTopM),
+  true = all_list_top(PersistedTopM),
   ok.
 
 -spec message_replys(config()) -> ok.

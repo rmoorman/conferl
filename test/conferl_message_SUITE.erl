@@ -137,30 +137,29 @@ test_list_top_message(Config) ->
     || {C, M, U, CrAt} <- TopMessages],
   ContentId = proplists:get_value(top_messages_content_id, Config),
   PersistedTopM = conferl_message_repo:list_top_level(ContentId),
-  true = all_list_top(PersistedTopM),
+  true = all_are_top(PersistedTopM),
   ok.
 
 -spec message_replys(config()) -> ok.
 message_replys(Config) ->
   TopM = proplists:get_value(top_messages, Config),
   ReplyM = proplists:get_value(reply_message, Config), 
-  ReplyText = proplists:get_value(reply_message, Config),
   PersistedTopMessage = [conferl_message_repo:write_top(C, M, U, CrAt)
                           || {C, M, U, CrAt} <- TopM],
   [conferl_message_repo:write_reply(C, conferl_message:id(P), M, U, CrAt) 
     || P <- PersistedTopMessage , {C, _R, M, U, CrAt} <- ReplyM],
-  MessageIdList = [conferl_message:id(P) || P <- PersistedTopMessage],
+  MessageListId = [conferl_message:id(P) || P <- PersistedTopMessage],
   PersistedReplyM = lists:flatten([conferl_message_repo:list_replies(Id) 
-                                    || Id <- MessageIdList]),
-  true = all_list_reply(PersistedReplyM),
+                                    || Id <- MessageListId]),
+  true = all_are_reply(PersistedReplyM),
   Length = length(PersistedReplyM),
   Length = length(TopM) * length(ReplyM),
   ok.
 
--spec all_list_top(list()) -> boolean().
-all_list_top(List) -> 
+-spec all_are_top(list()) -> boolean().
+all_are_top(List) -> 
   lists:all(fun conferl_message:is_top_message/1, List).
 
--spec all_list_reply(list())-> boolean().
-all_list_reply(List) -> 
+-spec all_are_reply(list())-> boolean().
+all_are_reply(List) -> 
   not lists:all(fun conferl_message:is_top_message/1, List).

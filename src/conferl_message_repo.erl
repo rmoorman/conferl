@@ -35,13 +35,13 @@ write(Message) -> sumo:persist(conferl_message, Message).
                 , integer()
                 , conferl_utils:datetime()) -> 
   conferl_messages:message().
-write_top(ContentId, MessageText, User, CreateAt) ->
+write_top(ContentId, MessageText, User, CreatedAt) ->
   TopLevelResponseId = undefined,
   Message = conferl_message:new(ContentId
                                 , TopLevelResponseId
                                 , MessageText
                                 , User
-                                , CreateAt),
+                                , CreatedAt),
   sumo:persist(conferl_message, Message).
 
 -spec write_reply(integer()
@@ -50,12 +50,12 @@ write_top(ContentId, MessageText, User, CreateAt) ->
                   , integer()
                   , conferl_utils:datetime()) -> 
   conferl_messages:message().
-write_reply(ContentId, ResponseId, MessageText, User, CreateAt) ->
+write_reply(ContentId, ResponseId, MessageText, User, CreatedAt) ->
   Message = conferl_message:new(ContentId
                                 , ResponseId
                                 , MessageText
                                 , User
-                                , CreateAt),
+                                , CreatedAt),
   sumo:persist(conferl_message, Message).
 
 -spec delete(conferl_messages:message()) -> non_neg_integer().
@@ -79,7 +79,7 @@ list_replies(MessageResponseId) ->
 -spec list_top_level(integer()) -> [conferl_messages:message()].
 list_top_level(ContentId) -> 
   sumo:find_by(conferl_message, [ {content_id,  ContentId}
-                                , {response_id, 'null'}
+                                , {response_id, null}
                                 ]).
 
 -spec list_by_user(integer()) -> [conferl_messages:message()].

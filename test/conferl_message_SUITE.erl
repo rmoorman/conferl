@@ -48,65 +48,27 @@ all() ->
   [Fun || {Fun, 1} <- module_info(exports), 
           not lists:member(Fun, ignored_funs())].
 
--spec get_top_messages_conf() -> config().
-get_top_messages_conf() ->
-  GenerateTopM = fun(N) -> { 1
-                            , "Wow! Top message."
-                            , N
-                            , conferl_utils:now_datetime()
-                           }
-                  end,
-  TopMessages  = lists:map(GenerateTopM, lists:seq(1, 10)),
-  GenerateRplM = fun(N) -> { 1
-                            , undefined
-                            , "Such message, very reply."
-                            , N
-                            , conferl_utils:now_datetime()
-                          }
-                  end,
-  ReplyMessage = lists:map(GenerateRplM, lists:seq(1, 10)),
-
-  [ {top_messages, TopMessages}
-  , {reply_message, ReplyMessage}
-  , {doge_top_text, "Wow! Top message."}
-  , {doge_reply_text, "Such message, very reply."}
-  , {top_messages_content_id, 1} 
-  ].
-
 %% @doc definion of init_per_testcases
+
 -spec init_per_suite(config()) -> config().
 init_per_suite(Config) ->
   application:ensure_all_started(sumo_db),
   sumo:create_schema(),
-  conferl_message_repo:delete_all(),
   get_top_messages_conf().
 
 -spec end_per_suite(config()) -> config().
 end_per_suite(Config) ->
+  conferl_message_repo:delete_all(),
   Config.
 
 %% @doc definion of init_per_testcases
-init_per_testcase(top_message_create, Config) -> 
-  Config;
-init_per_testcase(test_delete_by_content, Config) -> 
-  Config;
-init_per_testcase(message_replys, Config) -> 
-  Config;
-init_per_testcase(test_list_top_message, Config) -> 
+
+init_per_testcase(_Function, Config) -> 
   Config.
 
 %% @doc definion of end_per_testcases
 
-end_per_testcase(top_message_create, Config) -> 
-  conferl_message_repo:delete_all(),
-  Config;
-end_per_testcase(test_delete_by_content, Config) -> 
-  conferl_message_repo:delete_all(),
-  Config;
-end_per_testcase(message_replys, Config) -> 
-  conferl_message_repo:delete_all(),
-  Config;
-end_per_testcase(test_list_top_message, Config) -> 
+end_per_testcase(_Function, Config) -> 
   conferl_message_repo:delete_all(),
   Config.
 
@@ -117,7 +79,7 @@ top_message_create(Config) ->
     || {C, M, U, CrAt} <- TopMessages],
   ContentId = proplists:get_value(top_messages_content_id, Config),
   PersistedTopMessage = conferl_message_repo:list(ContentId),
-  true = lists:all(fun conferl_message:is_top_message/1 , PersistedTopMessage),
+  true = all_are_top(PersistedTopMessage),
   ok.
 
 -spec test_delete_by_content(config()) -> ok.
@@ -126,7 +88,7 @@ test_delete_by_content(Config) ->
   Lenght = length(TopMessages),
   ContentId = proplists:get_value(top_messages_content_id, Config),
   [conferl_message_repo:write_top(C, M, U, CrAt) 
-  || {C, M, U, CrAt} <- TopMessages],
+    || {C, M, U, CrAt} <- TopMessages],
   Lenght = conferl_message_repo:delete_by_content_id(ContentId),
   ok.
 
@@ -156,10 +118,34 @@ message_replys(Config) ->
   Length = length(TopM) * length(ReplyM),
   ok.
 
--spec all_are_top(list()) -> boolean().
+-spec all_are_top([conferl_messages:message()]) -> boolean().
 all_are_top(List) -> 
   lists:all(fun conferl_message:is_top_message/1, List).
 
--spec all_are_reply(list())-> boolean().
+-spec all_are_reply([conferl_messages:message()])-> boolean().
 all_are_reply(List) -> 
   not lists:all(fun conferl_message:is_top_message/1, List).
+
+-spec get_top_messages_conf() -> config().
+get_top_messages_conf() ->
+  GenerateTopM = fun(N) -> { 1
+                            , "Wow! Top message."
+                            , N
+                            , conferl_utils:now_datetime()
+                           }
+                  end,
+  TopMessages  = lists:map(GenerateTopM, lists:seq(1, 10)),
+  GenerateRplM = fun(N) -> { 1
+                            , undefined
+                            , "Such message, very reply."
+                            , N
+                            , conferl_utils:now_datetime()
+                          }
+                  end,
+  ReplyMessage = lists:map(GenerateRplM, lists:seq(1, 10)),
+  [ {top_messages, TopMessages}
+  , {reply_message, ReplyMessage}
+  , {doge_top_text, "Wow! Top message."}
+  , {doge_reply_text, "Such message, very reply."}
+  , {top_messages_content_id, 1} 
+  ].

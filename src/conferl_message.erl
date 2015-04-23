@@ -85,13 +85,13 @@ sumo_schema() ->
           , string()
           , integer()
           , conferl_utils:datetime()) -> message().
-new(ContentId, ResponseId, MessageText, User, CreateAt) -> 
+new(ContentId, ResponseId, MessageText, User, CreatedAt) -> 
   #{  id           => undefined
     , content_id   => ContentId
     , response_id  => ResponseId
     , message_text => MessageText
     , user         => User
-    , created_at   => CreateAt
+    , created_at   => CreatedAt
     }.
 
 %% Getters/Setters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -115,9 +115,9 @@ message_text(Message, MessageText) -> Message#{ message_text => MessageText}.
 created_at(Message) -> maps:get(created_at, Message).
 
 -spec created_at(message(), conferl_utils:datetime()) -> message().
-created_at(Message, CreateAt) -> Message#{ created_at => CreateAt}. 
+created_at(Message, CreatedAt) -> Message#{ created_at => CreatedAt}. 
 
--spec is_top_message(message()) -> true | false.
+-spec is_top_message(message()) -> boolean().
 is_top_message(Message) -> response_id(Message) == undefined.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

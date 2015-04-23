@@ -115,7 +115,7 @@ message_text(Message, MessageText) -> Message#{ message_text => MessageText}.
 created_at(Message) -> maps:get(created_at, Message).
 
 -spec created_at(message(), conferl_utils:datetime()) -> message().
-created_at(Message, CreateAT) -> Message#{ created_at => CreateAT}. 
+created_at(Message, CreateAt) -> Message#{ created_at => CreateAt}. 
 
 -spec is_top_message(message()) -> true | false.
 is_top_message(Message) -> response_id(Message) == undefined.

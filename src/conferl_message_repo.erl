@@ -44,7 +44,11 @@ write_top(ContentId, MessageText, User, CreateAt) ->
                                 , CreateAt),
   sumo:persist(conferl_message, Message).
 
--spec write_reply(integer(), integer(), string(), integer(), conferl_utils:datetime()) -> 
+-spec write_reply(integer()
+                  , integer()
+                  , string()
+                  , integer()
+                  , conferl_utils:datetime()) -> 
   conferl_messages:message().
 write_reply(ContentId, ResponseId, MessageText, User, CreateAt) ->
   Message = conferl_message:new(ContentId

@@ -35,7 +35,7 @@ delete_all() -> sumo:delete_all(conferl_content).
   
 -spec find_by_url(string()) -> [conferl_content:content()].
 find_by_url(Url) ->
-  sumo:find_by(conferl_content, [{url,Url}]).
+  sumo:find_by(conferl_content, [{url, Url}]).
 
 -spec find_by_user(integer()) -> [conferl_content:content()].
 find_by_user(UserIdUserId)  ->
@@ -47,7 +47,7 @@ register(Url, User) ->
   case find_by_url( conferl_content:url(Content) ) of
     []  -> sumo:persist(conferl_content, Content);
     _   -> throw(duplicate_content)
-end.
+  end.
 
 -spec unregister(conferl_content:content()) -> non_neg_integer().
 unregister(Content) ->  
@@ -63,4 +63,4 @@ fetch(ContentId) ->
 
 -spec list(string()) -> [conferl_content:content()].
 list(Domain) ->   
-  sumo:find_by(conferl_content, [{domain,Domain}]). 
+  sumo:find_by(conferl_content, [{domain, Domain}]). 

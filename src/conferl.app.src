@@ -6,7 +6,8 @@
   {applications,
     [kernel,
      stdlib,
-     lager
+     lager,
+     sumo_db
     ]},
   {modules, []},
   {mod, {conferl, []}}

@@ -54,6 +54,7 @@ init_per_suite(Config) ->
   application:ensure_all_started(sumo_db),
   sumo:create_schema(),
   conferl_content_repo:delete_all(),
+  conferl_message_repo:delete_all(),
   Config.
 
 -spec end_per_suite(config()) -> config().

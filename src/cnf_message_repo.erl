@@ -11,7 +11,7 @@
 % KIND, either express or implied.  See the License for the
 % specific language governing permissions and limitations
 % under the License.
--module(conferl_message_repo).
+-module(cnf_message_repo).
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
@@ -27,64 +27,64 @@
         , delete_all/0
         ]).
 
--spec write(conferl_messages:message()) -> conferl_messages:message().
-write(Message) -> sumo:persist(conferl_message, Message).
+-spec write(cnf_messages:message()) -> cnf_messages:message().
+write(Message) -> sumo:persist(cnf_message, Message).
 
 -spec write_top(integer()
                 , string()
                 , integer()
                 , conferl_utils:datetime()) -> 
-  conferl_messages:message().
+  cnf_messages:message().
 write_top(ContentId, MessageText, User, CreatedAt) ->
   TopLevelResponseId = undefined,
-  Message = conferl_message:new(ContentId
+  Message = cnf_message:new(ContentId
                                 , TopLevelResponseId
                                 , MessageText
                                 , User
                                 , CreatedAt),
-  sumo:persist(conferl_message, Message).
+  sumo:persist(cnf_message, Message).
 
 -spec write_reply(integer()
                   , integer()
                   , string()
                   , integer()
                   , conferl_utils:datetime()) -> 
-  conferl_messages:message().
+  cnf_messages:message().
 write_reply(ContentId, ResponseId, MessageText, User, CreatedAt) ->
-  Message = conferl_message:new(ContentId
+  Message = cnf_message:new(ContentId
                                 , ResponseId
                                 , MessageText
                                 , User
                                 , CreatedAt),
-  sumo:persist(conferl_message, Message).
+  sumo:persist(cnf_message, Message).
 
--spec delete(conferl_messages:message()) -> non_neg_integer().
+-spec delete(cnf_messages:message()) -> non_neg_integer().
 delete(Message) -> 
-  Id = conferl_message:id(Message),
-  sumo:delete_by(conferl_message, [{id, Id}]).
+  Id = cnf_message:id(Message),
+  sumo:delete_by(cnf_message, [{id, Id}]).
 
  -spec delete_by_content_id(integer()) -> non_neg_integer().
 delete_by_content_id(ContentId) -> 
-  sumo:delete_by(conferl_message, [{content_id, ContentId}]).
+  sumo:delete_by(cnf_message, [{content_id, ContentId}]).
 
--spec list(integer()) -> [conferl_messages:message()].
+-spec list(integer()) -> [cnf_messages:message()].
  list(ContentId) -> 
-  sumo:find_by(conferl_message, [{content_id, ContentId}]).
+  sumo:find_by(cnf_message, [{content_id, ContentId}]).
 
--spec list_replies(integer()) -> [conferl_messages:message()].
+-spec list_replies(integer()) -> [cnf_messages:message()].
 list_replies(MessageResponseId) ->
-  sumo:find_by(conferl_message, [{response_id, MessageResponseId}]).
+  sumo:find_by(cnf_message, [{response_id, MessageResponseId}]).
   % Is equal to use   --------> [{response_id,'==', MessageResponseId}]).
 
--spec list_top_level(integer()) -> [conferl_messages:message()].
+-spec list_top_level(integer()) -> [cnf_messages:message()].
 list_top_level(ContentId) -> 
-  sumo:find_by(conferl_message, [ {content_id,  ContentId}
+  sumo:find_by(cnf_message, [ {content_id,  ContentId}
                                 , {response_id, null}
                                 ]).
 
--spec list_by_user(integer()) -> [conferl_messages:message()].
-list_by_user(UserId) -> sumo:find_by(conferl_message, [{user, UserId}]).
+-spec list_by_user(integer()) -> [cnf_messages:message()].
+list_by_user(UserId) -> sumo:find_by(cnf_message, [{user, UserId}]).
 
 -spec delete_all() -> integer().
-  delete_all() -> sumo:delete_all(conferl_message).
+  delete_all() -> sumo:delete_all(cnf_message).
 

@@ -11,7 +11,7 @@
 % KIND, either express or implied.  See the License for the
 % specific language governing permissions and limitations
 % under the License.
--module(conferl_content).
+-module(cnf_content).
 -author('David Cao <david.cao@inakanetworks.com>').
 
 -opaque content() ::

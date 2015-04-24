@@ -12,7 +12,7 @@
 % specific language governing permissions and limitations
 % under the License.
 
--module(conferl_message_SUITE).
+-module(cnf_message_SUITE).
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
@@ -58,7 +58,7 @@ init_per_suite(Config) ->
 
 -spec end_per_suite(config()) -> config().
 end_per_suite(Config) ->
-  conferl_message_repo:delete_all(),
+  cnf_message_repo:delete_all(),
   Config.
 
 %% @doc definion of init_per_testcases
@@ -69,16 +69,16 @@ init_per_testcase(_Function, Config) ->
 %% @doc definion of end_per_testcases
 
 end_per_testcase(_Function, Config) -> 
-  conferl_message_repo:delete_all(),
+  cnf_message_repo:delete_all(),
   Config.
 
 -spec top_message_create(config()) -> ok.
 top_message_create(Config) ->
   TopMessages = proplists:get_value(top_messages, Config),
-  [conferl_message_repo:write_top(C, M, U, CrAt) 
+  [cnf_message_repo:write_top(C, M, U, CrAt) 
     || {C, M, U, CrAt} <- TopMessages],
   ContentId = proplists:get_value(top_messages_content_id, Config),
-  PersistedTopMessage = conferl_message_repo:list(ContentId),
+  PersistedTopMessage = cnf_message_repo:list(ContentId),
   true = all_are_top(PersistedTopMessage),
   ok.
 
@@ -87,18 +87,18 @@ test_delete_by_content(Config) ->
   TopMessages = proplists:get_value(top_messages, Config),
   Lenght = length(TopMessages),
   ContentId = proplists:get_value(top_messages_content_id, Config),
-  [conferl_message_repo:write_top(C, M, U, CrAt) 
+  [cnf_message_repo:write_top(C, M, U, CrAt) 
     || {C, M, U, CrAt} <- TopMessages],
-  Lenght = conferl_message_repo:delete_by_content_id(ContentId),
+  Lenght = cnf_message_repo:delete_by_content_id(ContentId),
   ok.
 
 -spec test_list_top_message(config()) -> ok.
 test_list_top_message(Config) ->
   TopMessages = proplists:get_value(top_messages, Config),
-  [conferl_message_repo:write_top(C, M, U, CrAt) 
+  [cnf_message_repo:write_top(C, M, U, CrAt) 
     || {C, M, U, CrAt} <- TopMessages],
   ContentId = proplists:get_value(top_messages_content_id, Config),
-  PersistedTopM = conferl_message_repo:list_top_level(ContentId),
+  PersistedTopM = cnf_message_repo:list_top_level(ContentId),
   true = all_are_top(PersistedTopM),
   ok.
 
@@ -106,32 +106,32 @@ test_list_top_message(Config) ->
 message_replys(Config) ->
   TopM = proplists:get_value(top_messages, Config),
   ReplyM = proplists:get_value(reply_message, Config), 
-  PersistedTopMessage = [conferl_message_repo:write_top(C, M, U, CrAt)
+  PersistedTopMessage = [cnf_message_repo:write_top(C, M, U, CrAt)
                           || {C, M, U, CrAt} <- TopM],
-  [conferl_message_repo:write_reply(C, conferl_message:id(P), M, U, CrAt) 
+  [cnf_message_repo:write_reply(C, cnf_message:id(P), M, U, CrAt) 
     || P <- PersistedTopMessage , {C, _R, M, U, CrAt} <- ReplyM],
-  MessageListId = [conferl_message:id(P) || P <- PersistedTopMessage],
-  PersistedReplyM = lists:flatten([conferl_message_repo:list_replies(Id) 
+  MessageListId = [cnf_message:id(P) || P <- PersistedTopMessage],
+  PersistedReplyM = lists:flatten([cnf_message_repo:list_replies(Id) 
                                     || Id <- MessageListId]),
   true = all_are_reply(PersistedReplyM),
   Length = length(PersistedReplyM),
   Length = length(TopM) * length(ReplyM),
   ok.
 
--spec all_are_top([conferl_messages:message()]) -> boolean().
+-spec all_are_top([cnf_messages:message()]) -> boolean().
 all_are_top(List) -> 
-  lists:all(fun conferl_message:is_top_message/1, List).
+  lists:all(fun cnf_message:is_top_message/1, List).
 
--spec all_are_reply([conferl_messages:message()])-> boolean().
+-spec all_are_reply([cnf_messages:message()])-> boolean().
 all_are_reply(List) -> 
-  not lists:all(fun conferl_message:is_top_message/1, List).
+  not lists:all(fun cnf_message:is_top_message/1, List).
 
 -spec get_top_messages_conf() -> config().
 get_top_messages_conf() ->
   GenerateTopM = fun(N) -> { 1
                             , "Wow! Top message."
                             , N
-                            , conferl_utils:now_datetime()
+                            , cnf_utils:now_datetime()
                            }
                   end,
   TopMessages  = lists:map(GenerateTopM, lists:seq(1, 10)),
@@ -139,7 +139,7 @@ get_top_messages_conf() ->
                             , undefined
                             , "Such message, very reply."
                             , N
-                            , conferl_utils:now_datetime()
+                            , cnf_utils:now_datetime()
                           }
                   end,
   ReplyMessage = lists:map(GenerateRplM, lists:seq(1, 10)),

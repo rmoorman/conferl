@@ -11,7 +11,7 @@
 % KIND, either express or implied.  See the License for the
 % specific language governing permissions and limitations
 % under the License.
--module(conferl_content_repo).
+-module(cnf_content_repo).
 -author('David Cao <david.cao@inakanetworks.com>').
 
 %%% General repo functions.
@@ -26,41 +26,41 @@
   , list/1
   ]).
 
--spec update(conferl_content:content()) -> conferl_content:content().
+-spec update(cnf_content:content()) -> cnf_content:content().
 update(Content) ->
-  sumo:persist(conferl_content, Content).
+  sumo:persist(cnf_content, Content).
 
 -spec delete_all() -> integer(). 
-delete_all() -> sumo:delete_all(conferl_content). 
+delete_all() -> sumo:delete_all(cnf_content). 
   
--spec find_by_url(string()) -> [conferl_content:content()].
+-spec find_by_url(string()) -> [cnf_content:content()].
 find_by_url(Url) ->
-  sumo:find_by(conferl_content, [{url, Url}]).
+  sumo:find_by(cnf_content, [{url, Url}]).
 
--spec find_by_user(integer()) -> [conferl_content:content()].
+-spec find_by_user(integer()) -> [cnf_content:content()].
 find_by_user(UserIdUserId)  ->
-  sumo:find_by(conferl_content,[{user, UserIdUserId}]). 
+  sumo:find_by(cnf_content,[{user, UserIdUserId}]). 
 
--spec register(string(), integer()) -> conferl_content:content().
+-spec register(string(), integer()) -> cnf_content:content().
 register(Url, User) -> 
-  Content = conferl_content:new(Url, User),
-  case find_by_url( conferl_content:url(Content) ) of
-    []  -> sumo:persist(conferl_content, Content);
+  Content = cnf_content:new(Url, User),
+  case find_by_url( cnf_content:url(Content) ) of
+    []  -> sumo:persist(cnf_content, Content);
     _   -> throw(duplicate_content)
   end.
 
--spec unregister(conferl_content:content()) -> non_neg_integer().
+-spec unregister(cnf_content:content()) -> non_neg_integer().
 unregister(Content) ->  
-  Id = conferl_content:id(Content),
-  sumo:delete_by(conferl_content, [{id, Id}]).
+  Id = cnf_content:id(Content),
+  sumo:delete_by(cnf_content, [{id, Id}]).
 
--spec fetch(integer()) -> notfound | conferl_content:content().
+-spec fetch(integer()) -> notfound | cnf_content:content().
 fetch(ContentId) -> 
-  case sumo:find(conferl_content,ContentId) of
+  case sumo:find(cnf_content,ContentId) of
     notfound  -> throw(notfound);
     Content   -> Content
   end.  
 
--spec list(string()) -> [conferl_content:content()].
+-spec list(string()) -> [cnf_content:content()].
 list(Domain) ->   
-  sumo:find_by(conferl_content, [{domain, Domain}]). 
+  sumo:find_by(cnf_content, [{domain, Domain}]). 

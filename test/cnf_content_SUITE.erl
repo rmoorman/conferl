@@ -12,7 +12,7 @@
 % specific language governing permissions and limitations
 % under the License.
 
--module(conferl_content_SUITE).
+-module(cnf_content_SUITE).
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
@@ -53,8 +53,8 @@ all() ->
 init_per_suite(Config) ->
   application:ensure_all_started(sumo_db),
   sumo:create_schema(),
-  conferl_content_repo:delete_all(),
-  conferl_message_repo:delete_all(),
+  cnf_content_repo:delete_all(),
+  cnf_message_repo:delete_all(),
   Config.
 
 -spec end_per_suite(config()) -> config().
@@ -96,13 +96,13 @@ init_per_testcase(_, Config)  ->
 test_create_content(Config) ->
   Url     = proplists:get_value(url, Config),
   User    = proplists:get_value(user, Config),
-  conferl_content:new(Url, User).
+  cnf_content:new(Url, User).
 
 -spec test_create_user_bad(config()) -> ok.
 test_create_user_bad(Config) ->
   Url     = proplists:get_value(url, Config),
   User    = proplists:get_value(user, Config),
-  try conferl_content:new(Url, User) of
+  try cnf_content:new(Url, User) of
     _Content -> ct:fail("Unexpected result (!)")
   catch 
     throw:invalid_url -> ok
@@ -113,8 +113,8 @@ test_create_user_bad(Config) ->
 double_registration_bad(Config) ->
   Url     = proplists:get_value(url, Config),
   User    = proplists:get_value(user, Config),
-  conferl_content_repo:register(Url, User),
-  try conferl_content_repo:register(Url, User) of
+  cnf_content_repo:register(Url, User),
+  try cnf_content_repo:register(Url, User) of
     _Content -> ct:fail("Unexpected result (!)") 
   catch
     throw:duplicate_content -> ok;
@@ -125,7 +125,7 @@ double_registration_bad(Config) ->
 -spec fetch_notfound_content(config()) -> ok.
 fetch_notfound_content(Config) -> 
   ContentId   = proplists:get_value(id, Config),
-  try conferl_content_repo:fetch(ContentId) of
+  try cnf_content_repo:fetch(ContentId) of
     _Content -> ct:fail("Unexpected result (!)")
   catch 
     throw:notfound  -> ok
@@ -135,9 +135,9 @@ fetch_notfound_content(Config) ->
 -spec test_list_contents(config()) -> ok.
 test_list_contents(Config) ->
   Urls      = proplists:get_value(urls, Config),
-  [conferl_content_repo:register(Url, User) || {Url, User} <- Urls ],
+  [cnf_content_repo:register(Url, User) || {Url, User} <- Urls ],
   Domain    = proplists:get_value(domain, Config),
-  Contents  = conferl_content_repo:list(Domain),
+  Contents  = cnf_content_repo:list(Domain),
   FilterFun = fun(Cont) -> 
                 maps:get(domain, Cont) == proplists:get_value(domain, Config) 
               end,

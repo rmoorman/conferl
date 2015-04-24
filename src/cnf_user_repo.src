@@ -14,15 +14,18 @@
 -module(cnf_user_repo).
 
 -author('David Cao <david.cao@inakanetworks.com>').
+-export([ register_user/3
+        , unregister_user/1
+        , fetch_user/1
+        , fetch_by_name/1]).
 
 register_user(string(), string(), string()) -> 
   duplicated | conferl_users:user().
-register_user(UserName, Password, Email) -> duplicated | conferl_users:user().
-  
+register_user(UserName, Password, Email) -> conferl_users:user().
   case fetch_by_name(UserName) of
-    notfound -> NewUser = cnf_user:new(UserName, Password, Email):
+    notfound -> NewUser = cnf_user:new(UserName, Password, Email),
                 sumo:persist(cnf_users, NewUser);
-    _        -> duplicated
+    _        -> throw(duplicate_user)
   end.
 
 unregister_user(string()) -> ok.

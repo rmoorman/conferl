@@ -86,7 +86,7 @@ id(User) -> maps:get(id, User).
 user_name(User) -> 
   maps:get(user_name,User).
 
--spec user_name(user(), string()) -> string().
+-spec user_name(user(), string()) -> user().
 user_name(User, UserName) -> 
   User#{user_name => UserName}.
 
@@ -94,7 +94,7 @@ user_name(User, UserName) ->
 password(User) -> 
   maps:get(password, User).
 
--spec password(user(), string()) -> string().
+-spec password(user(), string()) -> user().
 password(User, Password) -> 
   User#{password => Password}.
 
@@ -102,7 +102,7 @@ password(User, Password) ->
 email(User) -> 
   maps:get(email,User).
 
--spec email(user(), string()) -> string().
+-spec email(user(), string()) -> user().
 email(User, Email) -> 
   User#{email => Email}.
 

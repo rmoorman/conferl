@@ -18,20 +18,26 @@
         , unregister_user/1
         , fetch_user/1
         , fetch_by_name/1
-        , delete_all/0]).
+        , delete_all/0
+        ]).
 
 -spec register_user(string(), string(), string()) -> conferl_users:user().
 register_user(UserName, Password, Email) -> 
   try fetch_by_name(UserName) of
     _   -> throw(duplicate_user)
   catch 
-    throw:notfound -> NewUser = cnf_user:new(UserName, Password, Email),
-                      sumo:persist(cnf_user, NewUser)
+    throw:notfound -> 
+      NewUser = cnf_user:new(UserName, Password, Email),
+      sumo:persist(cnf_user, NewUser)
   end.  
 
 -spec unregister_user(string()) -> integer().
 unregister_user(UserName) -> 
-  sumo:delete_by(cnf_user, [{user_name, UserName}]).
+  Result = sumo:delete_by(cnf_user, [{user_name, UserName}]),
+  case Result of
+    notfound  -> throw(notfound);
+    User      -> User
+  end.
 
 -spec fetch_user(integer()) -> conferl_users:user().
 fetch_user(UserId) -> 
@@ -46,4 +52,4 @@ fetch_by_name(UserName) ->
   end.
 
 -spec delete_all() -> integer().
-  delete_all() -> sumo:delete_all(cnf_user).
+delete_all() -> sumo:delete_all(cnf_user).

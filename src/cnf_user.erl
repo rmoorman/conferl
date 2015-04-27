@@ -101,10 +101,8 @@ password(User, Password) ->
 
 -spec email(user()) -> string().
 email(User) -> 
-  maps:get(email,User).
+  maps:get(email, User).
 
 -spec email(user(), string()) -> user().
 email(User, Email) -> 
   User#{email => Email}.
-
-

@@ -58,7 +58,6 @@ init_per_suite(Config) ->
 
 -spec end_per_suite(config()) -> config().
 end_per_suite(Config) ->
- %cnf_message_repo:delete_all(),
   Config.
 
 %% @doc definion of init_per_testcases

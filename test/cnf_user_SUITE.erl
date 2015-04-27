@@ -25,6 +25,7 @@
         , fetch_user/1
         , duplicate_user/1
         , unregistrate_user/1
+        , fetch_user_bad/1
         ]).
 
 -type config() :: [{atom(), term()}].
@@ -68,7 +69,6 @@ init_per_testcase(_Function, Config) ->
 
 %% @doc definion of end_per_testcases
 end_per_testcase(_Function, Config) -> 
-  cnf_user_repo:delete_all(),
   Config.
 
 -spec create_user(config()) -> ok.
@@ -89,9 +89,9 @@ fetch_user(_Config) ->
   Email = <<"email">>,
   RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
   Id = cnf_user:id(RegistedUser),
-  lager:warning("Id:  ~p", [Id]),
+  lager:debug("Id:  ~p", [Id]),
   PersistedUser = cnf_user_repo:fetch_user(Id),
-  lager:warning("PersistedUser:  ~p", [PersistedUser]),
+  lager:debug("PersistedUser:  ~p", [PersistedUser]),
   Name = cnf_user:user_name(PersistedUser),
   Passsword = cnf_user:password(PersistedUser),
   Email = cnf_user:email(PersistedUser),
@@ -102,7 +102,7 @@ duplicate_user(_Config) ->
   Name = <<"Doge duplicate_user">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
-  RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
+  cnf_user_repo:register_user(Name, Passsword, Email),
   try cnf_user_repo:register_user(Name, Passsword, Email) of
     _ -> ct:fail("Unexpected result (!)")
   catch
@@ -116,23 +116,17 @@ unregistrate_user(_Config) ->
   Email = <<"email">>,
   RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
   cnf_user_repo:unregister_user(Name),
-  try cnf_user_repo:register_user(Name, Passsword, Email) of
-    _ -> ok
+  try cnf_user_repo:fetch_by_name(cnf_user:id(RegistedUser)) of
+    _ -> ct:fail("Unexpected result (!)")
   catch
-    throw:duplicate_user -> ct:fail("Unexpected result (!)")
+    throw:notfound -> ok
   end.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-spec fetch_user_bad(config()) -> ok.
+fetch_user_bad(_Config) -> 
+  NotFoundId = 0,
+  try cnf_user_repo:fetch_by_name(NotFoundId) of
+    _ -> ct:fail("Unexpected result (!)")
+  catch
+    throw:notfound -> ok
+  end.

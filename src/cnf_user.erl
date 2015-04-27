@@ -22,7 +22,7 @@
     , email     => string()
     }.
 
--export_type( [user/0]).
+-export_type([user/0]).
 
 %%% sumo_db callbacks
 -export([ sumo_schema/0
@@ -40,6 +40,7 @@
         , email/2
         ]).
 
+-behavior(sumo_doc).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% BEHAVIOUR CALLBACKS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -53,16 +54,16 @@ sumo_wakeup(Data) -> Data.
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(user()) -> sumo:doc().
-sumo_sleep(Message) -> Message.
+sumo_sleep(User) -> User.
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
   sumo:new_schema(?MODULE, [
     sumo:new_field(id       , integer, [id, auto_increment, not_null]),
-    sumo:new_field(user_name, integer, [not_null]),
-    sumo:new_field(password , integer, [not_null]),
-    sumo:new_field(email    , string , [not_null])
+    sumo:new_field(user_name, string,  [not_null]),
+    sumo:new_field(password , string,  [not_null]),
+    sumo:new_field(email    , string,  [not_null])
   ]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

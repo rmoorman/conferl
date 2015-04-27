@@ -31,12 +31,12 @@ register_user(UserName, Password, Email) ->
       sumo:persist(cnf_user, NewUser)
   end.  
 
--spec unregister_user(string()) -> integer().
+-spec unregister_user(string()) -> non_neg_integer().
 unregister_user(UserName) -> 
   Result = sumo:delete_by(cnf_user, [{user_name, UserName}]),
   case Result of
-    notfound  -> throw(notfound);
-    User      -> User
+    0               -> throw(notfound);
+    NumberRows      -> NumberRows
   end.
 
 -spec fetch_user(integer()) -> conferl_users:user().
@@ -51,5 +51,5 @@ fetch_by_name(UserName) ->
     [User]    -> User
   end.
 
--spec delete_all() -> integer().
+-spec delete_all() -> non_neg_integer().
 delete_all() -> sumo:delete_all(cnf_user).

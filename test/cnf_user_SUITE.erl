@@ -22,10 +22,11 @@
         , init_per_testcase/2
         , end_per_testcase/2
         , create_user/1
-        , fetch_user/1
         , duplicate_user/1
-        , unregistrate_user/1
+        , fetch_user/1
         , fetch_user_bad/1
+        , unregistrate_user_bad/1
+        , unregistrate_user/1
         ]).
 
 -type config() :: [{atom(), term()}].
@@ -126,6 +127,15 @@ unregistrate_user(_Config) ->
 fetch_user_bad(_Config) -> 
   NotFoundId = 0,
   try cnf_user_repo:fetch_by_name(NotFoundId) of
+    _ -> ct:fail("Unexpected result (!)")
+  catch
+    throw:notfound -> ok
+  end.
+
+-spec unregistrate_user_bad(config()) -> ok.
+unregistrate_user_bad(_Config) -> 
+  Name = <<"Doge unregistrate_user_bad">>,
+  try cnf_user_repo:unregister_user(Name) of
     _ -> ct:fail("Unexpected result (!)")
   catch
     throw:notfound -> ok

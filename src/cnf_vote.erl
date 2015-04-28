@@ -28,8 +28,10 @@
 
 -export([ new/3
         , id/1
-        , user/1
-        , user/2
+        , user_id/1
+        , user_id/2
+        , message_id/1
+        , message_id/2
         , thumb/1
         , thumb/2
         ]).
@@ -59,7 +61,7 @@ sumo_sleep(Vote) -> thumb_sleep(Vote).
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
   sumo:new_schema(?MODULE, [
-    sumo:new_field(id         , integer, [not_null, auto_increment, id]),
+    sumo:new_field(id         , integer, [id, auto_increment, not_null]),
     sumo:new_field(user_id    , integer, [not_null]),
     sumo:new_field(message_id , integer, [not_null]),
     sumo:new_field(thumb      , integer, [not_null])
@@ -69,11 +71,11 @@ sumo_schema() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %% @doc functions definitions for message
--spec new(integer(), integer(), integer()) -> vote().
+-spec new(integer(), integer(), thumb()) -> vote().
 new(UserId, MessageId, Thumb) ->
   #{  id         => undefined
     , message_id => MessageId
-    , user       => UserId
+    , user_id    => UserId
     , thumb      => Thumb
    }.
 
@@ -81,13 +83,21 @@ new(UserId, MessageId, Thumb) ->
 id(Vote) -> 
   maps:get(id, Vote).
 
--spec user(vote()) -> integer().
-user(Vote) -> 
+-spec user_id(vote()) -> integer().
+user_id(Vote) -> 
   maps:get(user_id,Vote).
 
--spec user(vote(), integer()) -> vote().
-user(Vote, UserId) -> 
+-spec user_id(vote(), integer()) -> vote().
+user_id(Vote, UserId) -> 
   Vote#{ user_id => UserId}.
+
+-spec message_id(vote()) -> integer().
+message_id(Vote) -> 
+  maps:get(message_id,Vote).
+
+-spec message_id(vote(), integer()) -> vote().
+message_id(Vote, UserId) -> 
+  Vote#{ message_id => UserId}.
 
 -spec thumb(vote()) -> thumb().
 thumb(Vote) -> 
@@ -108,8 +118,3 @@ thumb_sleep(Vote = #{ thumb := up}) ->
 Vote#{ thumb => 1};
 thumb_sleep(Vote = #{ thumb := down}) -> 
 Vote#{ thumb => 0}.
-
-
-
-
-

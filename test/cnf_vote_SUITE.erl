@@ -104,16 +104,15 @@ VotedFetched2 = cnf_vote_repo:fetch_vote(UserId, MessageId),
 lager:debug("VotedFetched2:  ~p", [VotedFetched2]),
 ok.
 
-
 -spec test_counts_votes_message(config()) -> ok.
 test_counts_votes_message(_Config)  -> 
   MessageId = 4,
   CountVotesUp = 15,
   CountVotesDown = 30,
   [cnf_vote_repo:vote_message(UserId, MessageId) 
-    || UserId <- lists:seq(1,CountVotesUp)],
-  [cnf_vote_repo:unvote_message(UserId, MessageId) 
-    || UserId <- lists:seq(1,CountVotesDown)],
+    || UserId <- lists:seq(1, CountVotesUp)],
+  [cnf_vote_repo:unvote_message(UserId, MessageId)
+    || UserId <- lists:seq(1, CountVotesDown)],
   #{up := CountVotesUp, down := CountVotesDown} =
      cnf_vote_repo:counts_votes_message(MessageId),
   ok.

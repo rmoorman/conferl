@@ -61,7 +61,7 @@ init_per_suite(_Config) ->
 
 -spec end_per_suite(config()) -> config().
 end_per_suite(Config) ->
-  cnf_user_repo:delete_all(),
+  sumo:delete_all(cnf_user),
   Config.
 
 %% @doc definion of init_per_testcases

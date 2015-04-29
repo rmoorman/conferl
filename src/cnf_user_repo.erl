@@ -18,7 +18,6 @@
         , unregister_user/1
         , fetch_user/1
         , fetch_by_name/1
-        , delete_all/0
         ]).
 
 -spec register_user(string(), string(), string()) -> conferl_users:user().
@@ -50,6 +49,3 @@ fetch_by_name(UserName) ->
     []        -> throw(notfound);
     [User]    -> User
   end.
-
--spec delete_all() -> non_neg_integer().
-delete_all() -> sumo:delete_all(cnf_user).

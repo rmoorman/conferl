@@ -85,19 +85,19 @@ id(Vote) ->
 
 -spec user_id(vote()) -> integer().
 user_id(Vote) -> 
-  maps:get(user_id,Vote).
+  maps:get(user_id, Vote).
 
 -spec user_id(vote(), integer()) -> vote().
 user_id(Vote, UserId) -> 
-  Vote#{ user_id => UserId}.
+  Vote#{user_id => UserId}.
 
 -spec message_id(vote()) -> integer().
 message_id(Vote) -> 
-  maps:get(message_id,Vote).
+  maps:get(message_id, Vote).
 
 -spec message_id(vote(), integer()) -> vote().
 message_id(Vote, UserId) -> 
-  Vote#{ message_id => UserId}.
+  Vote#{message_id => UserId}.
 
 -spec thumb(vote()) -> thumb().
 thumb(Vote) -> 
@@ -105,16 +105,16 @@ thumb(Vote) ->
 
 -spec thumb(vote(), thumb()) -> vote().
 thumb(Vote, Thumb) -> 
-  Vote#{ thumb => Thumb}.
+  Vote#{thumb => Thumb}.
 
 -spec thumb_wakeup(sumo:doc()) -> vote().
-thumb_wakeup(Vote = #{ thumb := 1}) -> 
-Vote#{ thumb => up};
-thumb_wakeup(Vote = #{ thumb := 0}) -> 
-Vote#{ thumb => down}.
+thumb_wakeup(Vote = #{thumb := 1}) -> 
+  Vote#{thumb => up};
+thumb_wakeup(Vote = #{thumb := 0}) -> 
+  Vote#{thumb => down}.
 
 -spec thumb_sleep(vote()) -> sumo:doc().
-thumb_sleep(Vote = #{ thumb := up}) -> 
-Vote#{ thumb => 1};
-thumb_sleep(Vote = #{ thumb := down}) -> 
-Vote#{ thumb => 0}.
+thumb_sleep(Vote = #{thumb := up}) -> 
+  Vote#{thumb => 1};
+thumb_sleep(Vote = #{thumb := down}) -> 
+  Vote#{thumb => 0}.

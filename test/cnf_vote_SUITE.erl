@@ -21,8 +21,8 @@
         , end_per_suite/1
         , init_per_testcase/2
         , end_per_testcase/2
-        , test_vote/1
-        , test_unvote/1
+        , test_upvote/1
+        , test_downvote/1
         , test_fetch_vote/1
         , test_counts_votes_message/1
         ]).
@@ -59,7 +59,7 @@ init_per_suite(_Config) ->
 
 -spec end_per_suite(config()) -> config().
 end_per_suite(Config) ->
-  cnf_vote_repo:delete_all(),
+  sumo:delete_all(cnf_vote),
   Config.
 
 %% @doc definion of init_per_testcases
@@ -70,48 +70,48 @@ init_per_testcase(_Function, Config) ->
 end_per_testcase(_Function, Config) -> 
   Config.
 
--spec test_vote(config()) -> ok.
-test_vote(_Config) -> 
-UserId = 1,
-MessageId = 1,
-VotedMessage = cnf_vote_repo:vote_message(UserId, MessageId),
-UserId = cnf_vote:user_id(VotedMessage),
-MessageId = cnf_vote:user_id(VotedMessage),
-up = cnf_vote:thumb(VotedMessage),
-ok.
+-spec test_upvote(config()) -> ok.
+test_upvote(_Config) -> 
+  UserId = 1,
+  MessageId = 1,
+  VotedMessage = cnf_vote_repo:upvote(UserId, MessageId),
+  UserId = cnf_vote:user_id(VotedMessage),
+  MessageId = cnf_vote:user_id(VotedMessage),
+  up = cnf_vote:thumb(VotedMessage),
+  ok.
 
--spec test_unvote(config()) -> ok.
-test_unvote(_Config) -> 
-UserId = 2,
-MessageId = 2,
-VotedMessage = cnf_vote_repo:unvote_message(UserId, MessageId),
-UserId = cnf_vote:user_id(VotedMessage),
-MessageId = cnf_vote:user_id(VotedMessage),
-down = cnf_vote:thumb(VotedMessage),
-ok.
-
+-spec test_downvote(config()) -> ok.
+test_downvote(_Config) -> 
+  UserId = 2,
+  MessageId = 2,
+  VotedMessage = cnf_vote_repo:downvote(UserId, MessageId),
+  UserId = cnf_vote:user_id(VotedMessage),
+  MessageId = cnf_vote:user_id(VotedMessage),
+  down = cnf_vote:thumb(VotedMessage),
+  ok.
+  
 -spec test_fetch_vote(config()) -> ok.
 test_fetch_vote(_Config) -> 
-UserId = 3,
-MessageId = 3,
-VotedMessage = cnf_vote_repo:vote_message(UserId, MessageId),
-lager:debug("VotedMessage:  ~p", [VotedMessage]),
-VotedMesId = cnf_vote:id(VotedMessage),
-lager:debug("VotedMesId:  ~p", [VotedMesId]),
-VotedFetched1 = cnf_vote_repo:fetch_vote(VotedMesId),
-lager:debug("VotedFetched1:  ~p", [VotedFetched1]),
-VotedFetched2 = cnf_vote_repo:fetch_vote(UserId, MessageId),
-lager:debug("VotedFetched2:  ~p", [VotedFetched2]),
-ok.
+  UserId = 3,
+  MessageId = 3,
+  VotedMessage = cnf_vote_repo:upvote(UserId, MessageId),
+  lager:debug("VotedMessage:  ~p", [VotedMessage]),
+  VotedMesId = cnf_vote:id(VotedMessage),
+  lager:debug("VotedMesId:  ~p", [VotedMesId]),
+  VotedFetched1 = cnf_vote_repo:fetch_vote(VotedMesId),
+  lager:debug("VotedFetched1:  ~p", [VotedFetched1]),
+  VotedFetched2 = cnf_vote_repo:fetch_vote(UserId, MessageId),
+  lager:debug("VotedFetched2:  ~p", [VotedFetched2]),
+  ok.
 
 -spec test_counts_votes_message(config()) -> ok.
 test_counts_votes_message(_Config)  -> 
   MessageId = 4,
   CountVotesUp = 15,
   CountVotesDown = 30,
-  [cnf_vote_repo:vote_message(UserId, MessageId) 
+  [cnf_vote_repo:upvote(UserId, MessageId) 
     || UserId <- lists:seq(1, CountVotesUp)],
-  [cnf_vote_repo:unvote_message(UserId, MessageId)
+  [cnf_vote_repo:downvote(UserId, MessageId)
     || UserId <- lists:seq(1, CountVotesDown)],
   #{up := CountVotesUp, down := CountVotesDown} =
      cnf_vote_repo:counts_votes_message(MessageId),

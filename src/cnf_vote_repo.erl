@@ -14,14 +14,13 @@
 -module(cnf_vote_repo).
 
 -author('David Cao <david.cao@inakanetworks.com>').
--export([ vote_message/2
-        , unvote_message/2
+-export([ upvote/2
+        , downvote/2
         , remove_vote/1
         , fetch_vote/1
         , fetch_vote/2
         , list_votes/1
         , counts_votes_message/1
-        , delete_all/0
         ]).
 
 -type thumb_count() ::
@@ -29,13 +28,13 @@
           , down  => integer()
          }.
 
--spec vote_message(integer(), integer()) -> cnf_vote:vote().
-vote_message(UserId, MessageId) -> 
+-spec upvote(integer(), integer()) -> cnf_vote:vote().
+upvote(UserId, MessageId) -> 
   Vote = cnf_vote:new(UserId, MessageId, up),
   sumo:persist(cnf_vote, Vote).
 
--spec unvote_message(integer(), integer()) -> cnf_vote:vote().
-unvote_message(UserId, MessageId) -> 
+-spec downvote(integer(), integer()) -> cnf_vote:vote().
+downvote(UserId, MessageId) -> 
   Vote = cnf_vote:new(UserId, MessageId, down),
   sumo:persist(cnf_vote, Vote).
 
@@ -43,34 +42,34 @@ unvote_message(UserId, MessageId) ->
 remove_vote(VoteId) -> 
   sumo:delete(cnf_vote, VoteId).
 
--spec fetch_vote(integer(), integer()) -> notfound | cnf_vote:vote().
+-spec fetch_vote(integer(), integer()) -> cnf_vote:vote().
 fetch_vote(MessageId, UserId) -> 
   Result = 
     sumo:find_by(cnf_vote, [{message_id, MessageId}, {user_id, UserId}]),
   case Result of
-    []     -> notfound;
+    []     -> throw(notfound);
     [Vote] -> Vote
   end.
 
--spec fetch_vote(integer()) -> notfound | cnf_vote:vote().
+-spec fetch_vote(integer()) -> cnf_vote:vote().
 fetch_vote(VoteId) -> 
-  sumo:find(cnf_vote, VoteId).
+  Result = sumo:find(cnf_vote, VoteId),
+  case Result of
+    notfound  -> throw(notfound);
+    Vote      -> Vote
+  end.
 
 -spec list_votes(integer()) -> [cnf_vote:vote()].
 list_votes(MessageId) -> 
   sumo:find_by(cnf_vote, [{message_id, MessageId}]).
-
--spec inc_thumbs(cnf_vote:vote(), thumb_count()) -> 
-  #{up | down => integer()}.
-inc_thumbs(Vote, ThumbAccumulator) ->
-  Thumb = cnf_vote:thumb(Vote),
-  maps:update(Thumb, maps:get(Thumb, ThumbAccumulator) + 1, ThumbAccumulator).
 
 -spec counts_votes_message(MessageId :: integer()) -> thumb_count().
 counts_votes_message(MessageId) ->
   Votes = list_votes(MessageId),
   lists:foldl(fun inc_thumbs/2, #{up =>0, down => 0}, Votes).
 
--spec delete_all() -> non_neg_integer().
-delete_all() -> 
-  sumo:delete_all(cnf_vote).
+-spec inc_thumbs(cnf_vote:vote(), thumb_count()) -> thumb_count().
+inc_thumbs(Vote, ThumbAccumulator) ->
+  Thumb = cnf_vote:thumb(Vote),
+  maps:update(Thumb, maps:get(Thumb, ThumbAccumulator) + 1, ThumbAccumulator).
+

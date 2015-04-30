@@ -27,6 +27,16 @@ stop() ->
 %% behaviour
 %% @private
 start(_StartType, _StartArgs) ->
+  Dispatch = cowboy_router:compile([{'_', [{"/status"
+                                            , cnf_handler_status
+                                            , []
+                                            }]}]),
+
+  cowboy:start_http(my_http_listener
+                    , 100
+                    , [{port, 8080}]
+                    , [{env, [{dispatch, Dispatch}]}]),
+
   conferl_sup:start_link().
 
 %% @private

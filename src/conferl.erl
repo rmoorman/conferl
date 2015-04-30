@@ -24,11 +24,12 @@ start() ->
 stop() ->
   application:stop(conferl).
 
-%% behaviour
+%% behaviour 
 %% @private
 start(_StartType, _StartArgs) ->
   EndPoints = [
                 {<<"/status">>, cnf_handler_status, []}
+              , {<<"/content">>, cnf_content_handler, []}
                 %% Add here new endpoints
               ],
   Dispatch = cowboy_router:compile( [{'_' , EndPoints}]),

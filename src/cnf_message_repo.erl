@@ -37,11 +37,12 @@ write(Message) -> sumo:persist(cnf_message, Message).
   cnf_messages:message().
 write_top(ContentId, MessageText, User, CreatedAt) ->
   TopLevelResponseId = undefined,
-  Message = cnf_message:new(ContentId
-                                , TopLevelResponseId
-                                , MessageText
-                                , User
-                                , CreatedAt),
+  Message = 
+    cnf_message:new(ContentId
+                   , TopLevelResponseId
+                   , MessageText
+                   , User
+                   , CreatedAt),
   sumo:persist(cnf_message, Message).
 
 -spec write_reply(integer()
@@ -51,11 +52,12 @@ write_top(ContentId, MessageText, User, CreatedAt) ->
                   , conferl_utils:datetime()) -> 
   cnf_messages:message().
 write_reply(ContentId, ResponseId, MessageText, User, CreatedAt) ->
-  Message = cnf_message:new(ContentId
-                                , ResponseId
-                                , MessageText
-                                , User
-                                , CreatedAt),
+  Message = 
+    cnf_message:new(ContentId
+                   , ResponseId
+                   , MessageText
+                   , User
+                   , CreatedAt),
   sumo:persist(cnf_message, Message).
 
 -spec delete(cnf_messages:message()) -> non_neg_integer().

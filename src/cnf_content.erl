@@ -15,10 +15,10 @@
 -author('David Cao <david.cao@inakanetworks.com>').
 
 -opaque content() ::
-        #{  id        => integer()
-          , url       => string()
-          , domain    => string()
-          , user      => integer() 
+        #{  id      => integer()
+          , url     => string()
+          , domain  => string()
+          , user    => integer() 
            %date
           }.
 
@@ -71,10 +71,10 @@ sumo_sleep(Content) ->  Content.
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
     sumo:new_schema(?MODULE, [
-    sumo:new_field(id       , integer,        [id, auto_increment, not_null]),
-    sumo:new_field(user     , integer,        [not_null]),
-    sumo:new_field(url      , string ,        [not_null]),
-    sumo:new_field(domain   , string ,        [not_null])
+    sumo:new_field(id    , integer, [id, auto_increment, not_null]),
+    sumo:new_field(user  , integer, [not_null]),
+    sumo:new_field(url   , string , [not_null]),
+    sumo:new_field(domain, string , [not_null])
   ]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -85,10 +85,10 @@ sumo_schema() ->
 
 -spec new( string(), integer()) -> content() | invalid_url.
 new(Url, User) -> 
-  #{  id       => undefined
-    , url      => Url
-    , domain   => get_domain(Url)
-    , user     => User
+  #{  id      => undefined
+    , url     => Url
+    , domain  => get_domain(Url)
+    , user    => User
       %date
     }.
 

@@ -28,7 +28,7 @@ handle(Req, State) ->
   {ok, Req2} =
     cowboy_req:reply(200
                     , [{<<"content-type">>, <<"text/plain">>}]
-                    , <<"{status:ok}">>
+                    , <<"{status: \"ok\"}">>
                     , Req),
   {ok, Req2, State}.
 

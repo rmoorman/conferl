@@ -12,7 +12,7 @@
 % specific language governing permissions and limitations
 % under the License.
 
--module(cnf_handler_status).
+-module(cnf_status_handler).
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
@@ -28,7 +28,7 @@ handle(Req, State) ->
   {ok, Req2} =
     cowboy_req:reply(200
                     , [{<<"content-type">>, <<"text/plain">>}]
-                    , <<"{status: \"ok\"}">>
+                    , <<"{\"status\" : \"ok\"}">>
                     , Req),
   {ok, Req2, State}.
 

@@ -24,8 +24,36 @@
         }.
 
 -export_type([datetime/0]).
--export([now_datetime/0]).
+-export([ now_datetime/0
+        , handle_exception/3
+        ]).
 
 -spec now_datetime() -> datetime().
 now_datetime() ->
   {datetime, calendar:universal_time()}.
+
+
+-spec handle_exception(atom(), cowboy_req:req(), term()) ->
+    {halt, cowboy_req:req(), term()}.
+handle_exception(duplicate_user, Req, State) ->
+  {ok, Req1} = cowboy_req:reply(400, Req),
+  {halt, Req1, State};
+handle_exception(duplicate_content, Req, State) ->
+  {ok, Req1} = cowboy_req:reply(400, Req),
+  {halt, Req1, State};
+handle_exception(not_found, Req, State) ->
+  {ok, Req1} = cowboy_req:reply(404, Req),
+  {halt, Req1, State};
+handle_exception(Reason, Req, State) ->
+  lager:error("~p. Stack Trace: ~p", [Reason, erlang:get_stacktrace()]),
+  lager:error("~p. handle_exception! Reason ~p", [Reason]),
+  {ok, Req1} =
+    try cowboy_req:reply(501, Req)
+    catch
+      _:Error ->
+        lager:critical(
+          "~p trying to report error through cowboy. Stack Trace: ~p",
+          [Error, erlang:get_stacktrace()]),
+        {ok, Req}
+    end,
+  {halt, Req1, State}.

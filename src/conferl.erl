@@ -28,8 +28,8 @@ stop() ->
 %% @private
 start(_StartType, _StartArgs) ->
   EndPoints = [
-                {<<"/status">>, cnf_handler_status, []}
-              , {<<"/content">>, cnf_content_handler, []}
+                {<<"/status">>, cnf_status_handler, []}
+              , {<<"/contents/[:id_content]">>, cnf_contents_handler, []}
                 %% Add here new endpoints
               ],
   Dispatch = cowboy_router:compile( [{'_' , EndPoints}]),

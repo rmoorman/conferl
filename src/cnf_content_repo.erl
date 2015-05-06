@@ -17,7 +17,6 @@
 %%% General repo functions.
 -export(
   [ update/1
-  , delete_all/0
   , find_by_url/1
   , find_by_user/1
   , register/2
@@ -29,9 +28,6 @@
 -spec update(cnf_content:content()) -> cnf_content:content().
 update(Content) ->
   sumo:persist(cnf_content, Content).
-
--spec delete_all() -> integer(). 
-delete_all() -> sumo:delete_all(cnf_content). 
   
 -spec find_by_url(string()) -> [cnf_content:content()].
 find_by_url(Url) ->
@@ -49,10 +45,9 @@ register(Url, User) ->
     _   -> throw(duplicate_content)
   end.
 
--spec unregister(cnf_content:content()) -> non_neg_integer().
-unregister(Content) ->  
-  Id = cnf_content:id(Content),
-  sumo:delete_by(cnf_content, [{id, Id}]).
+-spec unregister(non_neg_integer()) -> non_neg_integer().
+unregister(Id) ->  
+  sumo:delete(cnf_content, Id).
 
 -spec fetch(integer()) -> notfound | cnf_content:content().
 fetch(ContentId) -> 

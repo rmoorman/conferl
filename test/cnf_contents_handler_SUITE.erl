@@ -81,7 +81,6 @@ test_handle_post_ok(Config) ->
   {ok, Response} = api_call(post, "/contents", Header,  JsonBody),
   #{status_code := 204} = Response,
   #{headers := ResponseHeaders} = Response,
-  ct:pal("ResponseHeaders ~p", [ResponseHeaders]),
   Location = proplists:get_value(<<"location">>, ResponseHeaders),
   <<"http://localhost/contents/", _Id/binary>> = Location.
 
@@ -91,26 +90,21 @@ test_handle_post_duplicated(Config) ->
   JsonBody = jiffy:encode(Body),
   cnf_content_repo:register("http://inaka.net/post_duplicated", 2345),
   {ok, Response} = api_call(post, "/contents", Header,  JsonBody),
-  ct:pal("Response test_handle_post_duplicated ~p", [Response]),
   #{status_code := 400} = Response.
 
 test_handle_delete_ok(Config) ->
   Header = #{<<"Content-Type">> => <<"application/json">>},
   Body = #{url => <<"http://inaka.net/">>, user_id => 2345},
   Content = cnf_content_repo:register("http://inaka.net/delete_ok", 2345),
-  ct:pal("Content ~p", [Content]),
   Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
   {ok, Response} = api_call(delete, Url, Header),
-  ct:pal("Response test_handle_delete_ok ~p", [Response]),
   #{status_code := 204} = Response.
 
 test_get_ok(Config) ->
   Header = #{<<"Content-Type">> => <<"application/json">>},
   Content = cnf_content_repo:register("http://inaka.net/get_ok", 2345),
-  ct:pal("Content ~p", [Content]),
   Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
   {ok, Response} = api_call(get, Url, Header),
-  ct:pal("Response test_get_ok ~p", [Response]),
   #{status_code := 200} = Response.
 
 test_get_qs_ok(Config) ->
@@ -118,7 +112,6 @@ test_get_qs_ok(Config) ->
   Domain = "inaka.net",
   Url = "/contents/?domain=" ++  Domain,
   {ok, Response} = api_call(get, Url, Header),
-  ct:pal("Response test_get_ok ~p", [Response]),
   #{status_code := 200} = Response.
 
 -spec api_call(atom(), string(), map()) -> {atom(), map()}.

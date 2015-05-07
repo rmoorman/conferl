@@ -43,17 +43,14 @@ allowed_methods(Req, State) ->
   , State}.
 
 handle_post(Req, State) ->
-    lager:info("handle_get"),
     {ok, JsonBody, Req1} = cowboy_req:body(Req),
     Body = jiffy:decode(JsonBody, [return_maps]),
-    lager:info("body ~p", [Body]),
     #{<<"url">> := Url, <<"user_id">> := UserId} = Body,
     try
       Content = cnf_content_repo:register(binary_to_list(Url), UserId),
       Id = cnf_content:id(Content),
       {Host, Req2} = cowboy_req:url(Req1),
       Location = [Host, <<"/">>, list_to_binary(integer_to_list(Id))],
-      lager:info("Location ~p", [Location]),
       Req3 = cowboy_req:set_resp_header(<<"Location">>, Location, Req2),
       {true, Req3, State}
     catch
@@ -62,32 +59,21 @@ handle_post(Req, State) ->
     end.
 
 handle_get(Req, State) ->
-  lager:debug("handle_post"),
   {QsVal, Req2} =  cowboy_req:qs_val(<<"domain">>, Req),
-  lager:info("QsVal ~p", [QsVal]),
   case QsVal of
     undefined      -> {Id, Req3} = cowboy_req:binding(id_content, Req2),
-      lager:info("get_resource - id_content ~p", [Id]),
       RequestContent =
-        cnf_content_repo:find(list_to_integer(binary_to_list(Id))),
-      lager:info("RequestContent ~p", [RequestContent]),
+      cnf_content_repo:find(list_to_integer(binary_to_list(Id))),
       Body =  jiffy:encode(RequestContent),
-      lager:info("Body ~p", [Body]),
       {Body, Req3, State};
     Query  -> RequestContent =
       cnf_content_repo:find_by_domain(binary_to_list(Query)),
-      lager:info("RequestContent qs ~p", [RequestContent]),
       Body =  jiffy:encode(RequestContent),
-      lager:info("Body ~p", [Body]),
       {Body, Req2, State}
     end.
 
-
-
-
 delete_resource(Req, State) ->
   {Id, Req1} = cowboy_req:binding(id_content, Req),
-  lager:info("delete_resource - id_content ~p", [Id]),
   cnf_content_repo:unregister(list_to_integer(binary_to_list(Id))),
   {true, Req1, State}.
 

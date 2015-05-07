@@ -4,13 +4,13 @@ DEPS = lager cowboy sync sumo mixer jiffy xref_runner
 
 TEST_DEPS = shotgun
 
-dep_lager 			= git https://github.com/basho/lager.git 		 2.1.0
-dep_sync 				= git https://github.com/inaka/sync.git 		 0.1.3
-dep_sumo 				= git https://github.com/inaka/sumo_db.git 	 0.3.5
-dep_cowboy 			= git git://github.com/ninenines/cowboy.git  1.0.1
-dep_mixer 			= git git://github.com/inaka/mixer.git 			 0.1.3
-dep_jiffy				= git git://github.com/davisp/jiffy.git 		 0.11.3
-dep_shotgun 		= git git://github.com/inaka/shotgun.git 		 0.1.8
+dep_lager       = git https://github.com/basho/lager.git     2.1.0
+dep_sync        = git https://github.com/inaka/sync.git      0.1.3
+dep_sumo        = git https://github.com/inaka/sumo_db.git   0.3.5
+dep_cowboy      = git git://github.com/ninenines/cowboy.git  1.0.1
+dep_mixer       = git git://github.com/inaka/mixer.git       0.1.3
+dep_jiffy       = git git://github.com/davisp/jiffy.git      0.11.3
+dep_shotgun     = git git://github.com/inaka/shotgun.git     0.1.8
 dep_xref_runner = git git://github.com/inaka/xref_runner.git 0.2.2
 
 PLT_APPS := inets

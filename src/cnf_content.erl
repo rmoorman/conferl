@@ -19,7 +19,6 @@
           , url     => string()
           , domain  => string()
           , user    => integer()
-           %date
           }.
 
 -export_type( [content/0]).
@@ -50,7 +49,7 @@
 -spec get_domain(string()) -> string() | invalid_url.
 get_domain(Url) ->
   case http_uri:parse(Url) of
-    {error, _}              -> throw(invalid_url);
+    {error, _} -> throw(invalid_url);
     {ok, {_ , _, Domain, _, _, _}} -> Domain
   end.
 

@@ -13,11 +13,9 @@
 
 %% cowboy
 init(_Transport, _Req, _Opts) ->
-  lager:info("Init "),
   {upgrade, protocol, cowboy_rest}.
 
 rest_init(Req, _Opts) ->
-  lager:info("rest_init"),
   {ok, Req, #{}}.
 
 rest_terminate(_Req, _State) ->

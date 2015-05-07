@@ -2,7 +2,7 @@
 % Version 2.0 (the "License"); you may not use this file
 % except in compliance with the License.  You may obtain
 % a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
 %
 % Unless required by applicable law or agreed to in writing,
@@ -45,8 +45,8 @@ ignored_funs() ->
   ].
 
 -spec all() -> [atom()].
-all() -> 
-  [Fun || {Fun, 1} <- module_info(exports), 
+all() ->
+  [Fun || {Fun, 1} <- module_info(exports),
           not lists:member(Fun, ignored_funs())].
 
 %% @doc definion of init_per_testcases
@@ -66,12 +66,12 @@ end_per_suite(Config) ->
 
 %% @doc definion of init_per_testcases
 
-init_per_testcase(_Function, Config) -> 
+init_per_testcase(_Function, Config) ->
   Config.
 
 %% @doc definion of end_per_testcases
 
-end_per_testcase(_Function, Config) -> 
+end_per_testcase(_Function, Config) ->
   Config.
 
 
@@ -83,7 +83,7 @@ test_handle_post_ok(Config) ->
   #{status_code := 204} = Response,
   #{headers := ResponseHeaders} = Response,
   ct:pal("ResponseHeaders ~p", [ResponseHeaders]),
-  Location = proplists:get_value(<<"location">>,ResponseHeaders),
+  Location = proplists:get_value(<<"location">>, ResponseHeaders),
   <<"http://localhost/contents/", _Id/binary>> = Location.
 
 test_handle_post_duplicated(Config) ->
@@ -101,7 +101,7 @@ test_handle_delete_ok(Config) ->
   Content = cnf_content_repo:register("http://inaka.net/delete_ok", 2345),
   ct:pal("Content ~p", [Content]),
   Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
-  {ok, Response} = api_call(delete, Url, Header), 
+  {ok, Response} = api_call(delete, Url, Header),
   ct:pal("Response test_handle_delete_ok ~p", [Response]),
   #{status_code := 204} = Response.
 
@@ -110,15 +110,15 @@ test_get_ok(Config) ->
   Content = cnf_content_repo:register("http://inaka.net/get_ok", 2345),
   ct:pal("Content ~p", [Content]),
   Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
-  {ok, Response} = api_call(get, Url, Header), 
+  {ok, Response} = api_call(get, Url, Header),
   ct:pal("Response test_get_ok ~p", [Response]),
   #{status_code := 200} = Response.
 
-test_get_qs_ok(Config) -> 
+test_get_qs_ok(Config) ->
   Header = #{<<"Content-Type">> => <<"text/plain; charset=utf-8">>} ,
   Domain = "inaka.net",
   Url = "/contents/?domain=" ++  Domain,
-  {ok, Response} = api_call(get, Url, Header), 
+  {ok, Response} = api_call(get, Url, Header),
   ct:pal("Response test_get_ok ~p", [Response]),
   #{status_code := 200} = Response.
 

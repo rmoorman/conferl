@@ -2,7 +2,7 @@
 % Version 2.0 (the "License"); you may not use this file
 % except in compliance with the License.  You may obtain
 % a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
 %
 % Unless required by applicable law or agreed to in writing,
@@ -21,7 +21,7 @@
         , end_per_suite/1
         , init_per_testcase/2
         , test_create_content/1
-        , test_create_user_bad/1 
+        , test_create_user_bad/1
         , double_registration_bad/1
         , test_list_contents/1
         , fetch_notfound_content/1
@@ -43,8 +43,8 @@ ignored_funs() ->
   ].
 
 -spec all() -> [atom()].
-all() -> 
-  [Fun || {Fun, 1} <- module_info(exports), 
+all() ->
+  [Fun || {Fun, 1} <- module_info(exports),
           not lists:member(Fun, ignored_funs())].
 
 %% @doc definion of init_per_testcases
@@ -61,23 +61,23 @@ end_per_suite(Config) ->
   Config.
 
 %% @doc definion of init_per_testcases
-init_per_testcase(test_create_content, _Config) -> 
+init_per_testcase(test_create_content, _Config) ->
   [ {url, "http://inaka.net/"}
   , {user, 10}
   ];
 
-init_per_testcase(test_create_user_bad, _Config) -> 
+init_per_testcase(test_create_user_bad, _Config) ->
   [ {url, "bad_url!!!!!"}
   , {user, 10}
   ];
 
-init_per_testcase(double_registration_bad, _Config) -> 
+init_per_testcase(double_registration_bad, _Config) ->
   [ {url, "http://inaka.net/"}
   , {user, 10}
   ];
-init_per_testcase(fetch_notfound_content, _Config)  -> 
+init_per_testcase(fetch_notfound_content, _Config)  ->
   [{id, 999999}];
-init_per_testcase(test_list_contents, _Config)  -> 
+init_per_testcase(test_list_contents, _Config)  ->
   [{urls, [{"http://inaka.net/11", 11}
         , {"http://inaka.net/12",  12}
         , {"http://inaka.net/13",  13}
@@ -87,7 +87,7 @@ init_per_testcase(test_list_contents, _Config)  ->
   , {domain, "inaka.net" }
   ];
 
-init_per_testcase(_, Config)  -> 
+init_per_testcase(_, Config)  ->
   Config.
 
 %% @doc tests for new content
@@ -103,18 +103,18 @@ test_create_user_bad(Config) ->
   User    = proplists:get_value(user, Config),
   try cnf_content:new(Url, User) of
     _Content -> ct:fail("Unexpected result (!)")
-  catch 
+  catch
     throw:invalid_url -> ok
-  end.  
+  end.
 
 %% @doc tests for register
--spec double_registration_bad(config()) -> ok. 
+-spec double_registration_bad(config()) -> ok.
 double_registration_bad(Config) ->
   Url     = proplists:get_value(url, Config),
   User    = proplists:get_value(user, Config),
   cnf_content_repo:register(Url, User),
   try cnf_content_repo:register(Url, User) of
-    _Content -> ct:fail("Unexpected result (!)") 
+    _Content -> ct:fail("Unexpected result (!)")
   catch
     throw:duplicate_content -> ok;
     Error:Reason            -> ct:pal("~p ~p", [Error, Reason])
@@ -122,11 +122,11 @@ double_registration_bad(Config) ->
 
 %% @doc tests for fetch of content
 -spec fetch_notfound_content(config()) -> ok.
-fetch_notfound_content(Config) -> 
+fetch_notfound_content(Config) ->
   ContentId   = proplists:get_value(id, Config),
   try cnf_content_repo:fetch(ContentId) of
     _Content -> ct:fail("Unexpected result (!)")
-  catch 
+  catch
     throw:notfound  -> ok
   end.
 
@@ -137,7 +137,7 @@ test_list_contents(Config) ->
   [cnf_content_repo:register(Url, User) || {Url, User} <- Urls ],
   Domain    = proplists:get_value(domain, Config),
   Contents  = cnf_content_repo:list(Domain),
-  FilterFun = fun(Cont) -> 
-                maps:get(domain, Cont) == proplists:get_value(domain, Config) 
+  FilterFun = fun(Cont) ->
+                maps:get(domain, Cont) == proplists:get_value(domain, Config)
               end,
   [ ct:fail("Unexpected result (!)") || lists:all( FilterFun , Contents)].

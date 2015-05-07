@@ -64,7 +64,7 @@ handle_get(Req, State) ->
   {QsVal, Req2} =  cowboy_req:qs_val(<<"domain">>, Req),
   lager:info("QsVal ~p", [QsVal]),
   case QsVal of 
-        undefined      -> {Id, Req3} = cowboy_req:binding(id_content, Req2), 
+    undefined      -> {Id, Req3} = cowboy_req:binding(id_content, Req2), 
       lager:info("get_resource - id_content ~p", [Id]),
       RequestContent = cnf_content_repo:find(list_to_integer(binary_to_list(Id))),
       lager:info("RequestContent ~p", [RequestContent]),

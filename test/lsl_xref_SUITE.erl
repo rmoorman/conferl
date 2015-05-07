@@ -2,7 +2,7 @@
 % Version 2.0 (the "License"); you may not use this file
 % except in compliance with the License.  You may obtain
 % a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
 %
 % Unless required by applicable law or agreed to in writing,
@@ -35,8 +35,8 @@ ignored_funs() ->
   ].
 
 -spec all() -> [atom()].
-all() -> 
-  [Fun || {Fun, 1} <- module_info(exports), 
+all() ->
+  [Fun || {Fun, 1} <- module_info(exports),
           not lists:member(Fun, ignored_funs())].
 
 -spec xref(lsl_test_utils:config()) -> {comment, []}.

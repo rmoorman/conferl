@@ -19,12 +19,11 @@
 -include_lib("mixer/include/mixer.hrl").
 -mixin([
         {cnf_default_handler,
-         [
-          init/3,
-          rest_init/2,
-          rest_terminate/2,
-          content_types_accepted/2,
-          content_types_provided/2
+         [ init/3
+         , rest_init/2
+         , rest_terminate/2
+         , content_types_accepted/2
+         , content_types_provided/2
          ]}
        ]).
 
@@ -58,10 +57,8 @@ handle_post(Req, State) ->
       Req3 = cowboy_req:set_resp_header(<<"Location">>, Location, Req2),
       {true, Req3, State}
     catch
-      throw:Exception ->
-        cnf_utils:handle_exception(Exception, Req, State);
-      Type:Exception ->
-        cnf_utils:handle_exception({Type, Exception}, Req, State)
+      _throw:Exception ->
+        cnf_utils:handle_exception(Exception, Req, State)
     end.
 
 handle_get(Req, State) ->
@@ -71,7 +68,7 @@ handle_get(Req, State) ->
   case QsVal of
     undefined      -> {Id, Req3} = cowboy_req:binding(id_content, Req2),
       lager:info("get_resource - id_content ~p", [Id]),
-         =
+      RequestContent =
         cnf_content_repo:find(list_to_integer(binary_to_list(Id))),
       lager:info("RequestContent ~p", [RequestContent]),
       Body =  jiffy:encode(RequestContent),

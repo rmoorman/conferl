@@ -2,7 +2,7 @@
 % Version 2.0 (the "License"); you may not use this file
 % except in compliance with the License.  You may obtain
 % a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
 %
 % Unless required by applicable law or agreed to in writing,
@@ -33,11 +33,11 @@ write(Message) -> sumo:persist(cnf_message, Message).
 -spec write_top(integer()
                 , string()
                 , integer()
-                , conferl_utils:datetime()) -> 
+                , conferl_utils:datetime()) ->
   cnf_messages:message().
 write_top(ContentId, MessageText, User, CreatedAt) ->
   TopLevelResponseId = undefined,
-  Message = 
+  Message =
     cnf_message:new(ContentId
                    , TopLevelResponseId
                    , MessageText
@@ -49,10 +49,10 @@ write_top(ContentId, MessageText, User, CreatedAt) ->
                   , integer()
                   , string()
                   , integer()
-                  , conferl_utils:datetime()) -> 
+                  , conferl_utils:datetime()) ->
   cnf_messages:message().
 write_reply(ContentId, ResponseId, MessageText, User, CreatedAt) ->
-  Message = 
+  Message =
     cnf_message:new(ContentId
                    , ResponseId
                    , MessageText
@@ -61,15 +61,15 @@ write_reply(ContentId, ResponseId, MessageText, User, CreatedAt) ->
   sumo:persist(cnf_message, Message).
 
 -spec delete(non_neg_integer()) -> boolean().
-delete(Id) -> 
+delete(Id) ->
   sumo:delete(cnf_message, Id).
 
  -spec delete_by_content_id(non_neg_integer()) -> non_neg_integer().
-delete_by_content_id(ContentId) -> 
+delete_by_content_id(ContentId) ->
   sumo:delete_by(cnf_message, [{content_id, ContentId}]).
 
 -spec list(integer()) -> [cnf_messages:message()].
- list(ContentId) -> 
+ list(ContentId) ->
   sumo:find_by(cnf_message, [{content_id, ContentId}]).
 
 -spec list_replies(non_neg_integer()) -> [cnf_messages:message()].
@@ -78,7 +78,7 @@ list_replies(MessageResponseId) ->
   % Is equal to use   --------> [{response_id,'==', MessageResponseId}]).
 
 -spec list_top_level(non_neg_integer()) -> [cnf_messages:message()].
-list_top_level(ContentId) -> 
+list_top_level(ContentId) ->
   sumo:find_by(cnf_message, [ {content_id,  ContentId}
                             , {response_id, null}
                             ]).

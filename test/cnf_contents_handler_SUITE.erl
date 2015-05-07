@@ -22,9 +22,11 @@
         , init_per_suite/1
         , end_per_suite/1
         , init_per_testcase/2
+        , end_per_testcase/2
         , test_handle_post_ok/1
         , test_handle_delete_ok/1
         , test_get_ok/1
+        , test_get_qs_ok/1
         , test_handle_post_duplicated/1
         ]).
 
@@ -59,7 +61,7 @@ init_per_suite(Config) ->
 
 -spec end_per_suite(config()) -> config().
 end_per_suite(Config) ->
-  sumo:delete_all(cnf_content),
+ % sumo:delete_all(cnf_content),
   Config.
 
 %% @doc definion of init_per_testcases
@@ -105,14 +107,20 @@ test_handle_delete_ok(Config) ->
 
 test_get_ok(Config) ->
   Header = #{<<"Content-Type">> => <<"application/json">>},
-  Body = #{url => <<"http://inaka.net/">>, user_id => 2345},
   Content = cnf_content_repo:register("http://inaka.net/get_ok", 2345),
   ct:pal("Content ~p", [Content]),
   Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
   {ok, Response} = api_call(get, Url, Header), 
   ct:pal("Response test_get_ok ~p", [Response]),
-  #{status_code := 204} = Response.
+  #{status_code := 200} = Response.
 
+test_get_qs_ok(Config) -> 
+  Header = #{<<"Content-Type">> => <<"text/plain; charset=utf-8">>} ,
+  Domain = "inaka.net",
+  Url = "/contents/?domain=" ++  Domain,
+  {ok, Response} = api_call(get, Url, Header), 
+  ct:pal("Response test_get_ok ~p", [Response]),
+  #{status_code := 200} = Response.
 
 -spec api_call(atom(), string(), map()) -> {atom(), map()}.
 api_call(Method, Url, Headers) ->

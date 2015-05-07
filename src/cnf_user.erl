@@ -2,7 +2,7 @@
 % Version 2.0 (the "License"); you may not use this file
 % except in compliance with the License.  You may obtain
 % a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
 %
 % Unless required by applicable law or agreed to in writing,
@@ -15,7 +15,7 @@
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
--type user() :: 
+-type user() ::
   #{  id        => integer()
     , user_name => string()
     , password  => string()
@@ -84,25 +84,25 @@ new(UserName, Password, Email) ->
 id(User) -> maps:get(id, User).
 
 -spec user_name(user()) -> string().
-user_name(User) -> 
+user_name(User) ->
   maps:get(user_name,User).
 
 -spec user_name(user(), string()) -> user().
-user_name(User, UserName) -> 
+user_name(User, UserName) ->
   User#{user_name => UserName}.
 
 -spec password(user()) -> string().
-password(User) -> 
+password(User) ->
   maps:get(password, User).
 
 -spec password(user(), string()) -> user().
-password(User, Password) -> 
+password(User, Password) ->
   User#{password => Password}.
 
 -spec email(user()) -> string().
-email(User) -> 
+email(User) ->
   maps:get(email, User).
 
 -spec email(user(), string()) -> user().
-email(User, Email) -> 
+email(User, Email) ->
   User#{email => Email}.

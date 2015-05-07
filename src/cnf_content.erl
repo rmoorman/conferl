@@ -2,7 +2,7 @@
 % Version 2.0 (the "License"); you may not use this file
 % except in compliance with the License.  You may obtain
 % a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
 %
 % Unless required by applicable law or agreed to in writing,
@@ -18,7 +18,7 @@
         #{  id      => integer()
           , url     => string()
           , domain  => string()
-          , user    => integer() 
+          , user    => integer()
            %date
           }.
 
@@ -47,12 +47,12 @@
 %% @doc functions definitions for content
 
 
--spec get_domain(string()) -> string() | invalid_url. 
-get_domain(Url) -> 
+-spec get_domain(string()) -> string() | invalid_url.
+get_domain(Url) ->
   case http_uri:parse(Url) of
-    {error, _}              -> throw(invalid_url); 
+    {error, _}              -> throw(invalid_url);
     {ok, {_ , _, Domain, _, _, _}} -> Domain
-  end.  
+  end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% BEHAVIOUR CALLBACKS
@@ -84,7 +84,7 @@ sumo_schema() ->
 %% @doc functions definitions for content
 
 -spec new( string(), integer()) -> content() | invalid_url.
-new(Url, User) -> 
+new(Url, User) ->
   #{  id      => undefined
     , url     => Url
     , domain  => get_domain(Url)
@@ -106,9 +106,9 @@ url(Content, Url) ->
   Content#{ url => Url}.
 
 -spec user(content()) -> integer().
-user(Content) -> 
+user(Content) ->
   maps:get(user, Content).
 
 -spec user(content(), integer()) -> content().
-user(Content, User) -> 
-  Content#{user => User}.  
+user(Content, User) ->
+  Content#{user => User}.

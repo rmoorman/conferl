@@ -61,13 +61,25 @@ handle_post(Req, State) ->
 
 handle_get(Req, State) ->
   lager:debug("handle_post"),
-  {Id, Req1} = cowboy_req:binding(id_content, Req), 
-  lager:info("get_resource - id_content ~p", [Id]),
-  RequestContent = cnf_content_repo:find(list_to_integer(binary_to_list(Id))),
-  lager:info("RequestContent ~p", [RequestContent]),
-  Body =  jiffy:encode(RequestContent),
-  lager:info("Body ~p", [Body]),
-  {Body, Req1, State}.
+  {QsVal, Req2} =  cowboy_req:qs_val(<<"domain">>, Req),
+  lager:info("QsVal ~p", [QsVal]),
+  case QsVal of 
+        undefined      -> {Id, Req3} = cowboy_req:binding(id_content, Req2), 
+      lager:info("get_resource - id_content ~p", [Id]),
+      RequestContent = cnf_content_repo:find(list_to_integer(binary_to_list(Id))),
+      lager:info("RequestContent ~p", [RequestContent]),
+      Body =  jiffy:encode(RequestContent),
+      lager:info("Body ~p", [Body]),
+      {Body, Req3, State};
+    Query  -> RequestContent = cnf_content_repo:find_by_domain(binary_to_list(Query)),
+      lager:info("RequestContent qs ~p", [RequestContent]),
+      Body =  jiffy:encode(RequestContent),
+      lager:info("Body ~p", [Body]),
+      {Body, Req2, State}
+    end.
+    
+
+
 
 delete_resource(Req, State) ->  
   {Id, Req1} = cowboy_req:binding(id_content, Req),  

@@ -2,7 +2,7 @@
 % Version 2.0 (the "License"); you may not use this file
 % except in compliance with the License.  You may obtain
 % a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
 %
 % Unless required by applicable law or agreed to in writing,
@@ -20,6 +20,7 @@
   , find/1
   , find_by_url/1
   , find_by_user/1
+  , find_by_domain/1
   , register/2
   , unregister/1
   , fetch/1
@@ -29,21 +30,25 @@
 -spec update(cnf_content:content()) -> cnf_content:content().
 update(Content) ->
   sumo:persist(cnf_content, Content).
-  
+
 -spec find_by_url(string()) -> [cnf_content:content()].
 find_by_url(Url) ->
   sumo:find_by(cnf_content, [{url, Url}]).
 
 -spec find(non_neg_integer()) -> [cnf_content:content()].
 find(ContentId)  ->
-  sumo:find(cnf_content, ContentId). 
+  sumo:find(cnf_content, ContentId).
 
 -spec find_by_user(integer()) -> [cnf_content:content()].
 find_by_user(UserIdUserId)  ->
-  sumo:find_by(cnf_content,[{user, UserIdUserId}]). 
+  sumo:find_by(cnf_content,[{user, UserIdUserId}]).
+
+-spec find_by_domain(string()) -> [cnf_content:content()].
+find_by_domain(Domain)  ->
+  sumo:find_by(cnf_content,[{domain, Domain}]).
 
 -spec register(string(), integer()) -> cnf_content:content().
-register(Url, User) -> 
+register(Url, User) ->
   Content = cnf_content:new(Url, User),
   case find_by_url( cnf_content:url(Content) ) of
     []  -> sumo:persist(cnf_content, Content);
@@ -51,16 +56,16 @@ register(Url, User) ->
   end.
 
 -spec unregister(non_neg_integer()) -> boolean().
-unregister(Id) ->  
+unregister(Id) ->
   sumo:delete(cnf_content, Id).
 
 -spec fetch(integer()) -> notfound | cnf_content:content().
-fetch(ContentId) -> 
+fetch(ContentId) ->
   case sumo:find(cnf_content,ContentId) of
     notfound  -> throw(notfound);
     Content   -> Content
-  end.  
+  end.
 
 -spec list(string()) -> [cnf_content:content()].
-list(Domain) ->   
-  sumo:find_by(cnf_content, [{domain, Domain}]). 
+list(Domain) ->
+  sumo:find_by(cnf_content, [{domain, Domain}]).

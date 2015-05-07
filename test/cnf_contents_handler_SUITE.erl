@@ -24,6 +24,7 @@
         , init_per_testcase/2
         , test_handle_post_ok/1
         , test_handle_delete_ok/1
+        , test_get_ok/1
         , test_handle_post_duplicated/1
         ]).
 
@@ -93,7 +94,6 @@ test_handle_post_duplicated(Config) ->
   #{status_code := 400} = Response.
 
 test_handle_delete_ok(Config) ->
-  ct:pal("Config ~p", [Config]),
   Header = #{<<"Content-Type">> => <<"application/json">>},
   Body = #{url => <<"http://inaka.net/">>, user_id => 2345},
   Content = cnf_content_repo:register("http://inaka.net/delete_ok", 2345),
@@ -101,6 +101,16 @@ test_handle_delete_ok(Config) ->
   Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
   {ok, Response} = api_call(delete, Url, Header), 
   ct:pal("Response test_handle_delete_ok ~p", [Response]),
+  #{status_code := 204} = Response.
+
+test_get_ok(Config) ->
+  Header = #{<<"Content-Type">> => <<"application/json">>},
+  Body = #{url => <<"http://inaka.net/">>, user_id => 2345},
+  Content = cnf_content_repo:register("http://inaka.net/get_ok", 2345),
+  ct:pal("Content ~p", [Content]),
+  Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
+  {ok, Response} = api_call(get, Url, Header), 
+  ct:pal("Response test_get_ok ~p", [Response]),
   #{status_code := 204} = Response.
 
 

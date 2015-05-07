@@ -17,6 +17,7 @@
 %%% General repo functions.
 -export(
   [ update/1
+  , find/1
   , find_by_url/1
   , find_by_user/1
   , register/2
@@ -33,6 +34,10 @@ update(Content) ->
 find_by_url(Url) ->
   sumo:find_by(cnf_content, [{url, Url}]).
 
+-spec find(non_neg_integer()) -> [cnf_content:content()].
+find(ContentId)  ->
+  sumo:find(cnf_content, ContentId). 
+
 -spec find_by_user(integer()) -> [cnf_content:content()].
 find_by_user(UserIdUserId)  ->
   sumo:find_by(cnf_content,[{user, UserIdUserId}]). 
@@ -45,7 +50,7 @@ register(Url, User) ->
     _   -> throw(duplicate_content)
   end.
 
--spec unregister(non_neg_integer()) -> non_neg_integer().
+-spec unregister(non_neg_integer()) -> boolean().
 unregister(Id) ->  
   sumo:delete(cnf_content, Id).
 

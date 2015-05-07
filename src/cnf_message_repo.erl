@@ -60,7 +60,7 @@ write_reply(ContentId, ResponseId, MessageText, User, CreatedAt) ->
                    , CreatedAt),
   sumo:persist(cnf_message, Message).
 
--spec delete(non_neg_integer()) -> non_neg_integer().
+-spec delete(non_neg_integer()) -> boolean().
 delete(Id) -> 
   sumo:delete(cnf_message, Id).
 

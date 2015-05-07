@@ -60,16 +60,20 @@ handle_post(Req, State) ->
     end.
 
 handle_get(Req, State) ->
-    lager:debug("handle_post"),
-    Body = <<"<h1>This is a response for GET</h1>">>,
-    {ok, Req3} = cowboy_req:reply(200, [], Body, Req),
-    {ok, Req3, State}.
+  lager:debug("handle_post"),
+  {Id, Req1} = cowboy_req:binding(id_content, Req), 
+  lager:info("get_resource - id_content ~p", [Id]),
+  RequestContent = cnf_content_repo:find(list_to_integer(binary_to_list(Id))),
+  lager:info("RequestContent ~p", [RequestContent]),
+  Body =  jiffy:encode(RequestContent),
+  lager:info("Body ~p", [Body]),
+  {Body, Req1, State}.
 
 delete_resource(Req, State) ->  
-    {Id, Req1} = cowboy_req:binding(id_content, Req),  
-    lager:info("delete_resource - id_content ~p", [Id]),
-    cnf_content_repo:unregister(list_to_integer(binary_to_list(Id))),  
-    {true, Req1, State}.
+  {Id, Req1} = cowboy_req:binding(id_content, Req),  
+  lager:info("delete_resource - id_content ~p", [Id]),
+  cnf_content_repo:unregister(list_to_integer(binary_to_list(Id))),  
+  {true, Req1, State}.
 
 terminate(_Reason, _Req, _State) ->
   ok.

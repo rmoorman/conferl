@@ -12,7 +12,7 @@
 % specific language governing permissions and limitations
 % under the License.
 
--module(lsl_xref_SUITE).
+-module(xref_SUITE).
 -author('elbrujohalcon@inaka.net').
 
 -export([all/0]).

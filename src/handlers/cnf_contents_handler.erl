@@ -57,7 +57,7 @@ handle_post(Req, State) ->
       Req3 = cowboy_req:set_resp_header(<<"Location">>, Location, Req2),
       {true, Req3, State}
     catch
-      _throw:Exception ->
+      _Type:Exception ->
         cnf_utils:handle_exception(Exception, Req, State)
     end.
 
@@ -78,7 +78,7 @@ handle_get(Req, State) ->
       RequestContent =
         cnf_content_repo:find_by_domain(binary_to_list(Query)),
       Body =
-        jiffy:encode(RequestContent, [uescape]),
+        jiffy:encode(RequestContent),
       {Body, Req2, State}
   end.
 

@@ -33,6 +33,7 @@
         , terminate/3
         , allowed_methods/2
         ]).
+-type state() :: #{}.
 
 allowed_methods(Req, State) ->
   {[ <<"POST">>
@@ -42,6 +43,8 @@ allowed_methods(Req, State) ->
   , Req
   , State}.
 
+-spec handle_post(cowboy_req:req(), state()) ->
+  {halt | true, cowboy_req:req(), state()}.
 handle_post(Req, State) ->
     {ok, JsonBody, Req1} = cowboy_req:body(Req),
     Body = jiffy:decode(JsonBody, [return_maps]),
@@ -58,22 +61,31 @@ handle_post(Req, State) ->
         cnf_utils:handle_exception(Exception, Req, State)
     end.
 
+-spec handle_get(cowboy_req:req(), state()) ->
+  {list(), cowboy_req:req(), state()}.
 handle_get(Req, State) ->
   {QsVal, Req2} =  cowboy_req:qs_val(<<"domain">>, Req),
   case QsVal of
-    undefined      -> {Id, Req3} = cowboy_req:binding(id_content, Req2),
+    undefined ->
+      {Id, Req3} =
+        cowboy_req:binding(content_id, Req2),
       RequestContent =
-      cnf_content_repo:find(list_to_integer(binary_to_list(Id))),
-      Body =  jiffy:encode(RequestContent),
+        cnf_content_repo:find(list_to_integer(binary_to_list(Id))),
+      Body =
+        jiffy:encode(RequestContent),
       {Body, Req3, State};
-    Query  -> RequestContent =
-      cnf_content_repo:find_by_domain(binary_to_list(Query)),
-      Body =  jiffy:encode(RequestContent),
+    Query ->
+      RequestContent =
+        cnf_content_repo:find_by_domain(binary_to_list(Query)),
+      Body =
+        jiffy:encode(RequestContent, [uescape]),
       {Body, Req2, State}
-    end.
+  end.
 
+-spec delete_resource(cowboy_req:req(), state()) ->
+  {boolean(), cowboy_req:req(), state()}.
 delete_resource(Req, State) ->
-  {Id, Req1} = cowboy_req:binding(id_content, Req),
+  {Id, Req1} = cowboy_req:binding(content_id, Req),
   cnf_content_repo:unregister(list_to_integer(binary_to_list(Id))),
   {true, Req1, State}.
 

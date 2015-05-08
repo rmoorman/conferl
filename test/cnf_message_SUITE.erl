@@ -75,8 +75,8 @@ end_per_testcase(_Function, Config) ->
 -spec top_message_create(config()) -> ok.
 top_message_create(Config) ->
   TopMessages = proplists:get_value(top_messages, Config),
-  [cnf_message_repo:write_top(C, M, U, CrAt)
-    || {C, M, U, CrAt} <- TopMessages],
+  [cnf_message_repo:write_top(C, M, U)
+    || {C, M, U} <- TopMessages],
   ContentId = proplists:get_value(top_messages_content_id, Config),
   PersistedTopMessage = cnf_message_repo:list(ContentId),
   true = all_are_top(PersistedTopMessage),
@@ -87,16 +87,16 @@ test_delete_by_content(Config) ->
   TopMessages = proplists:get_value(top_messages, Config),
   Lenght = length(TopMessages),
   ContentId = proplists:get_value(top_messages_content_id, Config),
-  [cnf_message_repo:write_top(C, M, U, CrAt)
-    || {C, M, U, CrAt} <- TopMessages],
+  [cnf_message_repo:write_top(C, M, U)
+    || {C, M, U} <- TopMessages],
   Lenght = cnf_message_repo:delete_by_content_id(ContentId),
   ok.
 
 -spec test_list_top_message(config()) -> ok.
 test_list_top_message(Config) ->
   TopMessages = proplists:get_value(top_messages, Config),
-  [cnf_message_repo:write_top(C, M, U, CrAt)
-    || {C, M, U, CrAt} <- TopMessages],
+  [cnf_message_repo:write_top(C, M, U)
+    || {C, M, U} <- TopMessages],
   ContentId = proplists:get_value(top_messages_content_id, Config),
   PersistedTopM = cnf_message_repo:list_top_level(ContentId),
   true = all_are_top(PersistedTopM),
@@ -106,10 +106,10 @@ test_list_top_message(Config) ->
 message_replys(Config) ->
   TopM = proplists:get_value(top_messages, Config),
   ReplyM = proplists:get_value(reply_message, Config),
-  PersistedTopMessage = [cnf_message_repo:write_top(C, M, U, CrAt)
-                          || {C, M, U, CrAt} <- TopM],
-  [cnf_message_repo:write_reply(C, cnf_message:id(P), M, U, CrAt)
-    || P <- PersistedTopMessage , {C, _R, M, U, CrAt} <- ReplyM],
+  PersistedTopMessage = [cnf_message_repo:write_top(C, M, U)
+                          || {C, M, U} <- TopM],
+  [cnf_message_repo:write_reply(C, cnf_message:id(P), M, U)
+    || P <- PersistedTopMessage , {C, _R, M, U} <- ReplyM],
   MessageListId = [cnf_message:id(P) || P <- PersistedTopMessage],
   PersistedReplyM = lists:flatten([cnf_message_repo:list_replies(Id)
                                     || Id <- MessageListId]),
@@ -131,7 +131,6 @@ get_top_messages_conf() ->
   GenerateTopM = fun(N) -> { 1
                             , "Wow! Top message."
                             , N
-                            , cnf_utils:now_datetime()
                            }
                   end,
   TopMessages  = lists:map(GenerateTopM, lists:seq(1, 10)),
@@ -139,7 +138,6 @@ get_top_messages_conf() ->
                             , undefined
                             , "Such message, very reply."
                             , N
-                            , cnf_utils:now_datetime()
                           }
                   end,
   ReplyMessage = lists:map(GenerateRplM, lists:seq(1, 10)),

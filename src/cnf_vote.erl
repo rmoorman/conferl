@@ -15,32 +15,36 @@
 -module(cnf_vote).
 -author('david.cao@inakanetworks.com').
 
--type thumb() :: up | down .
+-type thumb() :: up | down.
 
 -type vote() ::
         #{  id         => integer()
           , user_id    => integer()
           , message_id => integer()
           , thumb      => thumb()
+          , created_at => conferl_utils:datetime() | undefined
+          , updated_at => conferl_utils:datetime() | undefined
          }.
 
 -export_type([vote/0]).
 
--export([ new/3
-        , id/1
-        , user_id/1
-        , user_id/2
-        , message_id/1
-        , message_id/2
-        , thumb/1
-        , thumb/2
-        ]).
+-export([new/3]).
+-export([id/1]).
+-export([user_id/1]).
+-export([user_id/2]).
+-export([message_id/1]).
+-export([message_id/2]).
+-export([thumb/1]).
+-export([thumb/2]).
+-export([created_at/1]).
+-export([created_at/2]).
+-export([updated_at/1]).
+-export([updated_at/2]).
 
 %%% sumo_db callbacks
--export([ sumo_schema/0
-        , sumo_wakeup/1
-        , sumo_sleep/1
-        ]).
+-export([sumo_schema/0]).
+-export([sumo_wakeup/1]).
+-export([sumo_sleep/1]).
 
 -behavior(sumo_doc).
 
@@ -51,32 +55,38 @@
 %%
 
 -spec sumo_wakeup(sumo:doc()) -> vote().
-sumo_wakeup(Data) -> thumb_wakeup(Data).
+sumo_wakeup(Data) -> cnf_utils:date_wakeup(thumb_wakeup(Data)).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(vote()) -> sumo:doc().
-sumo_sleep(Vote) -> thumb_sleep(Vote).
+sumo_sleep(Vote) -> cnf_utils:date_sleep(thumb_sleep(Vote)).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
   sumo:new_schema(?MODULE, [
-    sumo:new_field(id         , integer, [id, auto_increment, not_null]),
-    sumo:new_field(user_id    , integer, [not_null]),
-    sumo:new_field(message_id , integer, [not_null]),
-    sumo:new_field(thumb      , integer, [not_null])
+    sumo:new_field(id        , integer, [id, auto_increment, not_null]),
+    sumo:new_field(user_id   , integer, [not_null]),
+    sumo:new_field(message_id, integer, [not_null]),
+    sumo:new_field(thumb     , integer, [not_null]),
+    sumo:new_field(created_at, binary , [not_null]),
+    sumo:new_field(updated_at, binary , [not_null])
   ]).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Public Api
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %% @doc functions definitions for message
--spec new(integer(), integer(), thumb()) -> vote().
+-spec new( integer()
+         , integer()
+         , thumb()) -> vote().
 new(UserId, MessageId, Thumb) ->
   #{  id         => undefined
     , message_id => MessageId
     , user_id    => UserId
     , thumb      => Thumb
+    , created_at => cnf_utils:now_datetime()
+    , updated_at => cnf_utils:now_datetime()
    }.
 
 -spec id(vote()) -> integer().
@@ -106,6 +116,18 @@ thumb(Vote) ->
 -spec thumb(vote(), thumb()) -> vote().
 thumb(Vote, Thumb) ->
   Vote#{thumb => Thumb}.
+
+-spec created_at(vote()) -> conferl_utils:datetime().
+created_at(Vote) -> maps:get(created_at, Vote).
+
+-spec created_at(vote(), conferl_utils:datetime()) -> vote().
+created_at(Vote, CreatedAt) -> Vote#{ reated_at => CreatedAt}.
+
+-spec updated_at(vote()) -> conferl_utils:datetime().
+updated_at(Vote) -> maps:get(updated_at, Vote).
+
+-spec updated_at(vote(), conferl_utils:datetime()) -> vote().
+updated_at(Vote, UpdatedAt) -> Vote#{updated_at => UpdatedAt}.
 
 -spec thumb_wakeup(sumo:doc()) -> vote().
 thumb_wakeup(Vote = #{thumb := 1}) ->

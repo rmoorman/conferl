@@ -16,8 +16,8 @@
 -author('David Cao <david.cao@inakanetworks.com>').
 
 -export([ write/1
-        , write_top/4
-        , write_reply/5
+        , write_top/3
+        , write_reply/4
         , delete/1
         , delete_by_content_id/1
         , list/1
@@ -32,32 +32,28 @@ write(Message) -> sumo:persist(cnf_message, Message).
 
 -spec write_top(integer()
                 , string()
-                , integer()
-                , conferl_utils:datetime()) ->
+                , integer()) ->
   cnf_messages:message().
-write_top(ContentId, MessageText, User, CreatedAt) ->
+write_top(ContentId, MessageText, User) ->
   TopLevelResponseId = undefined,
   Message =
     cnf_message:new(ContentId
                    , TopLevelResponseId
                    , MessageText
-                   , User
-                   , CreatedAt),
+                   , User),
   sumo:persist(cnf_message, Message).
 
 -spec write_reply(integer()
                   , integer()
                   , string()
-                  , integer()
-                  , conferl_utils:datetime()) ->
+                  , integer()) ->
   cnf_messages:message().
-write_reply(ContentId, ResponseId, MessageText, User, CreatedAt) ->
+write_reply(ContentId, ResponseId, MessageText, User) ->
   Message =
     cnf_message:new(ContentId
                    , ResponseId
                    , MessageText
-                   , User
-                   , CreatedAt),
+                   , User),
   sumo:persist(cnf_message, Message).
 
 -spec delete(non_neg_integer()) -> boolean().

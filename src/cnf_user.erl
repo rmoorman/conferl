@@ -16,10 +16,12 @@
 -author('David Cao <david.cao@inakanetworks.com>').
 
 -type user() ::
-  #{  id        => integer()
-    , user_name => string()
-    , password  => string()
-    , email     => string()
+  #{  id         => integer()
+    , user_name  => string()
+    , password   => string()
+    , email      => string()
+    , created_at => conferl_utils:datetime() | undefined
+    , updated_at => conferl_utils:datetime() | undefined
     }.
 
 -export_type([user/0]).
@@ -30,15 +32,18 @@
         , sumo_sleep/1
         ]).
 
--export([ new/3
-        , id/1
-        , user_name/1
-        , user_name/2
-        , password/1
-        , password/2
-        , email/1
-        , email/2
-        ]).
+-export([new/3]).
+-export([id/1]).
+-export([user_name/1]).
+-export([user_name/2]).
+-export([password/1]).
+-export([password/2]).
+-export([email/1]).
+-export([email/2]).
+-export([created_at/1]).
+-export([created_at/2]).
+-export([updated_at/1]).
+-export([updated_at/2]).
 
 -behavior(sumo_doc).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -50,20 +55,22 @@
 %%% sumo_db callbacks
 
 -spec sumo_wakeup(sumo:doc()) -> user().
-sumo_wakeup(Data) -> Data.
+sumo_wakeup(Data) ->  cnf_utils:date_wakeup(Data).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(user()) -> sumo:doc().
-sumo_sleep(User) -> User.
+sumo_sleep(User) ->  cnf_utils:date_sleep(User).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
   sumo:new_schema(?MODULE, [
-    sumo:new_field(id       , integer, [id, auto_increment, not_null]),
-    sumo:new_field(user_name, string,  [not_null]),
-    sumo:new_field(password , string,  [not_null]),
-    sumo:new_field(email    , string,  [not_null])
+    sumo:new_field(id        , integer , [id, auto_increment, not_null]),
+    sumo:new_field(user_name , string  , [not_null]),
+    sumo:new_field(password  , string  , [not_null]),
+    sumo:new_field(email     , string  , [not_null]),
+    sumo:new_field(created_at, datetime, [not_null]),
+    sumo:new_field(updated_at, datetime, [not_null])
   ]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -72,12 +79,16 @@ sumo_schema() ->
 %%
 %% @doc functions definitions for user
 
--spec new(string(), string(), string()) -> user().
+-spec new(string()
+          , string()
+          , string()) -> user().
 new(UserName, Password, Email) ->
-    #{  id        => undefined
-      , user_name => UserName
-      , password  => Password
-      , email     => Email
+    #{  id         => undefined
+      , user_name  => UserName
+      , password   => Password
+      , email      => Email
+      , created_at => cnf_utils:now_datetime()
+      , updated_at => cnf_utils:now_datetime()
      }.
 
 -spec id(user()) -> integer().
@@ -106,3 +117,15 @@ email(User) ->
 -spec email(user(), string()) -> user().
 email(User, Email) ->
   User#{email => Email}.
+
+-spec created_at(user()) -> conferl_utils:datetime().
+created_at(User) -> maps:get(created_at, User).
+
+-spec created_at(user(), conferl_utils:datetime()) -> user().
+created_at(User, CreatedAt) -> User#{created_at => CreatedAt}.
+
+-spec updated_at(user()) -> conferl_utils:datetime().
+updated_at(User) -> maps:get(updated_at, User).
+
+-spec updated_at(user(), conferl_utils:datetime()) -> user().
+updated_at(User, UpdatedAt) -> User#{updated_at => UpdatedAt}.

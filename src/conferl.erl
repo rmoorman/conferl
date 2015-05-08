@@ -29,13 +29,15 @@ stop() ->
 start(_StartType, _StartArgs) ->
   EndPoints = [
                 {<<"/status">>, cnf_status_handler, []}
-              , {<<"/contents/[:id_content]">>, cnf_contents_handler, []}
+              , {<<"/contents/[:content_id]">>, cnf_contents_handler, []}
                 %% Add here new endpoints
               ],
   Dispatch = cowboy_router:compile( [{'_' , EndPoints}]),
+  {ok, Port} = application:get_env(conferl, http_port),
+  {ok, HttpListenersCount} = application:get_env(conferl, http_listener_count),
   cowboy:start_http(my_http_listener
-                   , 100
-                   , [{port, 8080}]
+                   , HttpListenersCount
+                   , [{port, Port}]
                    , [{env, [{dispatch, Dispatch}]}]),
 
   conferl_sup:start_link().

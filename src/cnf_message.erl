@@ -22,6 +22,7 @@
     , message_text => string()
     , user         => integer()
     , created_at   => conferl_utils:datetime() | undefined
+    , updated_at   => conferl_utils:datetime() | undefined
     }.
 
 -export_type( [message/0]).
@@ -32,16 +33,17 @@
         , sumo_sleep/1
         ]).
 
--export([ new/5
-        , id/1
-        , content_id/1
-        , response_id/1
-        , message_text/1
-        , message_text/2
-        , created_at/1
-        , created_at/2
-        , is_top_message/1
-        ]).
+-export([new/4]).
+-export([id/1]).
+-export([content_id/1]).
+-export([response_id/1]).
+-export([message_text/1]).
+-export([message_text/2]).
+-export([created_at/1]).
+-export([created_at/2]).
+-export([is_top_message/1]).
+-export([updated_at/1]).
+-export([updated_at/2]).
 
 -behavior(sumo_doc).
 
@@ -55,23 +57,24 @@
 
 -spec sumo_wakeup(sumo:doc()) -> message().
 sumo_wakeup(Data) ->
-  message_binary_to_date(replace_null(Data)).
+  cnf_utils:date_wakeup(replace_null(Data)).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(message()) -> sumo:doc().
 sumo_sleep(Message) ->
- message_date_to_binary(Message).
+ cnf_utils:date_sleep(Message).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
   sumo:new_schema(?MODULE, [
-    sumo:new_field(id          , integer, [id, auto_increment, not_null]),
-    sumo:new_field(content_id  , integer, [not_null]),
-    sumo:new_field(response_id , integer, []),
-    sumo:new_field(message_text, string , [{length, 1024}, not_null]),
-    sumo:new_field(created_at  , binary , [not_null]),
-    sumo:new_field(user        , integer, [not_null])
+    sumo:new_field(id          , integer,  [id, auto_increment, not_null]),
+    sumo:new_field(content_id  , integer,  [not_null]),
+    sumo:new_field(response_id , integer,  []),
+    sumo:new_field(message_text, string ,  [{length, 1024}, not_null]),
+    sumo:new_field(user        , integer,  [not_null]),
+    sumo:new_field(created_at  , datetime, [not_null]),
+    sumo:new_field(updated_at  , datetime, [not_null])
   ]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -83,15 +86,15 @@ sumo_schema() ->
 -spec new(integer()
           , integer() | undefined
           , string()
-          , integer()
-          , conferl_utils:datetime()) -> message().
-new(ContentId, ResponseId, MessageText, User, CreatedAt) ->
+          , integer()) -> message().
+new(ContentId, ResponseId, MessageText, User) ->
   #{  id           => undefined
     , content_id   => ContentId
     , response_id  => ResponseId
     , message_text => MessageText
     , user         => User
-    , created_at   => CreatedAt
+    , created_at   => cnf_utils:now_datetime()
+    , updated_at   => cnf_utils:now_datetime()
     }.
 
 %% Getters/Setters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -115,7 +118,13 @@ message_text(Message, MessageText) -> Message#{ message_text => MessageText}.
 created_at(Message) -> maps:get(created_at, Message).
 
 -spec created_at(message(), conferl_utils:datetime()) -> message().
-created_at(Message, CreatedAt) -> Message#{ created_at => CreatedAt}.
+created_at(Message, CreatedAt) -> Message#{created_at => CreatedAt}.
+
+-spec updated_at(message()) -> conferl_utils:datetime().
+updated_at(Message) -> maps:get(updated_at, Message).
+
+-spec updated_at(message(), conferl_utils:datetime()) -> message().
+updated_at(Message, UpdatedAt) -> Message#{updated_at => UpdatedAt}.
 
 -spec is_top_message(message()) -> boolean().
 is_top_message(Message) -> response_id(Message) == undefined.
@@ -125,17 +134,8 @@ is_top_message(Message) -> response_id(Message) == undefined.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %%
-
 -spec replace_null(sumo:doc()) -> message().
 replace_null(Message = #{response_id := null}) ->
   Message#{response_id => undefined};
 replace_null(Message) -> Message.
-
--spec message_date_to_binary(message()) -> sumo:doc().
-message_date_to_binary(Message) ->
-  Message#{created_at => term_to_binary(maps:get(created_at, Message))}.
-
--spec message_binary_to_date(sumo:doc()) -> message().
-message_binary_to_date(Message) ->
-  Message#{created_at => binary_to_term(maps:get(created_at, Message))}.
 

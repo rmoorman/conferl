@@ -19,23 +19,29 @@
           , url     => string()
           , domain  => string()
           , user    => integer()
+          , created_at => conferl_utils:datetime() | undefined
+          , updated_at => conferl_utils:datetime() | undefined
           }.
 
--export_type( [content/0]).
+-export_type([content/0]).
 
 %%% sumo_db callbacks
--export([ sumo_schema/0
-        , sumo_wakeup/1
-        , sumo_sleep/1
-        ]).
-
--export([ new/2
-        , id/1
-        , url/1
-        , url/2
-        , user/1
-        , user/2
-        ]).
+-export([sumo_schema/0]).
+-export([sumo_wakeup/1]).
+-export([sumo_sleep/1]).
+%%
+-export([new/2]).
+-export([id/1]).
+-export([url/1]).
+-export([url/2]).
+-export([user/1]).
+-export([user/2]).
+-export([domain/1]).
+-export([domain/2]).
+-export([created_at/1]).
+-export([created_at/2]).
+-export([updated_at/1]).
+-export([updated_at/2]).
 
 -behavior(sumo_doc).
 
@@ -44,7 +50,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %% @doc functions definitions for content
-
 
 -spec get_domain(string()) -> string() | invalid_url.
 get_domain(Url) ->
@@ -60,35 +65,44 @@ get_domain(Url) ->
 %%
 
 -spec sumo_wakeup(sumo:doc()) -> content().
-sumo_wakeup(Data) ->  Data.
+sumo_wakeup(Data) ->
+NewData = cnf_utils:date_wakeup(Data),
+{datetime, CreatedAt} = created_at(NewData),
+{datetime, UpdatedAt} = updated_at(NewData),
+CreatedAtBinary = cnf_utils:datetime_to_json(CreatedAt),
+UpdatedAtBinary = cnf_utils:datetime_to_json(UpdatedAt),
+NewData#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(content()) -> sumo:doc().
-sumo_sleep(Content) ->  Content.
+sumo_sleep(Content) -> cnf_utils:date_sleep(Content).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
     sumo:new_schema(?MODULE, [
-    sumo:new_field(id    , integer, [id, auto_increment, not_null]),
-    sumo:new_field(user  , integer, [not_null]),
-    sumo:new_field(url   , string , [not_null]),
-    sumo:new_field(domain, string , [not_null])
+      sumo:new_field(id        , integer , [id, auto_increment, not_null]),
+      sumo:new_field(user      , integer , [not_null]),
+      sumo:new_field(url       , string  , [not_null]),
+      sumo:new_field(domain    , string  , [not_null]),
+      sumo:new_field(created_at, datetime, [not_null]),
+      sumo:new_field(updated_at, datetime, [not_null])
   ]).
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Public Api
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %% @doc functions definitions for content
 
--spec new( string(), integer()) -> content() | invalid_url.
+-spec new( string()
+         , integer()) -> content() | invalid_url.
 new(Url, User) ->
-  #{  id      => undefined
-    , url     => Url
-    , domain  => get_domain(Url)
-    , user    => User
-      %date
+  #{  id         => undefined
+    , url        => Url
+    , domain     => get_domain(Url)
+    , user       => User
+    , created_at => cnf_utils:now_datetime()
+    , updated_at => cnf_utils:now_datetime()
     }.
 
 %% Getters/Setters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -111,3 +125,23 @@ user(Content) ->
 -spec user(content(), integer()) -> content().
 user(Content, User) ->
   Content#{user => User}.
+
+-spec domain(content()) -> string().
+domain(Content) ->
+  maps:get(domain, Content).
+
+-spec domain(content(), string()) -> content().
+domain(Content, Domain) ->
+  Content#{domain => Domain}.
+
+-spec created_at(content()) -> conferl_utils:datetime().
+created_at(Content) -> maps:get(created_at, Content).
+
+-spec created_at(content(), conferl_utils:datetime()) -> content().
+created_at(Content, CreatedAt) -> Content#{created_at => CreatedAt}.
+
+-spec updated_at(content()) -> conferl_utils:datetime().
+updated_at(Content) -> maps:get(updated_at, Content).
+
+-spec updated_at(content(), conferl_utils:datetime()) -> content().
+updated_at(Content, UpdatedAt) -> Content#{updated_at => UpdatedAt}.

@@ -12,6 +12,7 @@
   ).
 
 %% cowboy
+
 init(_Transport, _Req, _Opts) ->
   {upgrade, protocol, cowboy_rest}.
 
@@ -32,19 +33,9 @@ content_types_accepted(Req, State) ->
                    <<"PATCH">> ->
                      handle_patch
                  end,
-
-  HandleMultipartMethod = case Method of
-                            <<"PUT">> ->
-                              handle_multipart_put;
-                            <<"POST">> ->
-                              handle_multipart_post;
-                            <<"PATCH">> ->
-                              handle_multipart_patch
-                          end,
   {[
     {{<<"application">>, <<"json">>, '*'}, HandleMethod},
-    {<<"application/x-www-form-urlencoded">>, HandleMethod},
-    {{<<"multipart">>, <<"form-data">>, '*'}, HandleMultipartMethod}
+    {<<"application/x-www-form-urlencoded">>, HandleMethod}
    ],
    Req1, State}.
 

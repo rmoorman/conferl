@@ -45,7 +45,7 @@ find_by_user(UserId)  ->
 
 -spec find_by_domain(string()) -> [cnf_content:content()].
 find_by_domain(Domain)  ->
-  sumo:find_by(cnf_content,[{domain, Domain}]).
+  sumo:find_by(cnf_content, [{domain, Domain}]).
 
 -spec register(string(), integer()) -> cnf_content:content().
 register(Url, User) ->

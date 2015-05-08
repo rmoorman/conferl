@@ -16,19 +16,18 @@
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
--type config() :: [{atom(), term()}].
+-export([all/0]).
+-export([init_per_suite/1]).
+-export([end_per_suite/1]).
+-export([init_per_testcase/2]).
+-export([end_per_testcase/2]).
+-export([test_handle_post_ok/1]).
+-export([test_handle_delete_ok/1]).
+-export([test_get_ok/1]).
+-export([test_get_qs_ok/1]).
+-export([test_handle_post_duplicated/1]).
 
--export([ all/0
-        , init_per_suite/1
-        , end_per_suite/1
-        , init_per_testcase/2
-        , end_per_testcase/2
-        , test_handle_post_ok/1
-        , test_handle_delete_ok/1
-        , test_get_ok/1
-        , test_get_qs_ok/1
-        , test_handle_post_duplicated/1
-        ]).
+-type config() :: [{atom(), term()}].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% @doc Suite tests
@@ -55,12 +54,11 @@ init_per_suite(Config) ->
   application:ensure_all_started(conferl),
   application:ensure_all_started(shotgun),
   sumo:create_schema(),
-  sumo:delete_all(cnf_content),
   [].
 
 -spec end_per_suite(config()) -> config().
 end_per_suite(Config) ->
- % sumo:delete_all(cnf_content),
+  sumo:delete_all(cnf_content),
   Config.
 
 %% @doc definion of init_per_testcases
@@ -73,12 +71,11 @@ init_per_testcase(_Function, Config) ->
 end_per_testcase(_Function, Config) ->
   Config.
 
-
 test_handle_post_ok(Config) ->
   Header = #{<<"Content-Type">> => <<"application/json">>},
   Body = #{url => <<"http://inaka.net/post_ok">>, user_id => 2345},
   JsonBody = jiffy:encode(Body),
-  {ok, Response} = api_call(post, "/contents", Header,  JsonBody),
+  {ok, Response} = cnf_utils:api_call(post, "/contents", Header,  JsonBody),
   #{status_code := 204} = Response,
   #{headers := ResponseHeaders} = Response,
   Location = proplists:get_value(<<"location">>, ResponseHeaders),
@@ -89,7 +86,7 @@ test_handle_post_duplicated(Config) ->
   Body = #{url => <<"http://inaka.net/post_duplicated">>, user_id => 2345},
   JsonBody = jiffy:encode(Body),
   cnf_content_repo:register("http://inaka.net/post_duplicated", 2345),
-  {ok, Response} = api_call(post, "/contents", Header,  JsonBody),
+  {ok, Response} = cnf_utils:api_call(post, "/contents", Header,  JsonBody),
   #{status_code := 400} = Response.
 
 test_handle_delete_ok(Config) ->
@@ -97,31 +94,45 @@ test_handle_delete_ok(Config) ->
   Body = #{url => <<"http://inaka.net/">>, user_id => 2345},
   Content = cnf_content_repo:register("http://inaka.net/delete_ok", 2345),
   Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
-  {ok, Response} = api_call(delete, Url, Header),
+  {ok, Response} = cnf_utils:api_call(delete, Url, Header),
   #{status_code := 204} = Response.
 
 test_get_ok(Config) ->
   Header = #{<<"Content-Type">> => <<"application/json">>},
   Content = cnf_content_repo:register("http://inaka.net/get_ok", 2345),
   Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
-  {ok, Response} = api_call(get, Url, Header),
+  {ok, Response} = cnf_utils:api_call(get, Url, Header),
   #{status_code := 200} = Response.
 
 test_get_qs_ok(Config) ->
   Header = #{<<"Content-Type">> => <<"text/plain; charset=utf-8">>} ,
-  Domain = "inaka.net",
-  Url = "/contents/?domain=" ++  Domain,
-  {ok, Response} = api_call(get, Url, Header),
-  #{status_code := 200} = Response.
+  cnf_content_repo:register("http://inaka.net/get_qs_ok", 1),
+  cnf_content_repo:register("https://twitter.com/get_qs_ok", 1),
+  DomainInaka = "inaka.net",
+  DomainTwitter = "twitter.com",
+  UrlInaka = "/contents/?domain=" ++  DomainInaka,
+  {ok, ResponseInaka} = cnf_utils:api_call(get, UrlInaka, Header),
+  #{status_code := 200} = ResponseInaka,
+  #{body := JsonBodyRespInaka} = ResponseInaka,
+  BodyRespInaka = jiffy:decode(JsonBodyRespInaka, [return_maps]),
+  ct:pal("BodyRespInaka ~p", [BodyRespInaka]),
+  UrlTwitter = "/contents/?domain=" ++  DomainTwitter,
+  F1 = fun(DomainMap) ->
+         #{<<"domain">> := Domain1} = DomainMap,
+         Domain1 == <<"inaka.net">>
+       end,
+  ok = lists:foreach(F1, BodyRespInaka),
+  {ok, ResponseTwitter} = cnf_utils:api_call(get, UrlTwitter, Header),
+  #{body := JsonBodyRespTwitter} = ResponseTwitter,
+  BodyRespTwitter = jiffy:decode(JsonBodyRespTwitter, [return_maps]),
+  F2 = fun(DomainMap) ->
+         #{<<"domain">> := Domain1} = DomainMap,
+         Domain1 == <<"twitter.com">>
+       end,
+  ok = lists:foreach(F2, BodyRespTwitter),
+  #{status_code := 200} = ResponseTwitter.
 
--spec api_call(atom(), string(), map()) -> {atom(), map()}.
-api_call(Method, Url, Headers) ->
-  api_call(Method, Url, Headers, "").
 
--spec api_call(atom(), string(), map(), map() | string()) -> {atom(), map()}.
-api_call(Method, Url, Headers, Body) ->
-  {ok, Pid} = shotgun:open("localhost", 8080),
-  Response = shotgun:request(Pid, Method, Url, Headers, Body, #{}),
-  shotgun:close(Pid),
-  Response.
+
+
 

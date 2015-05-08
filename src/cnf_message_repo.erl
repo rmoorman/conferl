@@ -56,11 +56,11 @@ write_reply(ContentId, ResponseId, MessageText, User) ->
                    , User),
   sumo:persist(cnf_message, Message).
 
--spec delete(non_neg_integer()) -> boolean().
+-spec delete(pos_integer()) -> boolean().
 delete(Id) ->
   sumo:delete(cnf_message, Id).
 
- -spec delete_by_content_id(non_neg_integer()) -> non_neg_integer().
+ -spec delete_by_content_id(pos_integer()) -> pos_integer().
 delete_by_content_id(ContentId) ->
   sumo:delete_by(cnf_message, [{content_id, ContentId}]).
 
@@ -68,18 +68,18 @@ delete_by_content_id(ContentId) ->
  list(ContentId) ->
   sumo:find_by(cnf_message, [{content_id, ContentId}]).
 
--spec list_replies(non_neg_integer()) -> [cnf_messages:message()].
+-spec list_replies(pos_integer()) -> [cnf_messages:message()].
 list_replies(MessageResponseId) ->
   sumo:find_by(cnf_message, [{response_id, MessageResponseId}]).
   % Is equal to use   --------> [{response_id,'==', MessageResponseId}]).
 
--spec list_top_level(non_neg_integer()) -> [cnf_messages:message()].
+-spec list_top_level(pos_integer()) -> [cnf_messages:message()].
 list_top_level(ContentId) ->
   sumo:find_by(cnf_message, [ {content_id,  ContentId}
                             , {response_id, null}
                             ]).
 
--spec list_by_user(non_neg_integer()) -> [cnf_messages:message()].
+-spec list_by_user(pos_integer()) -> [cnf_messages:message()].
 list_by_user(UserId) -> sumo:find_by(cnf_message, [{user, UserId}]).
 
 -spec delete_all() -> integer().

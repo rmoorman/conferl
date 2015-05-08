@@ -41,7 +41,7 @@ find(ContentId)  ->
 
 -spec find_by_user(integer()) -> [cnf_content:content()].
 find_by_user(UserId)  ->
-  sumo:find_by(cnf_content,[{user, UserId}]).
+  sumo:find_by(cnf_content, [{user, UserId}]).
 
 -spec find_by_domain(string()) -> [cnf_content:content()].
 find_by_domain(Domain)  ->

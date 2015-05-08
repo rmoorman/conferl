@@ -115,7 +115,6 @@ test_get_qs_ok(Config) ->
   #{status_code := 200} = ResponseInaka,
   #{body := JsonBodyRespInaka} = ResponseInaka,
   BodyRespInaka = jiffy:decode(JsonBodyRespInaka, [return_maps]),
-  ct:pal("BodyRespInaka ~p", [BodyRespInaka]),
   UrlTwitter = "/contents/?domain=" ++  DomainTwitter,
   F1 = fun(DomainMap) ->
          #{<<"domain">> := Domain1} = DomainMap,
@@ -131,8 +130,4 @@ test_get_qs_ok(Config) ->
        end,
   ok = lists:foreach(F2, BodyRespTwitter),
   #{status_code := 200} = ResponseTwitter.
-
-
-
-
 

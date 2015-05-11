@@ -25,13 +25,12 @@
     , updated_at   => conferl_utils:datetime() | undefined
     }.
 
--export_type( [message/0]).
+-export_type([message/0]).
 
 %%% sumo_db callbacks
--export([ sumo_schema/0
-        , sumo_wakeup/1
-        , sumo_sleep/1
-        ]).
+-export([sumo_schema/0]).
+-export([sumo_wakeup/1]).
+-export([sumo_sleep/1]).
 
 -export([new/4]).
 -export([id/1]).
@@ -57,7 +56,12 @@
 
 -spec sumo_wakeup(sumo:doc()) -> message().
 sumo_wakeup(Data) ->
-  cnf_utils:date_wakeup(replace_null(Data)).
+  NewData = cnf_utils:date_wakeup(replace_null(Data)),
+  {datetime, CreatedAt} = created_at(NewData),
+  {datetime, UpdatedAt} = updated_at(NewData),
+  CreatedAtBinary = cnf_utils:datetime_to_json(CreatedAt),
+  UpdatedAtBinary = cnf_utils:datetime_to_json(UpdatedAt),
+  NewData#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(message()) -> sumo:doc().

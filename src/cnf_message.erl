@@ -21,8 +21,8 @@
     , response_id  => integer()
     , message_text => string()
     , user         => integer()
-    , created_at   => conferl_utils:datetime() | undefined
-    , updated_at   => conferl_utils:datetime() | undefined
+    , created_at   => conferl_utils:datetime()
+    , updated_at   => conferl_utils:datetime()
     }.
 
 -export_type([message/0]).

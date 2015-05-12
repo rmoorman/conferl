@@ -20,8 +20,8 @@
     , user_name  => string()
     , password   => string()
     , email      => string()
-    , created_at => conferl_utils:datetime() | undefined
-    , updated_at => conferl_utils:datetime() | undefined
+    , created_at => conferl_utils:datetime()
+    , updated_at => conferl_utils:datetime()
     }.
 
 -export_type([user/0]).

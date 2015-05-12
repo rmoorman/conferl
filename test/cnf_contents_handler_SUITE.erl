@@ -72,17 +72,21 @@ end_per_testcase(_Function, Config) ->
   Config.
 
 test_handle_post_ok(Config) ->
-  Header = #{<<"Content-Type">> => <<"application/json">>},
+  Header = #{<<"Content-Type">> => <<"application/json">>
+            , basic_auth => {"user", "password"}},
   Body = #{url => <<"http://inaka.net/post_ok">>, user_id => 2345},
   JsonBody = jiffy:encode(Body),
-  {ok, Response} = cnf_utils:api_call(post, "/contents", Header,  JsonBody),
+  cnf_user_repo:register_user("user", "password", "email@fast.net"),
+  {ok, Response} = 
+  cnf_utils:api_call(post, "/contents", Header,  JsonBody),
   #{status_code := 204} = Response,
   #{headers := ResponseHeaders} = Response,
   Location = proplists:get_value(<<"location">>, ResponseHeaders),
   <<"http://localhost/contents/", _Id/binary>> = Location.
 
 test_handle_post_duplicated(Config) ->
-  Header = #{<<"Content-Type">> => <<"application/json">>},
+  Header = #{<<"Content-Type">> => <<"application/json">>
+            , basic_auth => {"user", "password"}},
   Body = #{url => <<"http://inaka.net/post_duplicated">>, user_id => 2345},
   JsonBody = jiffy:encode(Body),
   cnf_content_repo:register("http://inaka.net/post_duplicated", 2345),
@@ -90,7 +94,8 @@ test_handle_post_duplicated(Config) ->
   #{status_code := 400} = Response.
 
 test_handle_delete_ok(Config) ->
-  Header = #{<<"Content-Type">> => <<"application/json">>},
+  Header = #{<<"Content-Type">> => <<"application/json">>
+            , basic_auth => {"user", "password"}},
   Body = #{url => <<"http://inaka.net/">>, user_id => 2345},
   Content = cnf_content_repo:register("http://inaka.net/delete_ok", 2345),
   Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
@@ -98,14 +103,16 @@ test_handle_delete_ok(Config) ->
   #{status_code := 204} = Response.
 
 test_get_ok(Config) ->
-  Header = #{<<"Content-Type">> => <<"application/json">>},
+   Header = #{<<"Content-Type">> => <<"application/json">>
+            , basic_auth => {"user", "password"}},
   Content = cnf_content_repo:register("http://inaka.net/get_ok", 2345),
   Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
   {ok, Response} = cnf_utils:api_call(get, Url, Header),
   #{status_code := 200} = Response.
 
 test_get_qs_ok(Config) ->
-  Header = #{<<"Content-Type">> => <<"text/plain; charset=utf-8">>} ,
+  Header = #{<<"Content-Type">> => <<"text/plain; charset=utf-8">>
+            , basic_auth => {"user", "password"}},
   cnf_content_repo:register("http://inaka.net/get_qs_ok", 1),
   cnf_content_repo:register("https://twitter.com/get_qs_ok", 1),
   DomainInaka = "inaka.net",
@@ -130,4 +137,3 @@ test_get_qs_ok(Config) ->
        end,
   ok = lists:foreach(F2, BodyRespTwitter),
   #{status_code := 200} = ResponseTwitter.
-

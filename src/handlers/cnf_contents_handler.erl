@@ -27,12 +27,13 @@
          ]}
        ]).
 
--export([ handle_get/2
-        , handle_post/2
-        , delete_resource/2
-        , terminate/3
-        , allowed_methods/2
-        ]).
+-export([is_authorized/2]).
+-export([handle_get/2]).
+-export([handle_post/2]).
+-export([delete_resource/2]).
+-export([terminate/3]).
+-export([allowed_methods/2]).
+
 -type state() :: #{}.
 
 allowed_methods(Req, State) ->
@@ -42,6 +43,20 @@ allowed_methods(Req, State) ->
    , <<"OPTIONS">>]
   , Req
   , State}.
+
+-spec is_authorized(cowboy_req:req(), state()) ->
+    {tuple(), cowboy_req:req(), state()}.
+is_authorized(Req, State) ->
+  case cowboy_req:parse_header(<<"authorization">>, Req) of
+    {ok, {<<"basic">>, {Login, Password}}, _} ->
+      try cnf_user_repo:is_registered(Login, Password) of
+        ok -> {true, Req, Login}
+      catch
+        _Type:Exception ->
+          cnf_utils:handle_exception(Exception, Req, State)
+      end;
+    _ -> {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
+  end.
 
 -spec handle_post(cowboy_req:req(), state()) ->
   {halt | true, cowboy_req:req(), state()}.

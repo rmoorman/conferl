@@ -28,6 +28,7 @@
 -export([handle_exception/3]).
 -export([api_call/3]).
 -export([api_call/4]).
+-export([api_call/5]).
 -export([date_wakeup/1]).
 -export([date_sleep/1]).
 -export([datetime_to_json/1]).
@@ -61,6 +62,10 @@ date_wakeup(SumoDoc) ->
 handle_exception(duplicate_user, Req, State) ->
   %{false, Req1, State} is equivalent-> {ok, Req1} = cowboy_req:reply(400, Req),
   {false, Req, State};
+handle_exception(wrong_password, Req, State) ->
+  {{false, <<"Basic realm=\"conferl\"">>}, Req, State};
+handle_exception(not_registered, Req, State) ->
+  {{false, <<"Basic realm=\"conferl\"">>}, Req, State};
 handle_exception(duplicate_content, Req, State) ->
   {false, Req, State};
 handle_exception(not_found, Req, State) ->
@@ -86,9 +91,19 @@ api_call(Method, Url, Headers) ->
 
 -spec api_call(atom(), string(), map(), map() | string()) -> {atom(), map()}.
 api_call(Method, Url, Headers, Body) ->
+ {ok, Port} = application:get_env(conferl, http_port),
+  {ok, ServerUrl} = application:get_env(conferl, server_url),
+  {ok, Pid} = shotgun:open(ServerUrl, Port),
+  Response = shotgun:request(Pid, Method, Url, Headers, Body, #{} ),
+  shotgun:close(Pid),
+  Response.
+
+-spec api_call(atom(), string(), map(), map() | string(), map()) -> 
+  {atom(), map()}.
+api_call(Method, Url, Headers, Body, Option) ->
   {ok, Port} = application:get_env(conferl, http_port),
   {ok, ServerUrl} = application:get_env(conferl, server_url),
   {ok, Pid} = shotgun:open(ServerUrl, Port),
-  Response = shotgun:request(Pid, Method, Url, Headers, Body, #{}),
+  Response = shotgun:request(Pid, Method, Url, Headers, Body, Option),
   shotgun:close(Pid),
   Response.

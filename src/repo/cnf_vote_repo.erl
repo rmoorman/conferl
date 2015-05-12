@@ -14,14 +14,14 @@
 -module(cnf_vote_repo).
 
 -author('David Cao <david.cao@inakanetworks.com>').
--export([ upvote/2
-        , downvote/2
-        , remove_vote/1
-        , fetch_vote/1
-        , fetch_vote/2
-        , list_votes/1
-        , counts_votes_message/1
-        ]).
+-export([upvote/2]).
+-export([downvote/2]).
+-export([remove_vote/1]).
+-export([fetch_vote/1]).
+-export([fetch_vote/2]).
+-export([list_votes/1]).
+-export([counts_votes_message/1]).
+
 
 -type thumb_count() ::
         #{  up    => integer()

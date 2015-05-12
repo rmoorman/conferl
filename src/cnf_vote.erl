@@ -22,8 +22,8 @@
           , user_id    => integer()
           , message_id => integer()
           , thumb      => thumb()
-          , created_at => conferl_utils:datetime() | undefined
-          , updated_at => conferl_utils:datetime() | undefined
+          , created_at => conferl_utils:datetime()
+          , updated_at => conferl_utils:datetime()
          }.
 
 -export_type([vote/0]).

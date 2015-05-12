@@ -15,17 +15,17 @@
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
--export([ write/1
-        , write_top/3
-        , write_reply/4
-        , delete/1
-        , delete_by_content_id/1
-        , list/1
-        , list_replies/1
-        , list_top_level/1
-        , list_by_user/1
-        , delete_all/0
-        ]).
+-export([write/1]).
+-export([write_top/3]).
+-export([write_reply/4]).
+-export([delete/1]).
+-export([delete_by_content_id/1]).
+-export([list/1]).
+-export([list_replies/1]).
+-export([list_top_level/1]).
+-export([list_by_user/1]).
+-export([delete_all/0]).
+
 
 -spec write(cnf_messages:message()) -> cnf_messages:message().
 write(Message) -> sumo:persist(cnf_message, Message).

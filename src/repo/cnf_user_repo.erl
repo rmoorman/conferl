@@ -14,11 +14,13 @@
 -module(cnf_user_repo).
 
 -author('David Cao <david.cao@inakanetworks.com>').
--export([ register_user/3
-        , unregister_user/1
-        , fetch_user/1
-        , fetch_by_name/1
-        ]).
+
+-export([register_user/3]).
+-export([unregister_user/1]).
+-export([fetch_user/1]).
+-export([fetch_by_name/1]).
+-export([is_registered/2]).
+
 
 -spec register_user(string(), string(), string()) -> conferl_users:user().
 register_user(UserName, Password, Email) ->
@@ -48,4 +50,14 @@ fetch_by_name(UserName) ->
   case Result of
     []        -> throw(notfound);
     [User]    -> User
+  end.
+
+-spec is_registered(string(), string()) -> ok.
+is_registered(UserName, Password) ->
+  try fetch_by_name(UserName) of
+    #{password := Password} -> ok;
+    _WrongPass -> throw(wrong_password)
+
+  catch
+    throw:notfound -> throw(not_registered)
   end.

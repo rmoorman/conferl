@@ -56,12 +56,7 @@
 
 -spec sumo_wakeup(sumo:doc()) -> message().
 sumo_wakeup(Data) ->
-  NewData = cnf_utils:date_wakeup(replace_null(Data)),
-  {datetime, CreatedAt} = created_at(NewData),
-  {datetime, UpdatedAt} = updated_at(NewData),
-  CreatedAtBinary = cnf_utils:datetime_to_json(CreatedAt),
-  UpdatedAtBinary = cnf_utils:datetime_to_json(UpdatedAt),
-  NewData#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.
+  cnf_utils:date_wakeup(replace_null(Data)).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(message()) -> sumo:doc().

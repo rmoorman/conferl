@@ -31,21 +31,11 @@
 -export([api_call/5]).
 -export([date_wakeup/1]).
 -export([date_sleep/1]).
--export([datetime_to_json/1]).
+-export([datetime_to_binary/1]).
 
 -spec now_datetime() -> datetime().
 now_datetime() ->
   {datetime, calendar:universal_time()}.
-
--spec datetime_to_json(tuple()) -> binary().
-datetime_to_json({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->
-  Y = integer_to_list(Yi),
-  M = integer_to_list(Mi),
-  D = integer_to_list(Di),
-  H = integer_to_list(Hi),
-  N = integer_to_list(Ni),
-  S = integer_to_list(Si),
-  iolist_to_binary([Y, "-", M, "-", D, "T", H, ":", N, ":", S, ".000000Z"]).
 
 -spec date_sleep(map()) -> sumo:doc().
 date_sleep(ConferlMap) ->
@@ -54,8 +44,22 @@ date_sleep(ConferlMap) ->
 
 -spec date_wakeup(sumo:doc()) -> map().
 date_wakeup(SumoDoc) ->
-  SumoDoc#{created_at => binary_to_term(maps:get(created_at, SumoDoc))
-          , updated_at => binary_to_term(maps:get(updated_at, SumoDoc))}.
+  NewData =
+    SumoDoc#{created_at => binary_to_term(maps:get(created_at, SumoDoc))
+            , updated_at => binary_to_term(maps:get(updated_at, SumoDoc))},
+  CreatedAtBinary = cnf_utils:datetime_to_binary(maps:get(created_at, NewData)),
+  UpdatedAtBinary = cnf_utils:datetime_to_binary(maps:get(updated_at, NewData)),
+  NewData#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.
+
+-spec datetime_to_binary({datetime, tuple()}) -> binary().
+datetime_to_binary({datetime, {{Yi, Mi, Di}, {Hi, Ni, Si}}}) ->
+  Y = integer_to_list(Yi),
+  M = integer_to_list(Mi),
+  D = integer_to_list(Di),
+  H = integer_to_list(Hi),
+  N = integer_to_list(Ni),
+  S = integer_to_list(Si),
+  iolist_to_binary([Y, "-", M, "-", D, "T", H, ":", N, ":", S, ".000000Z"]).
 
 -spec handle_exception(atom(), cowboy_req:req(), term()) ->
     {halt, cowboy_req:req(), term()}.
@@ -92,18 +96,18 @@ api_call(Method, Url, Headers) ->
 -spec api_call(atom(), string(), map(), map() | string()) -> {atom(), map()}.
 api_call(Method, Url, Headers, Body) ->
  {ok, Port} = application:get_env(conferl, http_port),
-  {ok, ServerUrl} = application:get_env(conferl, server_url),
-  {ok, Pid} = shotgun:open(ServerUrl, Port),
+  {ok, HttpHost} = application:get_env(conferl, http_host),
+  {ok, Pid} = shotgun:open(HttpHost, Port),
   Response = shotgun:request(Pid, Method, Url, Headers, Body, #{} ),
   shotgun:close(Pid),
   Response.
 
--spec api_call(atom(), string(), map(), map() | string(), map()) -> 
+-spec api_call(atom(), string(), map(), map() | string(), map()) ->
   {atom(), map()}.
 api_call(Method, Url, Headers, Body, Option) ->
   {ok, Port} = application:get_env(conferl, http_port),
-  {ok, ServerUrl} = application:get_env(conferl, server_url),
-  {ok, Pid} = shotgun:open(ServerUrl, Port),
+  {ok, HttpHost} = application:get_env(conferl, http_host),
+  {ok, Pid} = shotgun:open(HttpHost, Port),
   Response = shotgun:request(Pid, Method, Url, Headers, Body, Option),
   shotgun:close(Pid),
   Response.

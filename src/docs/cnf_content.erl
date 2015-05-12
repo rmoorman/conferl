@@ -51,7 +51,7 @@
 %%
 %% @doc functions definitions for content
 
--spec get_domain(string()) -> string() | invalid_url.
+-spec get_domain(string()) -> string().
 get_domain(Url) ->
   case http_uri:parse(Url) of
     {error, _} -> throw(invalid_url);
@@ -65,13 +65,7 @@ get_domain(Url) ->
 %%
 
 -spec sumo_wakeup(sumo:doc()) -> content().
-sumo_wakeup(Data) ->
-NewData = cnf_utils:date_wakeup(Data),
-{datetime, CreatedAt} = created_at(NewData),
-{datetime, UpdatedAt} = updated_at(NewData),
-CreatedAtBinary = cnf_utils:datetime_to_json(CreatedAt),
-UpdatedAtBinary = cnf_utils:datetime_to_json(UpdatedAt),
-NewData#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.
+sumo_wakeup(Data) -> cnf_utils:date_wakeup(Data).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(content()) -> sumo:doc().

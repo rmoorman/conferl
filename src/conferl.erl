@@ -13,7 +13,10 @@
 % under the License.
 
 -module(conferl).
--export([start/0, start/2, stop/0, stop/1]).
+-export([start/0]).
+-export([start/2]).
+-export([stop/0]).
+-export([stop/1]).
 
 %% application
 %% @doc Starts the application

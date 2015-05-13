@@ -58,7 +58,7 @@ init_per_suite(Config) ->
 
 -spec end_per_suite(config()) -> config().
 end_per_suite(Config) ->
-  sumo:delete_all(cnf_content),
+  %sumo:delete_all(cnf_content),
   Config.
 
 %% @doc definion of init_per_testcases

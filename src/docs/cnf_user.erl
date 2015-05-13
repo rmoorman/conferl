@@ -20,8 +20,8 @@
     , user_name  => string()
     , password   => string()
     , email      => string()
-    , created_at => conferl_utils:datetime()
-    , updated_at => conferl_utils:datetime()
+    , created_at => tuple()
+    , updated_at => tuple()
     }.
 
 -export_type([user/0]).
@@ -54,11 +54,13 @@
 %%% sumo_db callbacks
 
 -spec sumo_wakeup(sumo:doc()) -> user().
-sumo_wakeup(Data) -> cnf_utils:date_wakeup(Data).
+sumo_wakeup(Data) -> %lager:error("sumo_wakeup - Data  ~p", [Data]),
+cnf_utils:date_wakeup(Data).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(user()) -> sumo:doc().
-sumo_sleep(User) ->  cnf_utils:date_sleep(User).
+sumo_sleep(User) -> % lager:error("sumo_sleep - User  ~p", [User]),
+cnf_utils:date_sleep(User).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_schema() -> sumo:schema().
@@ -86,8 +88,8 @@ new(UserName, Password, Email) ->
       , user_name  => UserName
       , password   => Password
       , email      => Email
-      , created_at => cnf_utils:now_datetime()
-      , updated_at => cnf_utils:now_datetime()
+      , created_at => calendar:universal_time()
+      , updated_at => calendar:universal_time()
      }.
 
 -spec id(user()) -> integer().

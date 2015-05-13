@@ -22,8 +22,8 @@
           , user_id    => integer()
           , message_id => integer()
           , thumb      => thumb()
-          , created_at => conferl_utils:datetime()
-          , updated_at => conferl_utils:datetime()
+          , created_at => tuple()
+          , updated_at => tuple()
          }.
 
 -export_type([vote/0]).
@@ -65,12 +65,12 @@ sumo_sleep(Vote) -> cnf_utils:date_sleep(thumb_sleep(Vote)).
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
   sumo:new_schema(?MODULE, [
-    sumo:new_field(id        , integer, [id, auto_increment, not_null]),
-    sumo:new_field(user_id   , integer, [not_null]),
-    sumo:new_field(message_id, integer, [not_null]),
-    sumo:new_field(thumb     , integer, [not_null]),
-    sumo:new_field(created_at, binary , [not_null]),
-    sumo:new_field(updated_at, binary , [not_null])
+    sumo:new_field(id        , integer , [id, auto_increment, not_null]),
+    sumo:new_field(user_id   , integer , [not_null]),
+    sumo:new_field(message_id, integer , [not_null]),
+    sumo:new_field(thumb     , integer , [not_null]),
+    sumo:new_field(created_at, datetime, [not_null]),
+    sumo:new_field(updated_at, datetime, [not_null])
   ]).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Public Api
@@ -85,8 +85,8 @@ new(UserId, MessageId, Thumb) ->
     , message_id => MessageId
     , user_id    => UserId
     , thumb      => Thumb
-    , created_at => cnf_utils:now_datetime()
-    , updated_at => cnf_utils:now_datetime()
+    , created_at => calendar:universal_time()
+    , updated_at => calendar:universal_time()
    }.
 
 -spec id(vote()) -> integer().

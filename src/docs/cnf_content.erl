@@ -15,12 +15,12 @@
 -author('David Cao <david.cao@inakanetworks.com>').
 
 -opaque content() ::
-        #{  id      => integer()
-          , url     => string()
-          , domain  => string()
-          , user    => integer()
-          , created_at => conferl_utils:datetime()
-          , updated_at => conferl_utils:datetime()
+        #{  id         => integer()
+          , url        => string()
+          , domain     => string()
+          , user       => integer()
+          , created_at => tuple()
+          , updated_at => tuple()
           }.
 
 -export_type([content/0]).
@@ -95,8 +95,8 @@ new(Url, User) ->
     , url        => Url
     , domain     => get_domain(Url)
     , user       => User
-    , created_at => cnf_utils:now_datetime()
-    , updated_at => cnf_utils:now_datetime()
+    , created_at => calendar:universal_time()
+    , updated_at => calendar:universal_time()
     }.
 
 %% Getters/Setters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -128,14 +128,14 @@ domain(Content) ->
 domain(Content, Domain) ->
   Content#{domain => Domain}.
 
--spec created_at(content()) -> conferl_utils:datetime().
+-spec created_at(content()) -> tuple().
 created_at(Content) -> maps:get(created_at, Content).
 
--spec created_at(content(), conferl_utils:datetime()) -> content().
+-spec created_at(content(), tuple()) -> content().
 created_at(Content, CreatedAt) -> Content#{created_at => CreatedAt}.
 
--spec updated_at(content()) -> conferl_utils:datetime().
+-spec updated_at(content()) -> tuple().
 updated_at(Content) -> maps:get(updated_at, Content).
 
--spec updated_at(content(), conferl_utils:datetime()) -> content().
+-spec updated_at(content(), tuple()) -> content().
 updated_at(Content, UpdatedAt) -> Content#{updated_at => UpdatedAt}.

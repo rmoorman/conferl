@@ -32,34 +32,54 @@
 -export([date_wakeup/1]).
 -export([date_sleep/1]).
 -export([datetime_to_binary/1]).
+-export([sumodoc_to_json/1]).
+-export([date_to_sumodate/1]).
+-export([sumodate_to_date/1]).
 
 -spec now_datetime() -> datetime().
-now_datetime() ->
-  {datetime, calendar:universal_time()}.
+now_datetime() -> {datetime, calendar:universal_time()}.
+
+-spec date_to_sumodate(tuple()) -> datetime().
+date_to_sumodate(Calendar) -> Calendar.
+
+-spec sumodate_to_date(datetime()) -> datetime().
+sumodate_to_date(Date) -> Date.
 
 -spec date_sleep(map()) -> sumo:doc().
 date_sleep(ConferlMap) ->
-  ConferlMap#{created_at => term_to_binary(maps:get(created_at, ConferlMap))
-             , updated_at => term_to_binary(maps:get(updated_at, ConferlMap))}.
+  ConferlMap#{created_at  => maps:get(created_at, ConferlMap)
+             , updated_at => maps:get(updated_at, ConferlMap)}.
 
 -spec date_wakeup(sumo:doc()) -> map().
 date_wakeup(SumoDoc) ->
-  NewData =
-    SumoDoc#{created_at => binary_to_term(maps:get(created_at, SumoDoc))
-            , updated_at => binary_to_term(maps:get(updated_at, SumoDoc))},
-  CreatedAtBinary = cnf_utils:datetime_to_binary(maps:get(created_at, NewData)),
-  UpdatedAtBinary = cnf_utils:datetime_to_binary(maps:get(updated_at, NewData)),
+  NewData =  SumoDoc#{created_at => maps:get(created_at, SumoDoc)
+                      , updated_at => maps:get(updated_at, SumoDoc)},
+  CreatedAtBinary = cnf_utils:sumodate_to_date(maps:get(created_at, NewData)),
+  UpdatedAtBinary = cnf_utils:sumodate_to_date(maps:get(updated_at, NewData)),
   NewData#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.
 
--spec datetime_to_binary({datetime, tuple()}) -> binary().
-datetime_to_binary({datetime, {{Yi, Mi, Di}, {Hi, Ni, Si}}}) ->
+-spec datetime_to_binary(tuple()) -> binary().
+datetime_to_binary({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->
   Y = integer_to_list(Yi),
   M = integer_to_list(Mi),
   D = integer_to_list(Di),
   H = integer_to_list(Hi),
   N = integer_to_list(Ni),
-  S = integer_to_list(Si),
-  iolist_to_binary([Y, "-", M, "-", D, "T", H, ":", N, ":", S, ".000000Z"]).
+  S = io_lib:format("~.2f",[Si]),
+  % S = float_to_list(Si), %%%S = integer_to_list(Si),
+  iolist_to_binary([Y, "-", M, "-", D, "T", H, ":", N, ":", S]).
+
+sumodoc_to_json(ListDoc) when is_list(ListDoc) ->
+  JsonListDocs = lists:map(fun doc_to_binary_date/1, ListDoc ),
+  jiffy:encode(JsonListDocs);
+  sumodoc_to_json(ListDoc) when is_map(ListDoc) ->
+  jiffy:encode(doc_to_binary_date(ListDoc)).
+
+-spec doc_to_binary_date(map()) -> map().
+doc_to_binary_date(Doc) ->
+  CreatedAtBinary = cnf_utils:datetime_to_binary(maps:get(created_at, Doc)),
+  UpdatedAtBinary = cnf_utils:datetime_to_binary(maps:get(updated_at, Doc)),
+  Doc#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.
 
 -spec handle_exception(atom(), cowboy_req:req(), term()) ->
     {halt, cowboy_req:req(), term()}.

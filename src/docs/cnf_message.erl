@@ -21,8 +21,8 @@
     , response_id  => integer()
     , message_text => string()
     , user         => integer()
-    , created_at   => conferl_utils:datetime()
-    , updated_at   => conferl_utils:datetime()
+    , created_at   => tuple()
+    , updated_at   => tuple()
     }.
 
 -export_type([message/0]).
@@ -92,8 +92,8 @@ new(ContentId, ResponseId, MessageText, User) ->
     , response_id  => ResponseId
     , message_text => MessageText
     , user         => User
-    , created_at   => cnf_utils:now_datetime()
-    , updated_at   => cnf_utils:now_datetime()
+    , created_at   => calendar:universal_time()
+    , updated_at   => calendar:universal_time()
     }.
 
 %% Getters/Setters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -105,7 +105,8 @@ id(Message) -> maps:get(id, Message).
 content_id(Message) ->  maps:get(content_id, Message).
 
 -spec response_id(message()) -> integer() | undefined.
-response_id(Message) -> maps:get(response_id, Message).
+response_id(Message) -> 
+maps:get(response_id, Message).
 
 -spec message_text(message()) -> string().
 message_text(Message) -> maps:get(message_text, Message).

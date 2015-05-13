@@ -87,13 +87,16 @@ handle_get(Req, State) ->
       RequestContent =
         cnf_content_repo:find(list_to_integer(binary_to_list(Id))),
       Body =
-        jiffy:encode(RequestContent),
+        cnf_utils:sumodoc_to_json(RequestContent),
       {Body, Req3, State};
     Query ->
+     lager:error("handle_get !! - <Query> ~p", [Query]),
       RequestContent =
         cnf_content_repo:find_by_domain(binary_to_list(Query)),
+        lager:error("handle_get !! - RequestContent ~p", [RequestContent]),
       Body =
-        jiffy:encode(RequestContent),
+        cnf_utils:sumodoc_to_json(RequestContent),
+        lager:error("handle_get !! - Body ~p", [Body]),
       {Body, Req2, State}
   end.
 

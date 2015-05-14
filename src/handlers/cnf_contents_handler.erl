@@ -90,13 +90,10 @@ handle_get(Req, State) ->
         cnf_utils:sumodoc_to_json(RequestContent),
       {Body, Req3, State};
     Query ->
-     lager:error("handle_get !! - <Query> ~p", [Query]),
       RequestContent =
         cnf_content_repo:find_by_domain(binary_to_list(Query)),
-        lager:error("handle_get !! - RequestContent ~p", [RequestContent]),
       Body =
         cnf_utils:sumodoc_to_json(RequestContent),
-        lager:error("handle_get !! - Body ~p", [Body]),
       {Body, Req2, State}
   end.
 

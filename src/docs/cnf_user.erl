@@ -54,13 +54,11 @@
 %%% sumo_db callbacks
 
 -spec sumo_wakeup(sumo:doc()) -> user().
-sumo_wakeup(Data) -> %lager:error("sumo_wakeup - Data  ~p", [Data]),
-cnf_utils:date_wakeup(Data).
+sumo_wakeup(Data) -> Data.
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(user()) -> sumo:doc().
-sumo_sleep(User) -> % lager:error("sumo_sleep - User  ~p", [User]),
-cnf_utils:date_sleep(User).
+sumo_sleep(User) -> User.
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_schema() -> sumo:schema().
@@ -119,14 +117,14 @@ email(User) ->
 email(User, Email) ->
   User#{email => Email}.
 
--spec created_at(user()) -> conferl_utils:datetime().
+-spec created_at(user()) -> tuple().
 created_at(User) -> maps:get(created_at, User).
 
--spec created_at(user(), conferl_utils:datetime()) -> user().
+-spec created_at(user(), tuple()) -> user().
 created_at(User, CreatedAt) -> User#{created_at => CreatedAt}.
 
--spec updated_at(user()) -> conferl_utils:datetime().
+-spec updated_at(user()) -> tuple().
 updated_at(User) -> maps:get(updated_at, User).
 
--spec updated_at(user(), conferl_utils:datetime()) -> user().
+-spec updated_at(user(), tuple()) -> user().
 updated_at(User, UpdatedAt) -> User#{updated_at => UpdatedAt}.

@@ -55,13 +55,11 @@
 %%% sumo_db callbacks
 
 -spec sumo_wakeup(sumo:doc()) -> message().
-sumo_wakeup(Data) ->
-  cnf_utils:date_wakeup(replace_null(Data)).
+sumo_wakeup(Data) -> replace_null(Data).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(message()) -> sumo:doc().
-sumo_sleep(Message) ->
- cnf_utils:date_sleep(Message).
+sumo_sleep(Message) -> Message.
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_schema() -> sumo:schema().
@@ -105,7 +103,7 @@ id(Message) -> maps:get(id, Message).
 content_id(Message) ->  maps:get(content_id, Message).
 
 -spec response_id(message()) -> integer() | undefined.
-response_id(Message) -> 
+response_id(Message) ->
 maps:get(response_id, Message).
 
 -spec message_text(message()) -> string().
@@ -114,16 +112,16 @@ message_text(Message) -> maps:get(message_text, Message).
 -spec message_text(message(), string()) -> message().
 message_text(Message, MessageText) -> Message#{ message_text => MessageText}.
 
--spec created_at(message()) -> conferl_utils:datetime().
+-spec created_at(message()) -> tuple().
 created_at(Message) -> maps:get(created_at, Message).
 
--spec created_at(message(), conferl_utils:datetime()) -> message().
+-spec created_at(message(), tuple()) -> message().
 created_at(Message, CreatedAt) -> Message#{created_at => CreatedAt}.
 
--spec updated_at(message()) -> conferl_utils:datetime().
+-spec updated_at(message()) -> tuple().
 updated_at(Message) -> maps:get(updated_at, Message).
 
--spec updated_at(message(), conferl_utils:datetime()) -> message().
+-spec updated_at(message(), tuple()) -> message().
 updated_at(Message, UpdatedAt) -> Message#{updated_at => UpdatedAt}.
 
 -spec is_top_message(message()) -> boolean().
@@ -138,4 +136,3 @@ is_top_message(Message) -> response_id(Message) == undefined.
 replace_null(Message = #{response_id := null}) ->
   Message#{response_id => undefined};
 replace_null(Message) -> Message.
-

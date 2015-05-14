@@ -55,11 +55,11 @@
 %%
 
 -spec sumo_wakeup(sumo:doc()) -> vote().
-sumo_wakeup(Data) -> cnf_utils:date_wakeup(thumb_wakeup(Data)).
+sumo_wakeup(Data) -> thumb_wakeup(Data).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(vote()) -> sumo:doc().
-sumo_sleep(Vote) -> cnf_utils:date_sleep(thumb_sleep(Vote)).
+sumo_sleep(Vote) -> thumb_sleep(Vote).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_schema() -> sumo:schema().
@@ -117,16 +117,16 @@ thumb(Vote) ->
 thumb(Vote, Thumb) ->
   Vote#{thumb => Thumb}.
 
--spec created_at(vote()) -> conferl_utils:datetime().
+-spec created_at(vote()) -> tuple().
 created_at(Vote) -> maps:get(created_at, Vote).
 
--spec created_at(vote(), conferl_utils:datetime()) -> vote().
+-spec created_at(vote(), tuple()) -> vote().
 created_at(Vote, CreatedAt) -> Vote#{ reated_at => CreatedAt}.
 
--spec updated_at(vote()) -> conferl_utils:datetime().
+-spec updated_at(vote()) -> tuple().
 updated_at(Vote) -> maps:get(updated_at, Vote).
 
--spec updated_at(vote(), conferl_utils:datetime()) -> vote().
+-spec updated_at(vote(), tuple()) -> vote().
 updated_at(Vote, UpdatedAt) -> Vote#{updated_at => UpdatedAt}.
 
 -spec thumb_wakeup(sumo:doc()) -> vote().

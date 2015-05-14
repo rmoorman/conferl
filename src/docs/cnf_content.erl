@@ -65,11 +65,11 @@ get_domain(Url) ->
 %%
 
 -spec sumo_wakeup(sumo:doc()) -> content().
-sumo_wakeup(Data) -> cnf_utils:date_wakeup(Data).
+sumo_wakeup(Data) -> Data.
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(content()) -> sumo:doc().
-sumo_sleep(Content) -> cnf_utils:date_sleep(Content).
+sumo_sleep(Content) -> Content.
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_schema() -> sumo:schema().

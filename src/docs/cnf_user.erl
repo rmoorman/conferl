@@ -15,7 +15,7 @@
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
--type user() ::
+-opaque user() ::
   #{  id         => integer()
     , user_name  => string()
     , password   => string()

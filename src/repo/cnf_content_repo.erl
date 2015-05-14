@@ -29,7 +29,8 @@
 
 -spec update(cnf_content:content()) -> cnf_content:content().
 update(Content) ->
-  sumo:persist(cnf_content, Content).
+  UpdatedContent = cnf_content:updated_at(Content, calendar:universal_time()),
+  sumo:persist(cnf_content, UpdatedContent).
 
 -spec find_by_url(string()) -> [cnf_content:content()].
 find_by_url(Url) ->

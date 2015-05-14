@@ -15,7 +15,7 @@
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
--type message() ::
+-opaque message() ::
   #{  id           => integer()
     , content_id   => integer()
     , response_id  => integer()

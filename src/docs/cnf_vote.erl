@@ -17,7 +17,7 @@
 
 -type thumb() :: up | down.
 
--type vote() ::
+-opaque vote() ::
         #{  id         => integer()
           , user_id    => integer()
           , message_id => integer()

@@ -61,7 +61,7 @@ is_authorized(Req, State) ->
 handle_get(Req, State) ->
   {Id, Req3} = cowboy_req:binding(content_id, Req),
   RequestContent = cnf_content_repo:find(list_to_integer(binary_to_list(Id))),
-  Body = cnf_content:sumodoc_to_json(RequestContent),
+  Body = cnf_content:to_json(RequestContent),
   {Body, Req3, State}.
 
 -spec delete_resource(cowboy_req:req(), state()) ->

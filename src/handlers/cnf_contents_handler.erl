@@ -80,7 +80,7 @@ handle_get(Req, State) ->
   {QueryStringVal, Req2} =  cowboy_req:qs_val(<<"domain">>, Req),
   RequestContent =
     cnf_content_repo:find_by_domain(binary_to_list(QueryStringVal)),
-  Body = cnf_content:sumodoc_to_json(RequestContent),
+  Body = cnf_content:to_json(RequestContent),
   {Body, Req2, State}.
 
 terminate(_Reason, _Req, _State) ->

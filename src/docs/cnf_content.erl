@@ -42,8 +42,7 @@
 -export([created_at/2]).
 -export([updated_at/1]).
 -export([updated_at/2]).
-
--export([sumodoc_to_json/1]).
+-export([to_json/1]).
 
 -behavior(sumo_doc).
 
@@ -147,10 +146,10 @@ updated_at(Content) ->
 updated_at(Content, UpdatedAt) ->
   Content#{updated_at => UpdatedAt}.
 
--spec sumodoc_to_json(content() | [content()]) -> content() | [content()].
-sumodoc_to_json(Content) when is_map(Content) ->
+-spec to_json(content() | [content()]) -> content() | [content()].
+to_json(Content) when is_map(Content) ->
   jiffy:encode(doc_to_binary_date(Content));
-sumodoc_to_json(ListContents) when is_list(ListContents) ->
+to_json(ListContents) when is_list(ListContents) ->
   JsonListContents = lists:map(fun doc_to_binary_date/1, ListContents),
   jiffy:encode(JsonListContents).
 

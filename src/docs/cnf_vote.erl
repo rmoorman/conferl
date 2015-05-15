@@ -40,7 +40,7 @@
 -export([created_at/2]).
 -export([updated_at/1]).
 -export([updated_at/2]).
--export([map_to_json/1]).
+-export([to_json/1]).
 
 %%% sumo_db callbacks
 -export([sumo_schema/0]).
@@ -147,10 +147,10 @@ thumb_sleep(Vote = #{thumb := up}) ->
 thumb_sleep(Vote = #{thumb := down}) ->
   Vote#{thumb => 0}.
 
--spec map_to_json(vote() | [vote()]) -> vote() | [vote()].
-map_to_json(ListVotes) when is_map(ListVotes) ->
+-spec to_json(vote() | [vote()]) -> vote() | [vote()].
+to_json(ListVotes) when is_map(ListVotes) ->
   jiffy:encode(doc_to_binary_date(ListVotes));
-map_to_json(Vote) when is_list(Vote) ->
+to_json(Vote) when is_list(Vote) ->
   JsonListVotes = lists:map(fun doc_to_binary_date/1, Vote),
   jiffy:encode(JsonListVotes).
 

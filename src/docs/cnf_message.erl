@@ -45,7 +45,7 @@
 -export([is_top_message/1]).
 -export([updated_at/1]).
 -export([updated_at/2]).
--export([map_to_json/1]).
+-export([to_json/1]).
 
 -behavior(sumo_doc).
 
@@ -145,10 +145,10 @@ updated_at(Message, UpdatedAt) ->
 is_top_message(Message) ->
   response_id(Message) == undefined.
 
--spec map_to_json(message() | [message()]) -> message() | [message()].
-map_to_json(Message) when is_map(Message) ->
+-spec to_json(message() | [message()]) -> message() | [message()].
+to_json(Message) when is_map(Message) ->
   jiffy:encode(doc_to_binary_date(Message));
-map_to_json(ListMessages) when is_list(ListMessages) ->
+to_json(ListMessages) when is_list(ListMessages) ->
   JsonListMessages = [doc_to_binary_date(Message) || Message <- ListMessages],
   jiffy:encode(JsonListMessages).
 

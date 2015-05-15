@@ -33,7 +33,7 @@ start(_StartType, _StartArgs) ->
   EndPoints = [
                 {<<"/status">>, cnf_status_handler, []}
               , {<<"/contents/">>, cnf_contents_handler, []}
-              , {<<"/content/[:content_id]">>, cnf_content_id_handler, []}
+              , {<<"/content/:content_id">>, cnf_content_id_handler, []}
                 %%% agregar otra ruta
                 %% Add here new endpoints
               ],

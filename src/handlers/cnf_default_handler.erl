@@ -19,8 +19,7 @@ rest_terminate(_Req, _State) ->
   ok.
 
 content_types_accepted(Req, State) ->
-  {_Method, Req1} = cowboy_req:method(Req),
-  {[{{<<"application">>, <<"json">>, '*'}, handle_post}], Req1, State}.
+  {[{{<<"application">>, <<"json">>, '*'}, handle_post}], Req, State}.
 
 content_types_provided(Req, State) ->
   {[{{<<"application">>, <<"json">>, '*'}, handle_get}], Req, State}.

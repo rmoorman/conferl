@@ -36,14 +36,14 @@
 -type state() :: #{}.
 
 allowed_methods(Req, State) ->
-  {[ <<"POST">>
-   , <<"GET">>
+  {[ <<"GET">>
+   , <<"POST">>
    , <<"OPTIONS">>]
   , Req
   , State}.
 
 -spec is_authorized(cowboy_req:req(), state()) ->
-    {tuple(), cowboy_req:req(), state()}.
+  {tuple(), cowboy_req:req(), state()}.
 is_authorized(Req, State) ->
   case cowboy_req:parse_header(<<"authorization">>, Req) of
     {ok, {<<"basic">>, {Login, Password}}, _} ->
@@ -52,7 +52,8 @@ is_authorized(Req, State) ->
       catch
         _Type:Excep -> cnf_utils:handle_exception(Excep, Req, State)
       end;
-    _ -> {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
+    _WhenOthers ->
+      {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
   end.
 
 -spec handle_post(cowboy_req:req(), state()) ->

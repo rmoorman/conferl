@@ -56,7 +56,6 @@ is_registered(UserName, Password) ->
   try fetch_by_name(UserName) of
     #{password := Password} -> ok;
     _WrongPass -> throw(wrong_password)
-
   catch
     throw:notfound -> throw(not_registered)
   end.

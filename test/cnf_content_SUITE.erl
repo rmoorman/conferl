@@ -61,31 +61,24 @@ end_per_suite(Config) ->
   Config.
 
 %% @doc definion of init_per_testcases
-init_per_testcase(test_create_content, _Config) ->
-  [ {url, "http://inaka.net/"}
-  , {user, 10}
-  ];
+init_per_testcase(test_create_content, Config) ->
+  [{url, "http://inaka.net/"}, {user, 10} | Config];
 
-init_per_testcase(test_create_user_bad, _Config) ->
-  [ {url, "bad_url!!!!!"}
-  , {user, 10}
-  ];
+init_per_testcase(test_create_user_bad, Config) ->
+  [ {url, "bad_url!!!!!"}, {user, 10} | Config];
 
-init_per_testcase(double_registration_bad, _Config) ->
-  [ {url, "http://inaka.net/"}
-  , {user, 10}
-  ];
-init_per_testcase(fetch_notfound_content, _Config)  ->
-  [{id, 999999}];
-init_per_testcase(test_list_contents, _Config)  ->
+init_per_testcase(double_registration_bad, Config) ->
+   [{url, "http://inaka.net/"}, {user, 10} | Config];
+init_per_testcase(fetch_notfound_content, Config)  ->
+  [{id, 999999} | Config];
+init_per_testcase(test_list_contents, Config)  ->
   [{urls, [{"http://inaka.net/11", 11}
         , {"http://inaka.net/12",  12}
         , {"http://inaka.net/13",  13}
         , {"http://yahoo.com/",    14}
         , {"https://github.com",   15}
         ]}
-  , {domain, "inaka.net" }
-  ];
+  , {domain, "inaka.net" } | Config ];
 
 init_per_testcase(_, Config)  ->
   Config.

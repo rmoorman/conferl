@@ -87,11 +87,12 @@ test_handle_post_duplicated(Config) ->
   User = cnf_user_repo:register_user("post_dupl", "password", "mail@email.net"),
   Header = #{<<"Content-Type">> => <<"application/json">>
             , basic_auth => {"post_dupl", "password"}},
-  Body = #{ url => <<"http://inaka.net/post_duplicated">>
+  Body = #{ url => <<"http://inaka.net/post_dup">>
           , user_id => cnf_user:id(User)},
   JsonBody = jiffy:encode(Body),
-  cnf_content_repo:register("http://inaka.net/post_duplicated", cnf_user:id(User)),
-  {ok, Response} = cnf_test_utils:api_call(post, "/contents", Header,  JsonBody),
+  cnf_content_repo:register("http://inaka.net/post_dup", cnf_user:id(User)),
+  {ok, Response} =
+    cnf_test_utils:api_call(post, "/contents", Header,  JsonBody),
   #{status_code := 400} = Response.
 
 

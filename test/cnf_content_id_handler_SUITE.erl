@@ -73,7 +73,8 @@ test_get_ok(Config) ->
   User = cnf_user_repo:register_user("get_ok", "password", "mail@email.net"),
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {"get_ok", "password"}},
-  Content = cnf_content_repo:register("http://inaka.net/get_ok", cnf_user:id(User)),
+  Content =
+    cnf_content_repo:register("http://inaka.net/get_ok", cnf_user:id(User)),
   Url = "/content/" ++  integer_to_list(cnf_content:id(Content)),
   {ok, Response} = cnf_test_utils:api_call(get, Url, Header),
   #{status_code := 200} = Response.
@@ -84,7 +85,8 @@ test_handle_delete_ok(Config) ->
             , basic_auth => {"delete_ok", "password"}},
   Body = #{ url => <<"http://inaka.net/">>
           , user_id => cnf_user:id(User)},
-  Content = cnf_content_repo:register("http://inaka.net/delete_ok", cnf_user:id(User)),
+  Content =
+    cnf_content_repo:register("http://inaka.net/delete_ok", cnf_user:id(User)),
   Url = "/content/" ++  integer_to_list(cnf_content:id(Content)),
   {ok, Response} = cnf_test_utils:api_call(delete, Url, Header),
   #{status_code := 204} = Response.

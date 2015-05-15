@@ -21,11 +21,10 @@
 -export([fetch_by_name/1]).
 -export([is_registered/2]).
 
-
 -spec register_user(string(), string(), string()) -> conferl_users:user().
 register_user(UserName, Password, Email) ->
   try fetch_by_name(UserName) of
-    _   -> throw(duplicate_user)
+    _   -> throw(duplicated_user)
   catch
     throw:notfound ->
       NewUser = cnf_user:new(UserName, Password, Email),
@@ -36,8 +35,8 @@ register_user(UserName, Password, Email) ->
 unregister_user(UserName) ->
   Result = sumo:delete_by(cnf_user, [{user_name, UserName}]),
   case Result of
-    0               -> throw(notfound);
-    NumberRows      -> NumberRows
+    0  -> throw(notfound);
+    NumberRows -> NumberRows
   end.
 
 -spec fetch_user(integer()) -> conferl_users:user().
@@ -48,8 +47,8 @@ fetch_user(UserId) ->
 fetch_by_name(UserName) ->
   Result = sumo:find_by(cnf_user, [{user_name, UserName}]),
   case Result of
-    []        -> throw(notfound);
-    [User]    -> User
+    [] -> throw(notfound);
+    [User] -> User
   end.
 
 -spec is_registered(string(), string()) -> ok.

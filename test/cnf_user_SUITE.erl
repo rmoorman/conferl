@@ -22,7 +22,7 @@
         , init_per_testcase/2
         , end_per_testcase/2
         , create_user/1
-        , duplicate_user/1
+        , duplicated_user/1
         , fetch_user/1
         , fetch_user_bad/1
         , unregistrate_user_bad/1
@@ -98,8 +98,8 @@ fetch_user(_Config) ->
   Email = cnf_user:email(PersistedUser),
   ok.
 
--spec duplicate_user(config()) -> ok.
-duplicate_user(_Config) ->
+-spec duplicated_user(config()) -> ok.
+duplicated_user(_Config) ->
   Name = <<"Doge duplicate_user">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
@@ -107,7 +107,7 @@ duplicate_user(_Config) ->
   try cnf_user_repo:register_user(Name, Passsword, Email) of
     _ -> ct:fail("Unexpected result (!)")
   catch
-    throw:duplicate_user -> ok
+    throw:duplicated_user -> ok
   end.
 
 -spec unregistrate_user(config()) -> ok.

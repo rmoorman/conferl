@@ -42,7 +42,7 @@ find(ContentId)  ->
 
 -spec find_by_user(integer()) -> [cnf_content:content()].
 find_by_user(UserId)  ->
-  sumo:find_by(cnf_content, [{user, UserId}]).
+  sumo:find_by(cnf_content, [{user_id, UserId}]).
 
 -spec find_by_domain(string()) -> [cnf_content:content()].
 find_by_domain(Domain)  ->
@@ -53,7 +53,7 @@ register(Url, User) ->
   Content = cnf_content:new(Url, User),
   case find_by_url(cnf_content:url(Content)) of
     []  -> sumo:persist(cnf_content, Content);
-    _   -> throw(duplicate_content)
+    _   -> throw(duplicated_content)
   end.
 
 -spec unregister(non_neg_integer()) -> boolean().

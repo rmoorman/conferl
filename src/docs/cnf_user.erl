@@ -43,6 +43,7 @@
 -export([created_at/2]).
 -export([updated_at/1]).
 -export([updated_at/2]).
+-export([map_to_json/1]).
 
 -behavior(sumo_doc).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -78,17 +79,18 @@ sumo_schema() ->
 %%
 %% @doc functions definitions for user
 
--spec new(string()
-          , string()
-          , string()) -> user().
+-spec new( string()
+         , string()
+         , string()) -> user().
 new(UserName, Password, Email) ->
-    #{  id         => undefined
-      , user_name  => UserName
-      , password   => Password
-      , email      => Email
-      , created_at => calendar:universal_time()
-      , updated_at => calendar:universal_time()
-     }.
+  Now = calendar:universal_time(),
+  #{ id         => undefined
+   , user_name  => UserName
+   , password   => Password
+   , email      => Email
+   , created_at => Now
+   , updated_at => Now
+   }.
 
 -spec id(user()) -> integer().
 id(User) -> maps:get(id, User).
@@ -118,13 +120,30 @@ email(User, Email) ->
   User#{email => Email}.
 
 -spec created_at(user()) -> tuple().
-created_at(User) -> maps:get(created_at, User).
+created_at(User) ->
+  maps:get(created_at, User).
 
 -spec created_at(user(), tuple()) -> user().
-created_at(User, CreatedAt) -> User#{created_at => CreatedAt}.
+created_at(User, CreatedAt) ->
+  User#{created_at => CreatedAt}.
 
 -spec updated_at(user()) -> tuple().
-updated_at(User) -> maps:get(updated_at, User).
+updated_at(User) ->
+  maps:get(updated_at, User).
 
 -spec updated_at(user(), tuple()) -> user().
-updated_at(User, UpdatedAt) -> User#{updated_at => UpdatedAt}.
+updated_at(User, UpdatedAt) ->
+  User#{updated_at => UpdatedAt}.
+
+-spec map_to_json(user() | [user()]) -> user() | [user()].
+map_to_json(User) when is_map(User) ->
+  jiffy:encode(doc_to_binary_date(User));
+map_to_json(ListUsers) when is_list(ListUsers) ->
+  JsonListUser = lists:map(fun doc_to_binary_date/1, ListUsers),
+  jiffy:encode(JsonListUser).
+
+-spec doc_to_binary_date(map()) -> map().
+doc_to_binary_date(User) ->
+  CreatedAtBinary = cnf_utils:datetime_to_binary(created_at(User)),
+  UpdatedAtBinary = cnf_utils:datetime_to_binary(updated_at(User)),
+  User#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.

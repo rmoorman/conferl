@@ -24,9 +24,9 @@
 
 
 -type thumb_count() ::
-        #{  up    => integer()
-          , down  => integer()
-         }.
+  #{ up    => integer()
+   , down  => integer()
+   }.
 
 -spec upvote(integer(), integer()) -> cnf_vote:vote().
 upvote(UserId, MessageId) ->

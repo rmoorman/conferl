@@ -15,25 +15,8 @@
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
--type datetime() ::
-        {datetime,
-          {
-            {integer(), integer(), integer()},
-            {integer(), integer(), integer()}
-          }
-        }.
--export_type([datetime/0]).
-
--export([now_datetime/0]).
 -export([handle_exception/3]).
--export([api_call/3]).
--export([api_call/4]).
--export([api_call/5]).
 -export([datetime_to_binary/1]).
--export([sumodoc_to_json/1]).
-
--spec now_datetime() -> datetime().
-now_datetime() -> {datetime, calendar:universal_time()}.
 
 -spec datetime_to_binary(tuple()) -> binary().
 datetime_to_binary({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->
@@ -46,29 +29,17 @@ datetime_to_binary({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->
   S = io_lib:format("~.2f",[Si]),
   iolist_to_binary([Y, "-", M, "-", D, "T", H, ":", N, ":", S]).
 
--spec sumodoc_to_json(list() | map()) -> list() | map().
-sumodoc_to_json(ListDoc) when is_map(ListDoc) ->
-  jiffy:encode(doc_to_binary_date(ListDoc));
-sumodoc_to_json(Doc) when is_list(Doc) ->
-  JsonListDocs = lists:map(fun doc_to_binary_date/1, Doc ),
-  jiffy:encode(JsonListDocs).
-
--spec doc_to_binary_date(map()) -> map().
-doc_to_binary_date(Doc) ->
-  CreatedAtBinary = cnf_utils:datetime_to_binary(maps:get(created_at, Doc)),
-  UpdatedAtBinary = cnf_utils:datetime_to_binary(maps:get(updated_at, Doc)),
-  Doc#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.
-
 -spec handle_exception(atom(), cowboy_req:req(), term()) ->
-    {halt, cowboy_req:req(), term()}.
-handle_exception(duplicate_user, Req, State) ->
+  {halt , cowboy_req:req(), term()}
+  | {{false,binary()}, cowboy_req:req(), term()}.
+handle_exception(duplicated_user, Req, State) ->
   %{false, Req1, State} is equivalent-> {ok, Req1} = cowboy_req:reply(400, Req),
   {false, Req, State};
 handle_exception(wrong_password, Req, State) ->
   {{false, <<"Basic realm=\"conferl\"">>}, Req, State};
 handle_exception(not_registered, Req, State) ->
   {{false, <<"Basic realm=\"conferl\"">>}, Req, State};
-handle_exception(duplicate_content, Req, State) ->
+handle_exception(duplicated_content, Req, State) ->
   {false, Req, State};
 handle_exception(not_found, Req, State) ->
   {ok, Req1} = cowboy_req:reply(404, Req),
@@ -86,26 +57,3 @@ handle_exception(Reason, Req, State) ->
         {ok, Req}
     end,
   {halt, Req1, State}.
-
--spec api_call(atom(), string(), map()) -> {atom(), map()}.
-api_call(Method, Url, Headers) ->
-  api_call(Method, Url, Headers, "").
-
--spec api_call(atom(), string(), map(), map() | string()) -> {atom(), map()}.
-api_call(Method, Url, Headers, Body) ->
- {ok, Port} = application:get_env(conferl, http_port),
-  {ok, HttpHost} = application:get_env(conferl, http_host),
-  {ok, Pid} = shotgun:open(HttpHost, Port),
-  Response = shotgun:request(Pid, Method, Url, Headers, Body, #{} ),
-  shotgun:close(Pid),
-  Response.
-
--spec api_call(atom(), string(), map(), map() | string(), map()) ->
-  {atom(), map()}.
-api_call(Method, Url, Headers, Body, Option) ->
-  {ok, Port} = application:get_env(conferl, http_port),
-  {ok, HttpHost} = application:get_env(conferl, http_host),
-  {ok, Pid} = shotgun:open(HttpHost, Port),
-  Response = shotgun:request(Pid, Method, Url, Headers, Body, Option),
-  shotgun:close(Pid),
-  Response.

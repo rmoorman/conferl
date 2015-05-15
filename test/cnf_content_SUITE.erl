@@ -116,7 +116,7 @@ double_registration_bad(Config) ->
   try cnf_content_repo:register(Url, User) of
     _Content -> ct:fail("Unexpected result (!)")
   catch
-    throw:duplicate_content -> ok;
+    throw:duplicated_content -> ok;
     Error:Reason            -> ct:pal("~p ~p", [Error, Reason])
   end.
 

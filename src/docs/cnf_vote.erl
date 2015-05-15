@@ -40,6 +40,7 @@
 -export([created_at/2]).
 -export([updated_at/1]).
 -export([updated_at/2]).
+-export([map_to_json/1]).
 
 %%% sumo_db callbacks
 -export([sumo_schema/0]).
@@ -81,12 +82,13 @@ sumo_schema() ->
          , integer()
          , thumb()) -> vote().
 new(UserId, MessageId, Thumb) ->
-  #{  id         => undefined
-    , message_id => MessageId
-    , user_id    => UserId
-    , thumb      => Thumb
-    , created_at => calendar:universal_time()
-    , updated_at => calendar:universal_time()
+  Now = calendar:universal_time(),
+  #{ id         => undefined
+   , message_id => MessageId
+   , user_id    => UserId
+   , thumb      => Thumb
+   , created_at => Now
+   , updated_at => Now
    }.
 
 -spec id(vote()) -> integer().
@@ -118,16 +120,20 @@ thumb(Vote, Thumb) ->
   Vote#{thumb => Thumb}.
 
 -spec created_at(vote()) -> tuple().
-created_at(Vote) -> maps:get(created_at, Vote).
+created_at(Vote) ->
+  maps:get(created_at, Vote).
 
 -spec created_at(vote(), tuple()) -> vote().
-created_at(Vote, CreatedAt) -> Vote#{ reated_at => CreatedAt}.
+created_at(Vote, CreatedAt) ->
+  Vote#{ reated_at => CreatedAt}.
 
 -spec updated_at(vote()) -> tuple().
-updated_at(Vote) -> maps:get(updated_at, Vote).
+updated_at(Vote) ->
+  maps:get(updated_at, Vote).
 
 -spec updated_at(vote(), tuple()) -> vote().
-updated_at(Vote, UpdatedAt) -> Vote#{updated_at => UpdatedAt}.
+updated_at(Vote, UpdatedAt) ->
+  Vote#{updated_at => UpdatedAt}.
 
 -spec thumb_wakeup(sumo:doc()) -> vote().
 thumb_wakeup(Vote = #{thumb := 1}) ->
@@ -140,3 +146,16 @@ thumb_sleep(Vote = #{thumb := up}) ->
   Vote#{thumb => 1};
 thumb_sleep(Vote = #{thumb := down}) ->
   Vote#{thumb => 0}.
+
+-spec map_to_json(vote() | [vote()]) -> vote() | [vote()].
+map_to_json(ListVotes) when is_map(ListVotes) ->
+  jiffy:encode(doc_to_binary_date(ListVotes));
+map_to_json(Vote) when is_list(Vote) ->
+  JsonListVotes = lists:map(fun doc_to_binary_date/1, Vote),
+  jiffy:encode(JsonListVotes).
+
+-spec doc_to_binary_date(map()) -> map().
+doc_to_binary_date(Vote) ->
+  CreatedAtBinary = cnf_utils:datetime_to_binary(created_at(Vote)),
+  UpdatedAtBinary = cnf_utils:datetime_to_binary(updated_at(Vote)),
+  Vote#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.

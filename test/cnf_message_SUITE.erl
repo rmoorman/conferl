@@ -16,16 +16,15 @@
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
--export([ all/0
-        , init_per_suite/1
-        , end_per_suite/1
-        , init_per_testcase/2
-        , end_per_testcase/2
-        , top_message_create/1
-        , test_delete_by_content/1
-        , message_replys/1
-        , test_list_top_message/1
-        ]).
+-export([all/0]).
+-export([init_per_suite/1]).
+-export([end_per_suite/1]).
+-export([init_per_testcase/2]).
+-export([end_per_testcase/2]).
+-export([top_message_create/1]).
+-export([test_delete_by_content/1]).
+-export([message_replys/1]).
+-export([ test_list_top_message/1]).
 
 -type config() :: [{atom(), term()}].
 

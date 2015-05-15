@@ -18,7 +18,7 @@
         #{  id         => integer()
           , url        => string()
           , domain     => string()
-          , user       => integer()
+          , user_id    => integer()
           , created_at => tuple()
           , updated_at => tuple()
           }.
@@ -34,14 +34,16 @@
 -export([id/1]).
 -export([url/1]).
 -export([url/2]).
--export([user/1]).
--export([user/2]).
+-export([user_id/1]).
+-export([user_id/2]).
 -export([domain/1]).
 -export([domain/2]).
 -export([created_at/1]).
 -export([created_at/2]).
 -export([updated_at/1]).
 -export([updated_at/2]).
+
+-export([sumodoc_to_json/1]).
 
 -behavior(sumo_doc).
 
@@ -74,13 +76,13 @@ sumo_sleep(Content) -> Content.
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
-    sumo:new_schema(?MODULE, [
-      sumo:new_field(id        , integer , [id, auto_increment, not_null]),
-      sumo:new_field(user      , integer , [not_null]),
-      sumo:new_field(url       , string  , [not_null]),
-      sumo:new_field(domain    , string  , [not_null]),
-      sumo:new_field(created_at, datetime, [not_null]),
-      sumo:new_field(updated_at, datetime, [not_null])
+  sumo:new_schema(?MODULE, [
+    sumo:new_field(id        , integer , [id, auto_increment, not_null]),
+    sumo:new_field(user_id   , integer , [not_null]),
+    sumo:new_field(url       , string  , [not_null]),
+    sumo:new_field(domain    , string  , [not_null]),
+    sumo:new_field(created_at, datetime, [not_null]),
+    sumo:new_field(updated_at, datetime, [not_null])
   ]).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Public Api
@@ -91,13 +93,14 @@ sumo_schema() ->
 -spec new( string()
          , integer()) -> content() | invalid_url.
 new(Url, User) ->
-  #{  id         => undefined
-    , url        => Url
-    , domain     => get_domain(Url)
-    , user       => User
-    , created_at => calendar:universal_time()
-    , updated_at => calendar:universal_time()
-    }.
+  Now = calendar:universal_time(),
+  #{ id         => undefined
+   , url        => Url
+   , domain     => get_domain(Url)
+   , user_id    => User
+   , created_at => Now
+   , updated_at => Now
+   }.
 
 %% Getters/Setters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec id(content()) -> integer().
@@ -112,13 +115,13 @@ url(Content) ->
 url(Content, Url) ->
   Content#{ url => Url}.
 
--spec user(content()) -> integer().
-user(Content) ->
-  maps:get(user, Content).
+-spec user_id(content()) -> integer().
+user_id(Content) ->
+  maps:get(user_id, Content).
 
--spec user(content(), integer()) -> content().
-user(Content, User) ->
-  Content#{user => User}.
+-spec user_id(content(), integer()) -> content().
+user_id(Content, User) ->
+  Content#{user_id => User}.
 
 -spec domain(content()) -> string().
 domain(Content) ->
@@ -129,13 +132,30 @@ domain(Content, Domain) ->
   Content#{domain => Domain}.
 
 -spec created_at(content()) -> tuple().
-created_at(Content) -> maps:get(created_at, Content).
+created_at(Content) ->
+  maps:get(created_at, Content).
 
 -spec created_at(content(), tuple()) -> content().
-created_at(Content, CreatedAt) -> Content#{created_at => CreatedAt}.
+created_at(Content, CreatedAt) ->
+  Content#{created_at => CreatedAt}.
 
 -spec updated_at(content()) -> tuple().
-updated_at(Content) -> maps:get(updated_at, Content).
+updated_at(Content) ->
+  maps:get(updated_at, Content).
 
 -spec updated_at(content(), tuple()) -> content().
-updated_at(Content, UpdatedAt) -> Content#{updated_at => UpdatedAt}.
+updated_at(Content, UpdatedAt) ->
+  Content#{updated_at => UpdatedAt}.
+
+-spec sumodoc_to_json(content() | [content()]) -> content() | [content()].
+sumodoc_to_json(Content) when is_map(Content) ->
+  jiffy:encode(doc_to_binary_date(Content));
+sumodoc_to_json(ListContents) when is_list(ListContents) ->
+  JsonListContents = lists:map(fun doc_to_binary_date/1, ListContents),
+  jiffy:encode(JsonListContents).
+
+-spec doc_to_binary_date(map()) -> map().
+doc_to_binary_date(Content) ->
+  CreatedAtBinary = cnf_utils:datetime_to_binary(created_at(Content)),
+  UpdatedAtBinary = cnf_utils:datetime_to_binary(updated_at(Content)),
+  Content#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.

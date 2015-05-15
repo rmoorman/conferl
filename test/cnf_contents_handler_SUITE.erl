@@ -22,8 +22,6 @@
 -export([init_per_testcase/2]).
 -export([end_per_testcase/2]).
 -export([test_handle_post_ok/1]).
--export([test_handle_delete_ok/1]).
--export([test_get_ok/1]).
 -export([test_get_qs_ok/1]).
 -export([test_handle_post_duplicated/1]).
 
@@ -58,7 +56,7 @@ init_per_suite(Config) ->
 
 -spec end_per_suite(config()) -> config().
 end_per_suite(Config) ->
-  %sumo:delete_all(cnf_content),
+  sumo:delete_all(cnf_content),
   Config.
 
 %% @doc definion of init_per_testcases
@@ -72,43 +70,32 @@ end_per_testcase(_Function, Config) ->
   Config.
 
 test_handle_post_ok(Config) ->
-  Header = #{<<"Content-Type">> => <<"application/json">>
-            , basic_auth => {"user", "password"}},
-  Body = #{url => <<"http://inaka.net/post_ok">>, user_id => 2345},
+  User = cnf_user_repo:register_user("post_ok", "password", "mail@email.net"),
+  Header = #{ <<"Content-Type">> => <<"application/json">>
+            , basic_auth => {"post_ok", "password"}},
+  Body = #{ url => <<"http://inaka.net/post_ok">>
+          , user_id => cnf_user:id(User)},
   JsonBody = jiffy:encode(Body),
-  cnf_user_repo:register_user("user", "password", "email@fast.net"),
-  {ok, Response} = 
-  cnf_utils:api_call(post, "/contents", Header,  JsonBody),
+  {ok, Response} =
+  cnf_test_utils:api_call(post, "/contents", Header,  JsonBody),
   #{status_code := 204} = Response,
   #{headers := ResponseHeaders} = Response,
   Location = proplists:get_value(<<"location">>, ResponseHeaders),
   <<"http://localhost/contents/", _Id/binary>> = Location.
 
 test_handle_post_duplicated(Config) ->
+  User = cnf_user_repo:register_user("post_dupl", "password", "mail@email.net"),
   Header = #{<<"Content-Type">> => <<"application/json">>
-            , basic_auth => {"user", "password"}},
-  Body = #{url => <<"http://inaka.net/post_duplicated">>, user_id => 2345},
+            , basic_auth => {"post_dupl", "password"}},
+  Body = #{ url => <<"http://inaka.net/post_duplicated">>
+          , user_id => cnf_user:id(User)},
   JsonBody = jiffy:encode(Body),
-  cnf_content_repo:register("http://inaka.net/post_duplicated", 2345),
-  {ok, Response} = cnf_utils:api_call(post, "/contents", Header,  JsonBody),
+  cnf_content_repo:register("http://inaka.net/post_duplicated", cnf_user:id(User)),
+  {ok, Response} = cnf_test_utils:api_call(post, "/contents", Header,  JsonBody),
   #{status_code := 400} = Response.
 
-test_handle_delete_ok(Config) ->
-  Header = #{<<"Content-Type">> => <<"application/json">>
-            , basic_auth => {"user", "password"}},
-  Body = #{url => <<"http://inaka.net/">>, user_id => 2345},
-  Content = cnf_content_repo:register("http://inaka.net/delete_ok", 2345),
-  Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
-  {ok, Response} = cnf_utils:api_call(delete, Url, Header),
-  #{status_code := 204} = Response.
 
-test_get_ok(Config) ->
-   Header = #{<<"Content-Type">> => <<"application/json">>
-            , basic_auth => {"user", "password"}},
-  Content = cnf_content_repo:register("http://inaka.net/get_ok", 2345),
-  Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
-  {ok, Response} = cnf_utils:api_call(get, Url, Header),
-  #{status_code := 200} = Response.
+
 
 test_get_qs_ok(Config) ->
   Header = #{<<"Content-Type">> => <<"text/plain; charset=utf-8">>
@@ -118,7 +105,7 @@ test_get_qs_ok(Config) ->
   DomainInaka = "inaka.net",
   DomainTwitter = "twitter.com",
   UrlInaka = "/contents/?domain=" ++  DomainInaka,
-  {ok, ResponseInaka} = cnf_utils:api_call(get, UrlInaka, Header),
+  {ok, ResponseInaka} = cnf_test_utils:api_call(get, UrlInaka, Header),
   #{status_code := 200} = ResponseInaka,
   #{body := JsonBodyRespInaka} = ResponseInaka,
   BodyRespInaka = jiffy:decode(JsonBodyRespInaka, [return_maps]),
@@ -128,7 +115,7 @@ test_get_qs_ok(Config) ->
          Domain1 == <<"inaka.net">>
        end,
   ok = lists:foreach(F1, BodyRespInaka),
-  {ok, ResponseTwitter} = cnf_utils:api_call(get, UrlTwitter, Header),
+  {ok, ResponseTwitter} = cnf_test_utils:api_call(get, UrlTwitter, Header),
   #{body := JsonBodyRespTwitter} = ResponseTwitter,
   BodyRespTwitter = jiffy:decode(JsonBodyRespTwitter, [return_maps]),
   F2 = fun(DomainMap) ->

@@ -2,7 +2,7 @@
 % Version 2.0 (the "License"); you may not use this file
 % except in compliance with the License.  You may obtain
 % a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
 %
 % Unless required by applicable law or agreed to in writing,
@@ -12,7 +12,7 @@
 % specific language governing permissions and limitations
 % under the License.
 
--module(cnf_handler_status).
+-module(cnf_status_handler).
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
@@ -24,11 +24,11 @@
 init({tcp, http}, Req, _Opts) ->
   {ok, Req, undefined}.
 
-handle(Req, State) -> 
+handle(Req, State) ->
   {ok, Req2} =
     cowboy_req:reply(200
                     , [{<<"content-type">>, <<"text/plain">>}]
-                    , <<"{status: \"ok\"}">>
+                    , <<"{\"status\" : \"ok\"}">>
                     , Req),
   {ok, Req2, State}.
 

@@ -2,7 +2,7 @@
 % Version 2.0 (the "License"); you may not use this file
 % except in compliance with the License.  You may obtain
 % a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
 %
 % Unless required by applicable law or agreed to in writing,
@@ -44,8 +44,8 @@ ignored_funs() ->
   ].
 
 -spec all() -> [atom()].
-all() -> 
-  [Fun || {Fun, 1} <- module_info(exports), 
+all() ->
+  [Fun || {Fun, 1} <- module_info(exports),
           not lists:member(Fun, ignored_funs())].
 
 %% @doc definion of init_per_testcases
@@ -63,15 +63,15 @@ end_per_suite(Config) ->
   Config.
 
 %% @doc definion of init_per_testcases
-init_per_testcase(_Function, Config) -> 
+init_per_testcase(_Function, Config) ->
   Config.
 
 %% @doc definion of end_per_testcases
-end_per_testcase(_Function, Config) -> 
+end_per_testcase(_Function, Config) ->
   Config.
 
 -spec test_upvote(config()) -> ok.
-test_upvote(_Config) -> 
+test_upvote(_Config) ->
   UserId = 1,
   MessageId = 1,
   VotedMessage = cnf_vote_repo:upvote(UserId, MessageId),
@@ -81,7 +81,7 @@ test_upvote(_Config) ->
   ok.
 
 -spec test_downvote(config()) -> ok.
-test_downvote(_Config) -> 
+test_downvote(_Config) ->
   UserId = 2,
   MessageId = 2,
   VotedMessage = cnf_vote_repo:downvote(UserId, MessageId),
@@ -89,9 +89,9 @@ test_downvote(_Config) ->
   MessageId = cnf_vote:user_id(VotedMessage),
   down = cnf_vote:thumb(VotedMessage),
   ok.
-  
+
 -spec test_fetch_vote(config()) -> ok.
-test_fetch_vote(_Config) -> 
+test_fetch_vote(_Config) ->
   UserId = 3,
   MessageId = 3,
   VotedMessage = cnf_vote_repo:upvote(UserId, MessageId),
@@ -105,11 +105,11 @@ test_fetch_vote(_Config) ->
   ok.
 
 -spec test_counts_votes_message(config()) -> ok.
-test_counts_votes_message(_Config)  -> 
+test_counts_votes_message(_Config)  ->
   MessageId = 4,
   CountVotesUp = 15,
   CountVotesDown = 30,
-  [cnf_vote_repo:upvote(UserId, MessageId) 
+  [cnf_vote_repo:upvote(UserId, MessageId)
     || UserId <- lists:seq(1, CountVotesUp)],
   [cnf_vote_repo:downvote(UserId, MessageId)
     || UserId <- lists:seq(1, CountVotesDown)],

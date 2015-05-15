@@ -2,7 +2,7 @@
 % Version 2.0 (the "License"); you may not use this file
 % except in compliance with the License.  You may obtain
 % a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
 %
 % Unless required by applicable law or agreed to in writing,
@@ -17,9 +17,10 @@
 %%% General repo functions.
 -export(
   [ update/1
-  , delete_all/0
+  , find/1
   , find_by_url/1
   , find_by_user/1
+  , find_by_domain/1
   , register/2
   , unregister/1
   , fetch/1
@@ -28,39 +29,44 @@
 
 -spec update(cnf_content:content()) -> cnf_content:content().
 update(Content) ->
-  sumo:persist(cnf_content, Content).
+  UpdatedContent = cnf_content:updated_at(Content, calendar:universal_time()),
+  sumo:persist(cnf_content, UpdatedContent).
 
--spec delete_all() -> integer(). 
-delete_all() -> sumo:delete_all(cnf_content). 
-  
 -spec find_by_url(string()) -> [cnf_content:content()].
 find_by_url(Url) ->
   sumo:find_by(cnf_content, [{url, Url}]).
 
+-spec find(non_neg_integer()) -> [cnf_content:content()].
+find(ContentId)  ->
+  sumo:find(cnf_content, ContentId).
+
 -spec find_by_user(integer()) -> [cnf_content:content()].
-find_by_user(UserIdUserId)  ->
-  sumo:find_by(cnf_content,[{user, UserIdUserId}]). 
+find_by_user(UserId)  ->
+  sumo:find_by(cnf_content, [{user_id, UserId}]).
+
+-spec find_by_domain(string()) -> [cnf_content:content()].
+find_by_domain(Domain)  ->
+  sumo:find_by(cnf_content, [{domain, Domain}]).
 
 -spec register(string(), integer()) -> cnf_content:content().
-register(Url, User) -> 
+register(Url, User) ->
   Content = cnf_content:new(Url, User),
-  case find_by_url( cnf_content:url(Content) ) of
+  case find_by_url(cnf_content:url(Content)) of
     []  -> sumo:persist(cnf_content, Content);
-    _   -> throw(duplicate_content)
+    _   -> throw(duplicated_content)
   end.
 
--spec unregister(cnf_content:content()) -> non_neg_integer().
-unregister(Content) ->  
-  Id = cnf_content:id(Content),
-  sumo:delete_by(cnf_content, [{id, Id}]).
+-spec unregister(non_neg_integer()) -> boolean().
+unregister(Id) ->
+  sumo:delete(cnf_content, Id).
 
 -spec fetch(integer()) -> notfound | cnf_content:content().
-fetch(ContentId) -> 
+fetch(ContentId) ->
   case sumo:find(cnf_content,ContentId) of
     notfound  -> throw(notfound);
     Content   -> Content
-  end.  
+  end.
 
 -spec list(string()) -> [cnf_content:content()].
-list(Domain) ->   
-  sumo:find_by(cnf_content, [{domain, Domain}]). 
+list(Domain) ->
+  sumo:find_by(cnf_content, [{domain, Domain}]).

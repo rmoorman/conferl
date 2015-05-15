@@ -2,7 +2,7 @@
 % Version 2.0 (the "License"); you may not use this file
 % except in compliance with the License.  You may obtain
 % a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
 %
 % Unless required by applicable law or agreed to in writing,
@@ -22,7 +22,7 @@
         , init_per_testcase/2
         , end_per_testcase/2
         , create_user/1
-        , duplicate_user/1
+        , duplicated_user/1
         , fetch_user/1
         , fetch_user_bad/1
         , unregistrate_user_bad/1
@@ -46,8 +46,8 @@ ignored_funs() ->
   ].
 
 -spec all() -> [atom()].
-all() -> 
-  [Fun || {Fun, 1} <- module_info(exports), 
+all() ->
+  [Fun || {Fun, 1} <- module_info(exports),
           not lists:member(Fun, ignored_funs())].
 
 %% @doc definion of init_per_testcases
@@ -65,15 +65,15 @@ end_per_suite(Config) ->
   Config.
 
 %% @doc definion of init_per_testcases
-init_per_testcase(_Function, Config) -> 
+init_per_testcase(_Function, Config) ->
   Config.
 
 %% @doc definion of end_per_testcases
-end_per_testcase(_Function, Config) -> 
+end_per_testcase(_Function, Config) ->
   Config.
 
 -spec create_user(config()) -> ok.
-create_user(_Config) -> 
+create_user(_Config) ->
   Name = <<"Doge create_user">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
@@ -84,7 +84,7 @@ create_user(_Config) ->
   ok.
 
 -spec fetch_user(config()) -> ok.
-fetch_user(_Config) -> 
+fetch_user(_Config) ->
   Name = <<"Doge fetch_user">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
@@ -98,8 +98,8 @@ fetch_user(_Config) ->
   Email = cnf_user:email(PersistedUser),
   ok.
 
--spec duplicate_user(config()) -> ok.
-duplicate_user(_Config) -> 
+-spec duplicated_user(config()) -> ok.
+duplicated_user(_Config) ->
   Name = <<"Doge duplicate_user">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
@@ -107,11 +107,11 @@ duplicate_user(_Config) ->
   try cnf_user_repo:register_user(Name, Passsword, Email) of
     _ -> ct:fail("Unexpected result (!)")
   catch
-    throw:duplicate_user -> ok
+    throw:duplicated_user -> ok
   end.
 
 -spec unregistrate_user(config()) -> ok.
-unregistrate_user(_Config) -> 
+unregistrate_user(_Config) ->
   Name = <<"Doge unregistrate_user">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
@@ -124,7 +124,7 @@ unregistrate_user(_Config) ->
   end.
 
 -spec fetch_user_bad(config()) -> ok.
-fetch_user_bad(_Config) -> 
+fetch_user_bad(_Config) ->
   NotFoundId = 0,
   try cnf_user_repo:fetch_by_name(NotFoundId) of
     _ -> ct:fail("Unexpected result (!)")
@@ -133,7 +133,7 @@ fetch_user_bad(_Config) ->
   end.
 
 -spec unregistrate_user_bad(config()) -> ok.
-unregistrate_user_bad(_Config) -> 
+unregistrate_user_bad(_Config) ->
   Name = <<"Doge unregistrate_user_bad">>,
   try cnf_user_repo:unregister_user(Name) of
     _ -> ct:fail("Unexpected result (!)")

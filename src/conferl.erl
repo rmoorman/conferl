@@ -2,7 +2,7 @@
 % Version 2.0 (the "License"); you may not use this file
 % except in compliance with the License.  You may obtain
 % a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
 %
 % Unless required by applicable law or agreed to in writing,
@@ -13,7 +13,10 @@
 % under the License.
 
 -module(conferl).
--export([start/0, start/2, stop/0, stop/1]).
+-export([start/0]).
+-export([start/2]).
+-export([stop/0]).
+-export([stop/1]).
 
 %% application
 %% @doc Starts the application
@@ -28,13 +31,18 @@ stop() ->
 %% @private
 start(_StartType, _StartArgs) ->
   EndPoints = [
-                {<<"/status">>, cnf_handler_status, []}
+                {<<"/status">>, cnf_status_handler, []}
+              , {<<"/contents/">>, cnf_contents_handler, []}
+              , {<<"/content/:content_id">>, cnf_content_id_handler, []}
+                %%% agregar otra ruta
                 %% Add here new endpoints
               ],
   Dispatch = cowboy_router:compile( [{'_' , EndPoints}]),
+  {ok, Port} = application:get_env(conferl, http_port),
+  {ok, HttpListenersCount} = application:get_env(conferl, http_listener_count),
   cowboy:start_http(my_http_listener
-                   , 100
-                   , [{port, 8080}]
+                   , HttpListenersCount
+                   , [{port, Port}]
                    , [{env, [{dispatch, Dispatch}]}]),
 
   conferl_sup:start_link().

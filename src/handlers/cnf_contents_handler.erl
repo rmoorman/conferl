@@ -59,20 +59,20 @@ is_authorized(Req, State) ->
 -spec handle_post(cowboy_req:req(), state()) ->
   {halt | true, cowboy_req:req(), state()}.
 handle_post(Req, State) ->
-    {ok, JsonBody, Req1} = cowboy_req:body(Req),
-    Body = jiffy:decode(JsonBody, [return_maps]),
-    #{<<"url">> := Url, <<"user_id">> := UserId} = Body,
-    try
-      Content = cnf_content_repo:register(binary_to_list(Url), UserId),
-      Id = cnf_content:id(Content),
-      {Host, Req2} = cowboy_req:url(Req1),
-      Location = [Host, <<"/">>, list_to_binary(integer_to_list(Id))],
-      Req3 = cowboy_req:set_resp_header(<<"Location">>, Location, Req2),
-      {true, Req3, State}
-    catch
-      _Type:Exception ->
-        cnf_utils:handle_exception(Exception, Req, State)
-    end.
+  {ok, JsonBody, Req1} = cowboy_req:body(Req),
+  Body = jiffy:decode(JsonBody, [return_maps]),
+  #{<<"url">> := Url, <<"user_id">> := UserId} = Body,
+  try
+    Content = cnf_content_repo:register(binary_to_list(Url), UserId),
+    Id = cnf_content:id(Content),
+    {Host, Req2} = cowboy_req:url(Req1),
+    Location = [Host, <<"/">>, list_to_binary(integer_to_list(Id))],
+    Req3 = cowboy_req:set_resp_header(<<"Location">>, Location, Req2),
+    {true, Req3, State}
+  catch
+    _Type:Exception ->
+      cnf_utils:handle_exception(Exception, Req, State)
+  end.
 
 -spec handle_get(cowboy_req:req(), state()) ->
   {list(), cowboy_req:req(), state()}.

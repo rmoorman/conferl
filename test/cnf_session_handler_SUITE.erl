@@ -22,6 +22,7 @@
 -export([init_per_testcase/2]).
 -export([end_per_testcase/2]).
 -export([post_session/1]).
+-export([post_multiple_session/1]).
 -export([delete_session/1]).
 -export([post_session_bad/1]).
 
@@ -88,6 +89,32 @@ post_session(Config) ->
   BodyResp = jiffy:decode(JsonResponseBody, [return_maps]),
   #{<<"token">> := _Token} = BodyResp,
   Config.
+
+-spec post_multiple_session(config()) -> term().
+post_multiple_session(_Config) ->
+  Name = "Doge post_multiple_session",
+  Passsword = "passsword",
+  Email = "email@email.net",
+  cnf_user_repo:register_user(Name, Passsword, Email),
+  Header = #{ <<"Content-Type">> => <<"application/json">>
+            , basic_auth => {Name, Passsword}},
+  Body = #{},
+  JsonBody = jiffy:encode(Body),
+  {ok, Token1} = create_token(Header, JsonBody),
+  {ok, Token2} = create_token(Header, JsonBody),
+  {ok, Token3} = create_token(Header, JsonBody),
+  true = Token1 /= Token2,
+  true = Token1 /= Token3,
+  true = Token2 /= Token3.
+
+create_token(Header, JsonBody) ->
+  {ok, Response} =
+    cnf_test_utils:api_call(post, "/sessions", Header, JsonBody),
+  #{status_code := 200} = Response,
+  #{body := JsonResponseBody} = Response,
+  BodyResp = jiffy:decode(JsonResponseBody, [return_maps]),
+  #{<<"token">> := Token} = BodyResp,
+  {ok,Token}.
 
 -spec post_session_bad(config()) -> config().
 post_session_bad(Config) ->

@@ -96,7 +96,7 @@ post_session_bad(Config) ->
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {Name, Passsword}},
   Body = #{},
-  JsonBody = cnf_session:to_json(Body),
+  JsonBody = jiffy:encode(Body),
   {ok, Response} =
     cnf_test_utils:api_call(post, "/sessions", Header, JsonBody),
   #{status_code := 401} = Response,
@@ -113,7 +113,7 @@ delete_session(Config) ->
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {Name, Passsword}},
   Body = #{},
-  JsonBody = cnf_session:to_json(Body),
+  JsonBody = jiffy:encode(Body),
   {ok, Response} =
     cnf_test_utils:api_call(delete, "/sessions/" ++ Token, Header, JsonBody),
   #{status_code := 204} = Response,

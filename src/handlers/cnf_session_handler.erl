@@ -56,14 +56,14 @@ is_authorized(Req, State) ->
   end.
 
 -spec handle_post(cowboy_req:req(), state()) ->
-  {halt | true, cowboy_req:req(), state()}.
+  {true, cowboy_req:req(), state()}
+  | {tuple(), cowboy_req:req(), state()}.
 handle_post(Req, State) ->
   case cowboy_req:parse_header(<<"authorization">>, Req) of
     {ok, {<<"basic">>, {Login, _Password}}, _} ->
       User = cnf_user_repo:find_by_name(Login),
       Session = cnf_session_repo:register(cnf_user:id(User)),
-      Body = #{token => cnf_session:token(Session)},
-      JsonBody = cnf_session:to_json(Body),
+      JsonBody = cnf_session:to_json(Session),
       Req1 = cowboy_req:set_resp_body(JsonBody, Req),
       {true, Req1, State};
     _WhenOthers ->

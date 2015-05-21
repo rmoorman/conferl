@@ -98,6 +98,7 @@ created_at(Session) ->
 updated_at(Session) ->
   maps:get(updated_at, Session).
 
--spec to_json(session()) -> session() .
+-spec to_json(session()) -> binary().
 to_json(Session)->
-  jiffy:encode(Session).
+  Body = #{token => cnf_session:token(Session)},
+  jiffy:encode(Body).

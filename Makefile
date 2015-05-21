@@ -12,7 +12,7 @@ dep_mixer       = git git://github.com/inaka/mixer.git       0.1.3
 dep_jiffy       = git git://github.com/davisp/jiffy.git      0.11.3
 dep_shotgun     = git git://github.com/inaka/shotgun.git     0.1.10
 dep_xref_runner = git git://github.com/inaka/xref_runner.git 0.2.2
-dep_uuid 				= git git://github.com/okeuday/uuid.git 		 v1.5.0
+dep_uuid        = git git://github.com/okeuday/uuid.git      v1.5.0
 
 PLT_APPS := inets
 DIALYZER_DIRS := ebin/

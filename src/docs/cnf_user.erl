@@ -43,7 +43,7 @@
 -export([created_at/2]).
 -export([updated_at/1]).
 -export([updated_at/2]).
--export([map_to_json/1]).
+-export([to_json/1]).
 
 -behavior(sumo_doc).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -135,10 +135,10 @@ updated_at(User) ->
 updated_at(User, UpdatedAt) ->
   User#{updated_at => UpdatedAt}.
 
--spec map_to_json(user() | [user()]) -> user() | [user()].
-map_to_json(User) when is_map(User) ->
+-spec to_json(user() | [user()]) -> user() | [user()].
+to_json(User) when is_map(User) ->
   jiffy:encode(doc_to_binary_date(User));
-map_to_json(ListUsers) when is_list(ListUsers) ->
+to_json(ListUsers) when is_list(ListUsers) ->
   JsonListUser = lists:map(fun doc_to_binary_date/1, ListUsers),
   jiffy:encode(JsonListUser).
 

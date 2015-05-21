@@ -19,16 +19,13 @@
 -export([unregister/1]).
 -export([find_by_user/1]).
 -export([find_by_token/1]).
+-export([is_valid/1]).
 
 -spec register(non_neg_integer()) -> cnf_session:session().
 register(UserId) ->
-  case find_by_user(UserId) of
-    [Session] ->
-      Session;
-    [] -> NewToken = generate_token(),
-      NewSession = cnf_session:new(UserId, NewToken),
-      sumo:persist(cnf_session, NewSession)
-  end.
+  NewToken = generate_token(),
+  NewSession = cnf_session:new(UserId, NewToken),
+  sumo:persist(cnf_session, NewSession).
 
 -spec unregister(string()) -> non_neg_integer().
 unregister(Token) ->
@@ -44,3 +41,16 @@ find_by_token(Token) ->
 
 -spec generate_token() -> binary().
 generate_token() -> erlang:list_to_binary(uuid:uuid_to_string(uuid:get_v4())).
+
+-spec is_valid(cnf_session:session()) -> boolean().
+is_valid(Session) ->
+  {ok, MaxSessionDays} = application:get_env(conferl, http_port),
+  UpdatedTime = cnf_session:updated_at(Session),
+  Now = calendar:universal_time(),
+  Diff = calendar:time_difference(UpdatedTime, Now),
+  case Diff of
+    {DiffDays, _Time} when DiffDays < MaxSessionDays ->
+      true;
+    _WhenOthers ->
+      false
+  end.

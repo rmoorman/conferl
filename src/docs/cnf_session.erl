@@ -29,14 +29,9 @@
 -export([id/1]).
 -export([user_id/1]).
 -export([token/1]).
--export([token/2]).
 -export([created_at/1]).
--export([created_at/2]).
 -export([updated_at/1]).
--export([updated_at/2]).
--export([is_valid/1]).
-
--define(MAX_SESSION_DAYS, 42).
+-export([to_json/1]).
 
 %%% sumo_db callbacks
 -export([sumo_schema/0]).
@@ -95,34 +90,14 @@ user_id(Session) ->
 token(Session) ->
   maps:get(token, Session).
 
--spec token(session(), integer()) -> session().
-token(Session, UserId) ->
-  Session#{token => UserId}.
-
 -spec created_at(session()) -> tuple().
 created_at(Session) ->
   maps:get(created_at, Session).
-
--spec created_at(session(), tuple()) -> session().
-created_at(Session, CreatedAt) ->
-  Session#{created_at => CreatedAt}.
 
 -spec updated_at(session()) -> tuple().
 updated_at(Session) ->
   maps:get(updated_at, Session).
 
--spec updated_at(session(), tuple()) -> session().
-updated_at(Session, UpdatedAt) ->
-  Session#{updated_at => UpdatedAt}.
-
--spec is_valid(cnf_session:session()) -> boolean().
-is_valid(Session) ->
-  UpdatedTime = cnf_session:updated_at(Session),
-  Now = calendar:universal_time(),
-  Diff = calendar:time_difference(UpdatedTime, Now),
-  case Diff of
-    {DiffDays, _Time} when DiffDays < ?MAX_SESSION_DAYS ->
-      true;
-    _WhenOthers ->
-      false
-  end.
+-spec to_json(session()) -> session() .
+to_json(Session)->
+  jiffy:encode(Session).

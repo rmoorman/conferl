@@ -63,7 +63,7 @@ handle_post(Req, State) ->
       User = cnf_user_repo:find_by_name(Login),
       Session = cnf_session_repo:register(cnf_user:id(User)),
       Body = #{token => cnf_session:token(Session)},
-      JsonBody = jiffy:encode(Body),
+      JsonBody = cnf_session:to_json(Body),
       Req1 = cowboy_req:set_resp_body(JsonBody, Req),
       {true, Req1, State};
     _WhenOthers ->

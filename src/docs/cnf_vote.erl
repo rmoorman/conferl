@@ -154,6 +154,11 @@ to_json(Vote) when is_list(Vote) ->
   JsonListVotes = lists:map(fun doc_to_binary_date/1, Vote),
   jiffy:encode(JsonListVotes).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Private Api
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%
 -spec doc_to_binary_date(map()) -> map().
 doc_to_binary_date(Vote) ->
   CreatedAtBinary = cnf_utils:datetime_to_binary(created_at(Vote)),

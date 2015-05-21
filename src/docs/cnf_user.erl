@@ -142,6 +142,11 @@ map_to_json(ListUsers) when is_list(ListUsers) ->
   JsonListUser = lists:map(fun doc_to_binary_date/1, ListUsers),
   jiffy:encode(JsonListUser).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Private Api
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%
 -spec doc_to_binary_date(map()) -> map().
 doc_to_binary_date(User) ->
   CreatedAtBinary = cnf_utils:datetime_to_binary(created_at(User)),

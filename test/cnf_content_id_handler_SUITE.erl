@@ -52,11 +52,12 @@ init_per_suite(Config) ->
   application:ensure_all_started(shotgun),
   sumo:create_schema(),
   cnf_user_repo:register_user("user", "password", "email@inaka.net"),
-  [].
+  Config.
 
 -spec end_per_suite(config()) -> config().
 end_per_suite(Config) ->
   sumo:delete_all(cnf_content),
+  sumo:delete_all(cnf_user),
   Config.
 
 %% @doc definion of init_per_testcases
@@ -69,6 +70,7 @@ init_per_testcase(_Function, Config) ->
 end_per_testcase(_Function, Config) ->
   Config.
 
+-spec test_get_ok(config()) -> config().
 test_get_ok(Config) ->
   User = cnf_user_repo:register_user("get_ok", "password", "mail@email.net"),
   Header = #{ <<"Content-Type">> => <<"application/json">>
@@ -77,16 +79,17 @@ test_get_ok(Config) ->
     cnf_content_repo:register("http://inaka.net/get_ok", cnf_user:id(User)),
   Url = "/content/" ++  integer_to_list(cnf_content:id(Content)),
   {ok, Response} = cnf_test_utils:api_call(get, Url, Header),
-  #{status_code := 200} = Response.
+  #{status_code := 200} = Response,
+  Config.
 
+-spec test_handle_delete_ok(config()) ->  config().
 test_handle_delete_ok(Config) ->
   User = cnf_user_repo:register_user("delete_ok", "password", "mail@email.net"),
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {"delete_ok", "password"}},
-  Body = #{ url => <<"http://inaka.net/">>
-          , user_id => cnf_user:id(User)},
   Content =
     cnf_content_repo:register("http://inaka.net/delete_ok", cnf_user:id(User)),
   Url = "/content/" ++  integer_to_list(cnf_content:id(Content)),
   {ok, Response} = cnf_test_utils:api_call(delete, Url, Header),
-  #{status_code := 204} = Response.
+  #{status_code := 204} = Response,
+  Config.

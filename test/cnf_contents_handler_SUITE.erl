@@ -52,11 +52,12 @@ init_per_suite(Config) ->
   application:ensure_all_started(conferl),
   application:ensure_all_started(shotgun),
   sumo:create_schema(),
-  [].
+  Config.
 
 -spec end_per_suite(config()) -> config().
 end_per_suite(Config) ->
   sumo:delete_all(cnf_content),
+  sumo:delete_all(cnf_user),
   Config.
 
 %% @doc definion of init_per_testcases
@@ -69,6 +70,7 @@ init_per_testcase(_Function, Config) ->
 end_per_testcase(_Function, Config) ->
   Config.
 
+-spec test_handle_post_ok(config()) -> config().
 test_handle_post_ok(Config) ->
   User = cnf_user_repo:register_user("post_ok", "password", "mail@email.net"),
   Header = #{ <<"Content-Type">> => <<"application/json">>
@@ -81,8 +83,10 @@ test_handle_post_ok(Config) ->
   #{status_code := 204} = Response,
   #{headers := ResponseHeaders} = Response,
   Location = proplists:get_value(<<"location">>, ResponseHeaders),
-  <<"http://localhost/contents/", _Id/binary>> = Location.
+  <<"http://localhost/contents/", _Id/binary>> = Location,
+  Config.
 
+-spec test_handle_post_duplicated(config()) -> config().
 test_handle_post_duplicated(Config) ->
   User = cnf_user_repo:register_user("post_dupl", "password", "mail@email.net"),
   Header = #{<<"Content-Type">> => <<"application/json">>
@@ -93,14 +97,14 @@ test_handle_post_duplicated(Config) ->
   cnf_content_repo:register("http://inaka.net/post_dup", cnf_user:id(User)),
   {ok, Response} =
     cnf_test_utils:api_call(post, "/contents", Header,  JsonBody),
-  #{status_code := 400} = Response.
+  #{status_code := 400} = Response,
+  Config.
 
-
-
-
+-spec test_get_qs_ok(config()) -> config().
 test_get_qs_ok(Config) ->
+  cnf_user_repo:register_user("get_qs_ok", "password", "mail@email.net"),
   Header = #{<<"Content-Type">> => <<"text/plain; charset=utf-8">>
-            , basic_auth => {"user", "password"}},
+            , basic_auth => {"get_qs_ok", "password"}},
   cnf_content_repo:register("http://inaka.net/get_qs_ok", 1),
   cnf_content_repo:register("https://twitter.com/get_qs_ok", 1),
   DomainInaka = "inaka.net",
@@ -124,4 +128,5 @@ test_get_qs_ok(Config) ->
          Domain1 == <<"twitter.com">>
        end,
   ok = lists:foreach(F2, BodyRespTwitter),
-  #{status_code := 200} = ResponseTwitter.
+  #{status_code := 200} = ResponseTwitter,
+  Config.

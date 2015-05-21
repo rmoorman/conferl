@@ -91,7 +91,7 @@ fetch_user(_Config) ->
   RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
   Id = cnf_user:id(RegistedUser),
   lager:debug("Id:  ~p", [Id]),
-  PersistedUser = cnf_user_repo:fetch_user(Id),
+  PersistedUser = cnf_user_repo:find(Id),
   lager:debug("PersistedUser:  ~p", [PersistedUser]),
   Name = cnf_user:user_name(PersistedUser),
   Passsword = cnf_user:password(PersistedUser),
@@ -117,7 +117,7 @@ unregistrate_user(_Config) ->
   Email = <<"email">>,
   RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
   cnf_user_repo:unregister_user(Name),
-  try cnf_user_repo:fetch_by_name(cnf_user:id(RegistedUser)) of
+  try cnf_user_repo:find_by_name(cnf_user:id(RegistedUser)) of
     _ -> ct:fail("Unexpected result (!)")
   catch
     throw:notfound -> ok
@@ -126,7 +126,7 @@ unregistrate_user(_Config) ->
 -spec fetch_user_bad(config()) -> ok.
 fetch_user_bad(_Config) ->
   NotFoundId = 0,
-  try cnf_user_repo:fetch_by_name(NotFoundId) of
+  try cnf_user_repo:find_by_name(NotFoundId) of
     _ -> ct:fail("Unexpected result (!)")
   catch
     throw:notfound -> ok

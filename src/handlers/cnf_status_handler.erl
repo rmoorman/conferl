@@ -18,7 +18,7 @@
 
 -export([ handle/2
         , init/3
-        , terminate/3
+        %, terminate/3
         ]).
 
 init({tcp, http}, Req, _Opts) ->
@@ -32,5 +32,5 @@ handle(Req, State) ->
                     , Req),
   {ok, Req2, State}.
 
-terminate(_Reason, _Req, _State) ->
-  ok.
+%terminate(_Reason, _Req, _State) ->
+ % ok.

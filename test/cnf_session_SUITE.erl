@@ -107,7 +107,7 @@ test_find_by_token(Config) ->
   Session1 = cnf_session_repo:register(cnf_user:id(RegistedUser1)),
   Session2 = cnf_session_repo:register(cnf_user:id(RegistedUser2)),
   Session3 = cnf_session_repo:register(cnf_user:id(RegistedUser3)),
-  cnf_session_repo:find_by_token(cnf_session:token(Session1)),
-  cnf_session_repo:find_by_token(cnf_session:token(Session2)),
-  cnf_session_repo:find_by_token(cnf_session:token(Session3)),
+  [_] = cnf_session_repo:find_by_token(cnf_session:token(Session1)),
+  [_] = cnf_session_repo:find_by_token(cnf_session:token(Session2)),
+  [_] = cnf_session_repo:find_by_token(cnf_session:token(Session3)),
   Config.

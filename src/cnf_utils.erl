@@ -25,9 +25,16 @@ datetime_to_binary({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->
   D = integer_to_list(Di),
   H = integer_to_list(Hi),
   N = integer_to_list(Ni),
+  lager:error("datetime_to_binary: ~p", [Si]),
   %% epgsql uses {Hour, Minute, Second.Microsecond}
-  S = io_lib:format("~.2f",[Si]),
+  S = format_seconds(Si), %io_lib:format("~.2f",[Si]),
   iolist_to_binary([Y, "-", M, "-", D, "T", H, ":", N, ":", S]).
+
+-spec format_seconds(string()) -> binary().
+format_seconds(Seconds) when is_float(Seconds) ->
+  io_lib:format("~.2f",[Seconds]);
+format_seconds(Seconds) when is_integer(Seconds) ->
+  [Seconds, ".000000Z"].
 
 -spec handle_exception(atom(), cowboy_req:req(), term()) ->
   {halt , cowboy_req:req(), term()}
@@ -46,7 +53,7 @@ handle_exception(not_found, Req, State) ->
   {halt, Req1, State};
 handle_exception(Reason, Req, State) ->
   lager:error("~p. Stack Trace: ~p", [Reason, erlang:get_stacktrace()]),
-  lager:error("~p. handle_exception! Reason ~p", [Reason]),
+  lager:error("~p. handle_exception! Reason ~p", [Reason, erlang:get_stacktrace()]),
   {ok, Req1} =
     try cowboy_req:reply(501, Req)
     catch

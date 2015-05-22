@@ -30,13 +30,17 @@ stop() ->
 %% behaviour
 %% @private
 start(_StartType, _StartArgs) ->
-  EndPoints = [
-                {<<"/status">>, cnf_status_handler, []}
-              , {<<"/contents/">>, cnf_contents_handler, []}
-              , {<<"/content/:content_id">>, cnf_content_id_handler, []}
-              , {<<"/sessions/[:token]">>, cnf_session_handler, []}
-                %% Add here new endpoints
-              ],
+  EndPoints =
+  [
+      {<<"/status">>, cnf_status_handler, []}
+    , {<<"/contents/">>, cnf_contents_handler, []}
+    , {<<"/content/:content_id">>, cnf_content_id_handler, []}
+    , {<<"/sessions/[:token]">>, cnf_session_handler, []}
+    , {<<"/users/">>, cnf_users_post_handler, []}
+    , {<<"/users/:user_id">>, cnf_user_get_id_handler, []}
+    , {<<"/me/">>, cnf_user_delete_id_handler, []}
+    %% Add here new endpoints
+  ],
   Dispatch = cowboy_router:compile( [{'_' , EndPoints}]),
   {ok, Port} = application:get_env(conferl, http_port),
   {ok, HttpListenersCount} = application:get_env(conferl, http_listener_count),

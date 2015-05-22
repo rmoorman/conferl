@@ -17,13 +17,13 @@
 
 -export([register_user/3]).
 -export([unregister_user/1]).
--export([fetch_user/1]).
--export([fetch_by_name/1]).
+-export([find/1]).
+-export([find_by_name/1]).
 -export([is_registered/2]).
 
--spec register_user(string(), string(), string()) -> conferl_users:user().
+-spec register_user(string(), string(), string()) -> cnf_user:user().
 register_user(UserName, Password, Email) ->
-  try fetch_by_name(UserName) of
+  try find_by_name(UserName) of
     _   -> throw(duplicated_user)
   catch
     throw:notfound ->
@@ -39,12 +39,12 @@ unregister_user(UserName) ->
     NumberRows -> NumberRows
   end.
 
--spec fetch_user(integer()) -> conferl_users:user().
-fetch_user(UserId) ->
+-spec find(integer()) -> cnf_user:user().
+find(UserId) ->
   sumo:find(cnf_user, UserId).
 
--spec fetch_by_name(string()) -> conferl_users:user().
-fetch_by_name(UserName) ->
+-spec find_by_name(string()) -> cnf_user:user().
+find_by_name(UserName) ->
   Result = sumo:find_by(cnf_user, [{user_name, UserName}]),
   case Result of
     [] -> throw(notfound);
@@ -53,7 +53,7 @@ fetch_by_name(UserName) ->
 
 -spec is_registered(string(), string()) -> ok.
 is_registered(UserName, Password) ->
-  try fetch_by_name(UserName) of
+  try find_by_name(UserName) of
     #{password := Password} -> ok;
     _WrongPass -> throw(wrong_password)
   catch

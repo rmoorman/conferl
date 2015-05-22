@@ -34,7 +34,7 @@ start(_StartType, _StartArgs) ->
                 {<<"/status">>, cnf_status_handler, []}
               , {<<"/contents/">>, cnf_contents_handler, []}
               , {<<"/content/:content_id">>, cnf_content_id_handler, []}
-                %%% agregar otra ruta
+              , {<<"/sessions/[:token]">>, cnf_session_handler, []}
                 %% Add here new endpoints
               ],
   Dispatch = cowboy_router:compile( [{'_' , EndPoints}]),

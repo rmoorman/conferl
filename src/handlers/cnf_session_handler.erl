@@ -12,7 +12,7 @@
 % specific language governing permissions and limitations
 % under the License.
 
--module(cnf_contents_handler).
+-module(cnf_session_handler).
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
@@ -27,57 +27,52 @@
          ]}
        ]).
 
--export([is_authorized/2]).
--export([handle_get/2]).
 -export([handle_post/2]).
 -export([allowed_methods/2]).
+-export([delete_resource/2]).
+-export([is_authorized/2]).
 
 -type state() :: #{}.
 
 allowed_methods(Req, State) ->
-  {[ <<"GET">>
+  {[ <<"DELETE">>
    , <<"POST">>
    , <<"OPTIONS">>]
   , Req
   , State}.
 
 -spec is_authorized(cowboy_req:req(), state()) ->
-  {tuple(), cowboy_req:req(), state()}.
+    {tuple(), cowboy_req:req(), state()}.
 is_authorized(Req, State) ->
   case cowboy_req:parse_header(<<"authorization">>, Req) of
     {ok, {<<"basic">>, {Login, Password}}, _} ->
       try cnf_user_repo:is_registered(Login, Password) of
         ok -> {true, Req, Login}
       catch
-        _Type:Excep -> cnf_utils:handle_exception(Excep, Req, State)
+        _Type:Exception ->
+          cnf_utils:handle_exception(Exception, Req, State)
       end;
+    _ -> {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
+  end.
+
+-spec handle_post(cowboy_req:req(), state()) ->
+  {true, cowboy_req:req(), state()}
+  | {tuple(), cowboy_req:req(), state()}.
+handle_post(Req, State) ->
+  case cowboy_req:parse_header(<<"authorization">>, Req) of
+    {ok, {<<"basic">>, {Login, _Password}}, _} ->
+      User = cnf_user_repo:find_by_name(Login),
+      Session = cnf_session_repo:register(cnf_user:id(User)),
+      JsonBody = cnf_session:to_json(Session),
+      Req1 = cowboy_req:set_resp_body(JsonBody, Req),
+      {true, Req1, State};
     _WhenOthers ->
       {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
   end.
 
--spec handle_post(cowboy_req:req(), state()) ->
-  {halt | true, cowboy_req:req(), state()}.
-handle_post(Req, State) ->
-  {ok, JsonBody, Req1} = cowboy_req:body(Req),
-  Body = jiffy:decode(JsonBody, [return_maps]),
-  #{<<"url">> := Url, <<"user_id">> := UserId} = Body,
-  try
-    Content = cnf_content_repo:register(binary_to_list(Url), UserId),
-    Id = cnf_content:id(Content),
-    {Host, Req2} = cowboy_req:url(Req1),
-    Location = [Host, <<"/">>, list_to_binary(integer_to_list(Id))],
-    Req3 = cowboy_req:set_resp_header(<<"Location">>, Location, Req2),
-    {true, Req3, State}
-  catch
-    _Type:Exception ->
-      cnf_utils:handle_exception(Exception, Req, State)
-  end.
-
--spec handle_get(cowboy_req:req(), state()) ->
-  {list(), cowboy_req:req(), state()}.
-handle_get(Req, State) ->
-  {QueryStringVal, Req2} = cowboy_req:qs_val(<<"domain">>, Req),
-  RequestContent =
-    cnf_content_repo:find_by_domain(binary_to_list(QueryStringVal)),
-  Body = cnf_content:to_json(RequestContent),
-  {Body, Req2, State}.
+-spec delete_resource(cowboy_req:req(), state()) ->
+  {boolean(), cowboy_req:req(), state()}.
+delete_resource(Req, State) ->
+  {Token, Req1} = cowboy_req:binding(token, Req),
+  cnf_session_repo:unregister(Token),
+  {true, Req1, State}.

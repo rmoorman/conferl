@@ -1,6 +1,6 @@
 PROJECT = conferl
 
-DEPS = lager cowboy sync sumo mixer jiffy xref_runner
+DEPS = lager cowboy sync sumo mixer jiffy xref_runner uuid
 
 TEST_DEPS = shotgun
 
@@ -10,8 +10,9 @@ dep_sumo        = git https://github.com/inaka/sumo_db.git   0.3.5
 dep_cowboy      = git git://github.com/ninenines/cowboy.git  1.0.1
 dep_mixer       = git git://github.com/inaka/mixer.git       0.1.3
 dep_jiffy       = git git://github.com/davisp/jiffy.git      0.11.3
-dep_shotgun     = git git://github.com/inaka/shotgun.git     0.1.8
+dep_shotgun     = git git://github.com/inaka/shotgun.git     0.1.10
 dep_xref_runner = git git://github.com/inaka/xref_runner.git 0.2.2
+dep_uuid        = git git://github.com/okeuday/uuid.git      v1.5.0
 
 PLT_APPS := inets
 DIALYZER_DIRS := ebin/
@@ -26,7 +27,7 @@ CT_OPTS = -erl_args -config rel/sys.config
 
 SHELL_OPTS = -name ${PROJECT}@`hostname` -s sync -s ${PROJECT} -config rel/sys.config
 
-testshell: 
+testshell:
 	erl -pa ebin -pa deps/*/ebin -pa test -config rel/sys.config -s sync
 
 quicktests: app build-ct-suites

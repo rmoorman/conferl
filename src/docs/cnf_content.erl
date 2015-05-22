@@ -153,6 +153,11 @@ to_json(ListContents) when is_list(ListContents) ->
   JsonListContents = lists:map(fun doc_to_binary_date/1, ListContents),
   jiffy:encode(JsonListContents).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Private Api
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%
 -spec doc_to_binary_date(map()) -> map().
 doc_to_binary_date(Content) ->
   CreatedAtBinary = cnf_utils:datetime_to_binary(created_at(Content)),

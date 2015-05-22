@@ -28,7 +28,6 @@
        ]).
 
 -export([is_authorized/2]).
--export([terminate/3]).
 -export([allowed_methods/2]).
 -export([handle_get/2]).
 -export([delete_resource/2]).
@@ -36,7 +35,7 @@
 -type state() :: #{}.
 
 allowed_methods(Req, State) ->
-  {[  <<"GET">>
+  {[ <<"GET">>
    , <<"DELETE">>
    , <<"OPTIONS">>]
   , Req
@@ -71,5 +70,4 @@ delete_resource(Req, State) ->
   cnf_content_repo:unregister(list_to_integer(binary_to_list(Id))),
   {true, Req1, State}.
 
-terminate(_Reason, _Req, _State) ->
-  ok.
+

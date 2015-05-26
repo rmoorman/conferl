@@ -26,7 +26,7 @@ datetime_to_binary({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->
   H = integer_to_list(Hi),
   N = integer_to_list(Ni),
   %% epgsql uses {Hour, Minute, Second.Microsecond}
-  S = format_seconds(Si), %io_lib:format("~.2f",[Si]),
+  S = format_seconds(Si),
   iolist_to_binary([Y, "-", M, "-", D, "T", H, ":", N, ":", S]).
 
 -spec format_seconds(integer()) -> [[any()] | char()].

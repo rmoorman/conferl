@@ -28,7 +28,6 @@
 
 -export([handle_post/2]).
 -export([allowed_methods/2]).
--export([is_authorized/2]).
 
 -type state() :: #{}.
 
@@ -38,26 +37,18 @@ allowed_methods(Req, State) ->
   , Req
   , State}.
 
-
--spec is_authorized(cowboy_req:req(), state()) ->
-  {tuple(), cowboy_req:req(), state()}.
-is_authorized(Req, _State) ->
-  {ok, {<<"basic">>, {Login, _Password}}, _}  =
-     cowboy_req:parse_header(<<"authorization">>, Req),
-     lager:error("is_authorized Login!!  ~p", [Login]),
-      {true, Req, Login}.
-
 -spec handle_post(cowboy_req:req(), state()) ->
-  {halt | true, cowboy_req:req(), state()}.
+  {true, cowboy_req:req(), state()}.
 handle_post(Req, State) ->
-lager:info("handle_post <<authorization >> ~p", [cowboy_req:parse_header(<<"authorization">>, Req)]),
- {ok, {<<"basic">>, {UserName, Password}}, _} =
+  {_, {<<"basic">>, {UserName, Password}}, _} =
     cowboy_req:parse_header(<<"authorization">>, Req),
+  {ok, JsonRequestBody, Req1} = cowboy_req:body(Req),
+  #{<<"email">> := Email} = jiffy:decode(JsonRequestBody, [return_maps]),
   try
-    RegistedUser = cnf_user_repo:register_user(UserName, Password, "Email"),
-    JsonBody = cnf_user:to_json(RegistedUser),
-    Req1 = cowboy_req:set_resp_body(JsonBody, Req),
-    {true, Req1, State}
+    RegistedUser = cnf_user_repo:register(UserName, Password, Email) ,
+    JsonResponseBody = cnf_user:to_json(RegistedUser),
+    Req2 = cowboy_req:set_resp_body(JsonResponseBody, Req1),
+    {true, Req2, State}
   catch
     _Type:Exception ->
       cnf_utils:handle_exception(Exception, Req, State)

@@ -74,8 +74,7 @@ delete_user(Config) ->
   Name = "Doge delete_user",
   Passsword = "Such Password, Many mod_security",
   Email = "email@email.net",
-  RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
-   lager:error("delete_user  RegistedUser ~p", [RegistedUser]),
+  RegistedUser = cnf_user_repo:register(Name, Passsword, Email),
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {Name, Passsword}},
   Body = #{},
@@ -91,8 +90,7 @@ get_user(Config) ->
   Name = "Doge get_user",
   Passsword = "Such Password, Many security",
   Email = "email@email.net",
-  RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
-  lager:error("get_user  RegistedUser ~p", [RegistedUser]),
+  RegistedUser = cnf_user_repo:register(Name, Passsword, Email),
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {Name, Passsword}},
   Url = "/users/" ++  integer_to_list(cnf_user:id(RegistedUser)),
@@ -105,19 +103,12 @@ get_user(Config) ->
 post_session(Config) ->
   Name = "Doge post_session",
   Passsword = "Such Password, Many security!",
-  Email = "email@email.net",
+  Email = <<"email@email.net">>,
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {Name, Passsword}},
-  Body = #{},
+  Body = #{ email => Email},
   JsonBody = jiffy:encode(Body),
-  %%%{ok, Response} =
-  {ok, Response}  =
-    cnf_test_utils:api_call(post, "/users", Header, JsonBody),
-    lager:error("post_session Response!!  ~p", [Response]),
-    #{status_code := 200} = Response,
-     %lager:error("post_session  Respuestam ~p", [Respuesta]),
-  %#{status_code := 200} = Response,
-  %#{body := JsonResponseBody} = Response,
-  %BodyResp = jiffy:decode(JsonResponseBody, [return_maps]),
- % #{<<"token">> := _Token} = BodyResp,
+  PostResponse = cnf_test_utils:api_call(post, "/users", Header, JsonBody),
+  {ok, Response} = PostResponse,
+  #{status_code := 200} = Response,
   Config.

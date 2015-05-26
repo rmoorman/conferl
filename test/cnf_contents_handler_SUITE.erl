@@ -72,7 +72,7 @@ end_per_testcase(_Function, Config) ->
 
 -spec test_handle_post_ok(config()) -> config().
 test_handle_post_ok(Config) ->
-  User = cnf_user_repo:register_user("post_ok", "password", "mail@email.net"),
+  User = cnf_user_repo:register("post_ok", "password", "mail@email.net"),
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {"post_ok", "password"}},
   Body = #{ url => <<"http://inaka.net/post_ok">>
@@ -88,7 +88,7 @@ test_handle_post_ok(Config) ->
 
 -spec test_handle_post_duplicated(config()) -> config().
 test_handle_post_duplicated(Config) ->
-  User = cnf_user_repo:register_user("post_dupl", "password", "mail@email.net"),
+  User = cnf_user_repo:register("post_dupl", "password", "mail@email.net"),
   Header = #{<<"Content-Type">> => <<"application/json">>
             , basic_auth => {"post_dupl", "password"}},
   Body = #{ url => <<"http://inaka.net/post_dup">>
@@ -102,7 +102,7 @@ test_handle_post_duplicated(Config) ->
 
 -spec test_get_qs_ok(config()) -> config().
 test_get_qs_ok(Config) ->
-  cnf_user_repo:register_user("get_qs_ok", "password", "mail@email.net"),
+  cnf_user_repo:register("get_qs_ok", "password", "mail@email.net"),
   Header = #{<<"Content-Type">> => <<"text/plain; charset=utf-8">>
             , basic_auth => {"get_qs_ok", "password"}},
   cnf_content_repo:register("http://inaka.net/get_qs_ok", 1),

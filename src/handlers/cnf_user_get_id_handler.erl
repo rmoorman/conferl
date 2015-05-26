@@ -43,12 +43,5 @@ allowed_methods(Req, State) ->
 handle_get(Req, State) ->
   {UserId, Req1} = cowboy_req:binding(user_id, Req),
   RequestContent = cnf_user_repo:find(list_to_integer(binary_to_list(UserId))),
-  Body = cnf_user:to_json(RequestContent),
-  {Body, Req1, State}.
-
-
-
-
-
-
-
+  JsonResponseBody = cnf_user:to_json(RequestContent),
+  {JsonResponseBody, Req1, State}.

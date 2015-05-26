@@ -58,8 +58,5 @@ is_authorized(Req, State) ->
 delete_resource(Req, State) ->
   {ok, {<<"basic">>, {VerificatedLogin, _VerificatedPassword}}, _}  =
     cowboy_req:parse_header(<<"authorization">>, Req),
-  %%UserId = cnf_user_repo:find_by_name(VerificatedLogin),
-  lager:error("delete_resource  VerificatedLogin ~p", [VerificatedLogin]),
-  P = cnf_user_repo:unregister_user(binary_to_list(VerificatedLogin)),
-  lager:error("delete_resource  unregister_user ~p", [P]),
+  cnf_user_repo:unregister(binary_to_list(VerificatedLogin)),
   {true, Req, State}.

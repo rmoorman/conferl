@@ -77,7 +77,7 @@ post_session(Config) ->
   Name = "Doge post_session",
   Passsword = "passsword",
   Email = "email@email.net",
-  cnf_user_repo:register_user(Name, Passsword, Email),
+  cnf_user_repo:register(Name, Passsword, Email),
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {Name, Passsword}},
   Body = #{},
@@ -95,7 +95,7 @@ post_multiple_session(_Config) ->
   Name = "Doge post_multiple_session",
   Passsword = "passsword",
   Email = "email@email.net",
-  cnf_user_repo:register_user(Name, Passsword, Email),
+  cnf_user_repo:register(Name, Passsword, Email),
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {Name, Passsword}},
   Body = #{},
@@ -124,8 +124,8 @@ post_session_bad(Config) ->
             , basic_auth => {Name, Passsword}},
   Body = #{},
   JsonBody = jiffy:encode(Body),
-  {ok, Response} =
-    cnf_test_utils:api_call(post, "/sessions", Header, JsonBody),
+  PostResponse = cnf_test_utils:api_call(post, "/sessions", Header, JsonBody),
+  {ok, Response} = PostResponse,
   #{status_code := 401} = Response,
   Config.
 
@@ -134,7 +134,7 @@ delete_session(Config) ->
   Name = "Doge delete_session",
   Passsword = "passsword",
   Email = "email@email.net",
-  RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
+  RegistedUser = cnf_user_repo:register(Name, Passsword, Email),
   Session = cnf_session_repo:register(cnf_user:id(RegistedUser)),
   Token = cnf_session:token(Session),
   Header = #{ <<"Content-Type">> => <<"application/json">>

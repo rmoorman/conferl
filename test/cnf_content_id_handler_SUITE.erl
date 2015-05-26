@@ -51,7 +51,7 @@ init_per_suite(Config) ->
   application:ensure_all_started(conferl),
   application:ensure_all_started(shotgun),
   sumo:create_schema(),
-  cnf_user_repo:register_user("user", "password", "email@inaka.net"),
+  cnf_user_repo:register("user", "password", "email@inaka.net"),
   Config.
 
 -spec end_per_suite(config()) -> config().
@@ -72,7 +72,7 @@ end_per_testcase(_Function, Config) ->
 
 -spec test_get_ok(config()) -> config().
 test_get_ok(Config) ->
-  User = cnf_user_repo:register_user("get_ok", "password", "mail@email.net"),
+  User = cnf_user_repo:register("get_ok", "password", "mail@email.net"),
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {"get_ok", "password"}},
   Content =
@@ -84,7 +84,7 @@ test_get_ok(Config) ->
 
 -spec test_handle_delete_ok(config()) ->  config().
 test_handle_delete_ok(Config) ->
-  User = cnf_user_repo:register_user("delete_ok", "password", "mail@email.net"),
+  User = cnf_user_repo:register("delete_ok", "password", "mail@email.net"),
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {"delete_ok", "password"}},
   Content =

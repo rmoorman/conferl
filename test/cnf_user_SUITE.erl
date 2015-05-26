@@ -77,7 +77,7 @@ create_user(_Config) ->
   Name = <<"Doge create_user">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
-  RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
+  RegistedUser = cnf_user_repo:register(Name, Passsword, Email),
   Name = cnf_user:user_name(RegistedUser),
   Passsword = cnf_user:password(RegistedUser),
   Email = cnf_user:email(RegistedUser),
@@ -88,7 +88,7 @@ fetch_user(_Config) ->
   Name = <<"Doge fetch_user">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
-  RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
+  RegistedUser = cnf_user_repo:register(Name, Passsword, Email),
   Id = cnf_user:id(RegistedUser),
   lager:debug("Id:  ~p", [Id]),
   PersistedUser = cnf_user_repo:find(Id),
@@ -103,8 +103,8 @@ duplicated_user(_Config) ->
   Name = <<"Doge duplicate_user">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
-  cnf_user_repo:register_user(Name, Passsword, Email),
-  try cnf_user_repo:register_user(Name, Passsword, Email) of
+  cnf_user_repo:register(Name, Passsword, Email),
+  try cnf_user_repo:register(Name, Passsword, Email) of
     _ -> ct:fail("Unexpected result (!)")
   catch
     throw:duplicated_user -> ok
@@ -115,8 +115,8 @@ unregistrate_user(_Config) ->
   Name = <<"Doge unregistrate_user">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
-  RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
-  cnf_user_repo:unregister_user(Name),
+  RegistedUser = cnf_user_repo:register(Name, Passsword, Email),
+  cnf_user_repo:unregister(Name),
   try cnf_user_repo:find_by_name(cnf_user:id(RegistedUser)) of
     _ -> ct:fail("Unexpected result (!)")
   catch
@@ -135,7 +135,7 @@ fetch_user_bad(_Config) ->
 -spec unregistrate_user_bad(config()) -> ok.
 unregistrate_user_bad(_Config) ->
   Name = <<"Doge unregistrate_user_bad">>,
-  try cnf_user_repo:unregister_user(Name) of
+  try cnf_user_repo:unregister(Name) of
     _ -> ct:fail("Unexpected result (!)")
   catch
     throw:notfound -> ok

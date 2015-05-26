@@ -29,7 +29,7 @@ datetime_to_binary({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->
   S = format_seconds(Si), %io_lib:format("~.2f",[Si]),
   iolist_to_binary([Y, "-", M, "-", D, "T", H, ":", N, ":", S]).
 
--spec format_seconds(string()) -> iodata().
+-spec format_seconds(integer()) -> [[any()] | char()].
 format_seconds(Seconds) when is_float(Seconds) ->
   io_lib:format("~.2f",[Seconds]);
 format_seconds(Seconds) when is_integer(Seconds) ->

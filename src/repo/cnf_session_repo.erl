@@ -44,7 +44,7 @@ generate_token() -> erlang:list_to_binary(uuid:uuid_to_string(uuid:get_v4())).
 
 -spec is_valid(cnf_session:session()) -> boolean().
 is_valid(Session) ->
-  {ok, MaxSessionDays} = application:get_env(conferl, http_port),
+  {ok, MaxSessionDays} = application:get_env(conferl, max_session_days),
   UpdatedTime = cnf_session:updated_at(Session),
   Now = calendar:universal_time(),
   Diff = calendar:time_difference(UpdatedTime, Now),

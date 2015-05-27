@@ -91,7 +91,11 @@ delete_session(Config) ->
   RegistedUser = cnf_user_repo:register(Name, Passsword, Email),
   Session = cnf_session_repo:register(cnf_user:id(RegistedUser)),
   1  = cnf_session_repo:unregister(cnf_session:token(Session)),
-  [] = cnf_session_repo:find_by_user(cnf_session:user_id(Session)),
+  try cnf_session_repo:find_by_user(cnf_session:user_id(Session)) of
+    _Content -> ct:fail("Unexpected result (!)")
+  catch
+    throw:notfound -> ok
+  end,
   Config.
 
 -spec test_find_by_token(config()) ->  config().
@@ -107,7 +111,7 @@ test_find_by_token(Config) ->
   Session1 = cnf_session_repo:register(cnf_user:id(RegistedUser1)),
   Session2 = cnf_session_repo:register(cnf_user:id(RegistedUser2)),
   Session3 = cnf_session_repo:register(cnf_user:id(RegistedUser3)),
-  [_] = cnf_session_repo:find_by_token(cnf_session:token(Session1)),
-  [_] = cnf_session_repo:find_by_token(cnf_session:token(Session2)),
-  [_] = cnf_session_repo:find_by_token(cnf_session:token(Session3)),
+  Session1 = cnf_session_repo:find_by_token(cnf_session:token(Session1)),
+  Session2 = cnf_session_repo:find_by_token(cnf_session:token(Session2)),
+  Session3 = cnf_session_repo:find_by_token(cnf_session:token(Session3)),
   Config.

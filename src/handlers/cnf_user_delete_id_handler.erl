@@ -24,10 +24,10 @@
          , rest_terminate/2
          , content_types_accepted/2
          , content_types_provided/2
+         , is_authorized/2
          ]}
        ]).
 
--export([is_authorized/2]).
 -export([delete_resource/2]).
 -export([allowed_methods/2]).
 
@@ -39,24 +39,9 @@ allowed_methods(Req, State) ->
   , Req
   , State}.
 
--spec is_authorized(cowboy_req:req(), state()) ->
-  {tuple(), cowboy_req:req(), state()}.
-is_authorized(Req, State) ->
-  case cowboy_req:parse_header(<<"authorization">>, Req) of
-    {ok, {<<"basic">>, {Login, Password}}, _} ->
-      try cnf_user_repo:is_registered(Login, Password) of
-        ok -> {true, Req, Login}
-      catch
-        _Type:Excep -> cnf_utils:handle_exception(Excep, Req, State)
-      end;
-    _WhenOthers ->
-      {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
-  end.
-
 -spec delete_resource(cowboy_req:req(), state()) ->
   {boolean(), cowboy_req:req(), state()}.
 delete_resource(Req, State) ->
-  {ok, {<<"basic">>, {VerificatedLogin, _VerificatedPassword}}, _}  =
-    cowboy_req:parse_header(<<"authorization">>, Req),
-  cnf_user_repo:unregister(binary_to_list(VerificatedLogin)),
+  #{login := VerifyiedLogin} = State,
+  cnf_user_repo:unregister(binary_to_list(VerifyiedLogin)),
   {true, Req, State}.

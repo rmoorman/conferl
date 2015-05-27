@@ -24,10 +24,10 @@
          , rest_terminate/2
          , content_types_accepted/2
          , content_types_provided/2
+         , is_authorized/2
          ]}
        ]).
 
--export([is_authorized/2]).
 -export([allowed_methods/2]).
 -export([handle_get/2]).
 -export([delete_resource/2]).
@@ -40,20 +40,6 @@ allowed_methods(Req, State) ->
    , <<"OPTIONS">>]
   , Req
   , State}.
-
--spec is_authorized(cowboy_req:req(), state()) ->
-    {tuple(), cowboy_req:req(), state()}.
-is_authorized(Req, State) ->
-  case cowboy_req:parse_header(<<"authorization">>, Req) of
-    {ok, {<<"basic">>, {Login, Password}}, _} ->
-      try cnf_user_repo:is_registered(Login, Password) of
-        ok -> {true, Req, Login}
-      catch
-        _Type:Exception ->
-          cnf_utils:handle_exception(Exception, Req, State)
-      end;
-    _ -> {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
-  end.
 
 -spec handle_get(cowboy_req:req(), state()) ->
   {list(), cowboy_req:req(), state()}.
@@ -69,5 +55,3 @@ delete_resource(Req, State) ->
   {Id, Req1} = cowboy_req:binding(content_id, Req),
   cnf_content_repo:unregister(list_to_integer(binary_to_list(Id))),
   {true, Req1, State}.
-
-

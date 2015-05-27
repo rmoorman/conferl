@@ -40,10 +40,10 @@ allowed_methods(Req, State) ->
 -spec handle_post(cowboy_req:req(), state()) ->
   {true, cowboy_req:req(), state()}.
 handle_post(Req, State) ->
-  {_, {<<"basic">>, {UserName, Password}}, _} =
-    cowboy_req:parse_header(<<"authorization">>, Req),
   {ok, JsonRequestBody, Req1} = cowboy_req:body(Req),
-  #{<<"email">> := Email} = jiffy:decode(JsonRequestBody, [return_maps]),
+  #{<<"user_name">> := UserName
+   , <<"email">> := Email
+   , <<"password">> := Password} = jiffy:decode(JsonRequestBody, [return_maps]),
   try
     RegistedUser = cnf_user_repo:register(UserName, Password, Email) ,
     JsonResponseBody = cnf_user:to_json(RegistedUser),

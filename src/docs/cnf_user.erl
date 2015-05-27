@@ -55,7 +55,7 @@
 %%% sumo_db callbacks
 
 -spec sumo_wakeup(sumo:doc()) -> user().
-sumo_wakeup(Data) -> Data.
+sumo_wakeup(Data) -> truncate_seconds(Data).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(user()) -> sumo:doc().
@@ -152,3 +152,9 @@ doc_to_binary_date(User) ->
   CreatedAtBinary = cnf_utils:datetime_to_binary(created_at(User)),
   UpdatedAtBinary = cnf_utils:datetime_to_binary(updated_at(User)),
   User#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.
+
+-spec truncate_seconds(user()) -> user().
+truncate_seconds(User) ->
+  CreatedAt = cnf_utils:truncate_seconds(created_at(User)),
+  UpdatedAt = cnf_utils:truncate_seconds(updated_at(User)),
+  User#{updated_at => UpdatedAt, created_at => CreatedAt}.

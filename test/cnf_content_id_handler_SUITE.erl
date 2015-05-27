@@ -72,9 +72,14 @@ end_per_testcase(_Function, Config) ->
 
 -spec test_get_ok(config()) -> config().
 test_get_ok(Config) ->
-  User = cnf_user_repo:register("get_ok", "password", "mail@email.net"),
+  Name = "Doge get_ok",
+  Passsword = "passsword",
+  Email = "email@email.net",
+  User = cnf_user_repo:register(Name, Passsword, Email),
+  Session = cnf_session_repo:register(cnf_user:id(User)),
+  Token = binary_to_list(cnf_session:token(Session)),
   Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {"get_ok", "password"}},
+            , basic_auth => {"get_ok", Token}},
   Content =
     cnf_content_repo:register("http://inaka.net/get_ok", cnf_user:id(User)),
   Url = "/content/" ++  integer_to_list(cnf_content:id(Content)),
@@ -84,9 +89,14 @@ test_get_ok(Config) ->
 
 -spec test_handle_delete_ok(config()) ->  config().
 test_handle_delete_ok(Config) ->
-  User = cnf_user_repo:register("delete_ok", "password", "mail@email.net"),
+  Name = "Doge delete_ok",
+  Passsword = "passsword",
+  Email = "email@email.net",
+  User = cnf_user_repo:register(Name, Passsword, Email),
+  Session = cnf_session_repo:register(cnf_user:id(User)),
+  Token = binary_to_list(cnf_session:token(Session)),
   Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {"delete_ok", "password"}},
+            , basic_auth => {"delete_ok", Token}},
   Content =
     cnf_content_repo:register("http://inaka.net/delete_ok", cnf_user:id(User)),
   Url = "/content/" ++  integer_to_list(cnf_content:id(Content)),

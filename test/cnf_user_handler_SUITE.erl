@@ -72,15 +72,20 @@ end_per_testcase(_Function, Config) ->
 -spec delete_user(config()) -> config().
 delete_user(Config) ->
   Name = "Doge delete_user",
-  Passsword = "Such Password, Many mod_security",
+  Passsword = "Such Password, Many security",
   Email = "email@email.net",
   RegistedUser = cnf_user_repo:register(Name, Passsword, Email),
+  Session = cnf_session_repo:register(cnf_user:id(RegistedUser)),
+  Token = binary_to_list(cnf_session:token(Session)),
   Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {Name, Passsword}},
+            , basic_auth => {Name, Token}},
+            lager:error("delete_user-Header ~p", [Header]),
   Body = #{},
   JsonBody = jiffy:encode(Body),
-  {ok, Response} =
+  Respuesta =
     cnf_test_utils:api_call(delete, "/me", Header, JsonBody),
+    lager:error("delete_user-Respuesta ~p", [Respuesta]),
+    {ok, Response} = Respuesta,
   #{status_code := 204} = Response,
   notfound = cnf_user_repo:find(cnf_user:id(RegistedUser)),
   Config.
@@ -91,8 +96,10 @@ get_user(Config) ->
   Passsword = "Such Password, Many security",
   Email = "email@email.net",
   RegistedUser = cnf_user_repo:register(Name, Passsword, Email),
+  Session = cnf_session_repo:register(cnf_user:id(RegistedUser)),
+  Token = binary_to_list(cnf_session:token(Session)),
   Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {Name, Passsword}},
+            , basic_auth => {Name, Token}},
   Url = "/users/" ++  integer_to_list(cnf_user:id(RegistedUser)),
   {ok, Response} = cnf_test_utils:api_call(get, Url, Header),
   #{status_code := 200} = Response,
@@ -104,9 +111,8 @@ post_session(Config) ->
   Name = "Doge post_session",
   Passsword = "Such Password, Many security!",
   Email = <<"email@email.net">>,
-  Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {Name, Passsword}},
-  Body = #{ email => Email},
+  Header = #{ <<"Content-Type">> => <<"application/json">>},
+  Body = #{user_name  => Name, password => Passsword, email => Email},
   JsonBody = jiffy:encode(Body),
   PostResponse = cnf_test_utils:api_call(post, "/users", Header, JsonBody),
   {ok, Response} = PostResponse,

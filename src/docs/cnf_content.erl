@@ -66,7 +66,7 @@ get_domain(Url) ->
 %%
 
 -spec sumo_wakeup(sumo:doc()) -> content().
-sumo_wakeup(Data) -> Data.
+sumo_wakeup(Data) -> truncate_seconds(Data).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(content()) -> sumo:doc().
@@ -163,3 +163,10 @@ doc_to_binary_date(Content) ->
   CreatedAtBinary = cnf_utils:datetime_to_binary(created_at(Content)),
   UpdatedAtBinary = cnf_utils:datetime_to_binary(updated_at(Content)),
   Content#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.
+
+-spec truncate_seconds(content()) -> content().
+truncate_seconds(Content) ->
+  CreatedAt = cnf_utils:truncate_seconds(created_at(Content)),
+  UpdatedAt = cnf_utils:truncate_seconds(updated_at(Content)),
+  Content#{updated_at => UpdatedAt, created_at => CreatedAt}.
+

@@ -73,8 +73,10 @@ end_per_testcase(_Function, Config) ->
 -spec test_handle_post_ok(config()) -> config().
 test_handle_post_ok(Config) ->
   User = cnf_user_repo:register("post_ok", "password", "mail@email.net"),
+  Session = cnf_session_repo:register(cnf_user:id(User)),
+  Token = binary_to_list(cnf_session:token(Session)),
   Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {"post_ok", "password"}},
+            , basic_auth => {"post_ok", Token}},
   Body = #{ url => <<"http://inaka.net/post_ok">>
           , user_id => cnf_user:id(User)},
   JsonBody = jiffy:encode(Body),
@@ -89,8 +91,10 @@ test_handle_post_ok(Config) ->
 -spec test_handle_post_duplicated(config()) -> config().
 test_handle_post_duplicated(Config) ->
   User = cnf_user_repo:register("post_dupl", "password", "mail@email.net"),
+  Session = cnf_session_repo:register(cnf_user:id(User)),
+  Token = binary_to_list(cnf_session:token(Session)),
   Header = #{<<"Content-Type">> => <<"application/json">>
-            , basic_auth => {"post_dupl", "password"}},
+            , basic_auth => {"post_dupl", Token}},
   Body = #{ url => <<"http://inaka.net/post_dup">>
           , user_id => cnf_user:id(User)},
   JsonBody = jiffy:encode(Body),
@@ -102,9 +106,11 @@ test_handle_post_duplicated(Config) ->
 
 -spec test_get_qs_ok(config()) -> config().
 test_get_qs_ok(Config) ->
-  cnf_user_repo:register("get_qs_ok", "password", "mail@email.net"),
+  User = cnf_user_repo:register("get_qs_ok", "password", "mail@email.net"),
+  Session = cnf_session_repo:register(cnf_user:id(User)),
+  Token = binary_to_list(cnf_session:token(Session)),
   Header = #{<<"Content-Type">> => <<"text/plain; charset=utf-8">>
-            , basic_auth => {"get_qs_ok", "password"}},
+            , basic_auth => {"get_qs_ok", Token}},
   cnf_content_repo:register("http://inaka.net/get_qs_ok", 1),
   cnf_content_repo:register("https://twitter.com/get_qs_ok", 1),
   DomainInaka = "inaka.net",

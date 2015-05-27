@@ -17,6 +17,11 @@
 
 -export([handle_exception/3]).
 -export([datetime_to_binary/1]).
+-export([truncate_seconds/1]).
+
+-spec truncate_seconds(tuple()) -> tuple().
+truncate_seconds({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->
+  {{Yi, Mi, Di}, {Hi, Ni, trunc(Si)}}.
 
 -spec datetime_to_binary(tuple()) -> binary().
 datetime_to_binary({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->

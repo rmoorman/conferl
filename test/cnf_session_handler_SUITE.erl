@@ -136,13 +136,17 @@ delete_session(Config) ->
   Email = "email@email.net",
   RegistedUser = cnf_user_repo:register(Name, Passsword, Email),
   Session = cnf_session_repo:register(cnf_user:id(RegistedUser)),
-  Token = cnf_session:token(Session),
-  Header = #{ <<"Content-Type">> => <<"application/json">>
+  Token = binary_to_list(cnf_session:token(Session)),
+  Header = #{<<"Content-Type">> => <<"application/json">>
             , basic_auth => {Name, Passsword}},
   Body = #{},
   JsonBody = jiffy:encode(Body),
   {ok, Response} =
     cnf_test_utils:api_call(delete, "/sessions/" ++ Token, Header, JsonBody),
   #{status_code := 204} = Response,
-  [] = cnf_session_repo:find_by_user(cnf_session:user_id(Session)),
+  try cnf_session_repo:find_by_user(cnf_session:user_id(Session)) of
+    _Content -> ct:fail("Unexpected result (!)")
+  catch
+    throw:notfound -> ok
+  end,
   Config.

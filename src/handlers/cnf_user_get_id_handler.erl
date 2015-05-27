@@ -17,6 +17,7 @@
 -author('David Cao <david.cao@inakanetworks.com>').
 
 -include_lib("mixer/include/mixer.hrl").
+
 -mixin([
         {cnf_default_handler,
          [ init/3
@@ -24,6 +25,7 @@
          , rest_terminate/2
          , content_types_accepted/2
          , content_types_provided/2
+         , is_authorized/2
          ]}
        ]).
 

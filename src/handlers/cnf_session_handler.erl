@@ -70,7 +70,6 @@ handle_post(Req, State) ->
 -spec delete_resource(cowboy_req:req(), state()) ->
   {boolean(), cowboy_req:req(), state()}.
 delete_resource(Req, State) ->
-lager:error("cnf_session_id_handler delete_resource Token !!!!"),
   {Token, Req1} = cowboy_req:binding(token, Req),
   #{login := VerifyiedLogin} = State,
   User = cnf_user_repo:find_by_name(VerifyiedLogin),

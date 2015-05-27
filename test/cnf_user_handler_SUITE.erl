@@ -84,7 +84,6 @@ delete_user(Config) ->
   JsonBody = jiffy:encode(Body),
   Respuesta =
     cnf_test_utils:api_call(delete, "/me", Header, JsonBody),
-    lager:error("delete_user-Respuesta ~p", [Respuesta]),
     {ok, Response} = Respuesta,
   #{status_code := 204} = Response,
   notfound = cnf_user_repo:find(cnf_user:id(RegistedUser)),

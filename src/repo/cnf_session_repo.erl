@@ -65,5 +65,5 @@ is_valid(Token) ->
         false
     end
   catch
-    _Type:_Exception ->  throw(invalid_session)
+    throw:notfound -> false
   end.

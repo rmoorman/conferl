@@ -48,6 +48,6 @@ is_authorized(Req, State) ->
 -spec delete_resource(cowboy_req:req(), state()) ->
   {boolean(), cowboy_req:req(), state()}.
 delete_resource(Req, State) ->
-  #{login := VerifyiedLogin} = State,
-  cnf_user_repo:unregister(binary_to_list(VerifyiedLogin)),
+  #{user_name := VerifyiedUserName} = State,
+  cnf_user_repo:unregister(binary_to_list(VerifyiedUserName)),
   {true, Req, State}.

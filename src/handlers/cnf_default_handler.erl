@@ -8,7 +8,6 @@
 -export([forbidden/2]).
 -export([is_authorized_by_token/2]).
 -export([is_authorized_by_password/2]).
--export([is_authorized_generic/3]).
 
 -type state() :: #{}.
 %% cowboy
@@ -42,22 +41,22 @@ is_authorized_by_password(Req, State) ->
   is_authorized_generic(fun validation_by_password/2, Req, State).
 
 -spec validation_by_token(string(), binary()) -> map().
-validation_by_token(Login, Token) ->
+validation_by_token(UserName, Token) ->
   true = cnf_session_repo:is_valid(Token),
-  #{login => Login, token => Token}.
+  #{user_name => UserName, token => Token}.
 
 -spec validation_by_password(string(), string()) -> map().
-validation_by_password(Login, Password) ->
-  true = cnf_user_repo:is_registered(Login, Password),
-  #{login => Login}.
+validation_by_password(UserName, Password) ->
+  true = cnf_user_repo:is_registered(UserName, Password),
+  #{user_name => UserName}.
 
 -spec is_authorized_generic(fun(), cowboy_req:req(), state() ) ->
   {boolean() | {boolean(), binary()}, cowboy_req:req(), state()}.
 is_authorized_generic(ValidationFun, Req, State) ->
   case cowboy_req:parse_header(<<"authorization">>, Req) of
-    {ok, {<<"basic">>, {Login, Authentification}}, _} ->
+    {ok, {<<"basic">>, {UserName, Authentication}}, _} ->
       try
-        NewState = ValidationFun(Login, Authentification),
+        NewState = ValidationFun(UserName, Authentication),
         {true, Req, NewState}
       catch
         _Type:_Excep -> {{false, <<"Basic realm=\"conferl\"">>}, Req, State}

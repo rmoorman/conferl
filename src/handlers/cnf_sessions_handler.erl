@@ -49,8 +49,8 @@ is_authorized(Req, State) ->
   {true, cowboy_req:req(), state()}
   | {tuple(), cowboy_req:req(), state()}.
 handle_post(Req, State) ->
-  #{login := Login} = State,
-  User = cnf_user_repo:find_by_name(Login),
+  #{user_name := UserName} = State,
+  User = cnf_user_repo:find_by_name(UserName),
   Session = cnf_session_repo:register(cnf_user:id(User)),
   JsonBody = cnf_session:to_json(Session),
   Req1 = cowboy_req:set_resp_body(JsonBody, Req),

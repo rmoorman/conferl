@@ -72,10 +72,10 @@ end_per_testcase(_Function, Config) ->
 
 -spec test_get_ok(config()) -> config().
 test_get_ok(Config) ->
-  Name = "Doge get_ok",
+  UserName = "Doge get_ok",
   Passsword = "passsword",
   Email = "email@email.net",
-  User = cnf_user_repo:register(Name, Passsword, Email),
+  User = cnf_user_repo:register(UserName, Passsword, Email),
   Session = cnf_session_repo:register(cnf_user:id(User)),
   Token = binary_to_list(cnf_session:token(Session)),
   Header = #{ <<"Content-Type">> => <<"application/json">>
@@ -89,10 +89,10 @@ test_get_ok(Config) ->
 
 -spec test_handle_delete_ok(config()) ->  config().
 test_handle_delete_ok(Config) ->
-  Name = "Doge delete_ok",
+  UserName = "Doge delete_ok",
   Passsword = "passsword",
   Email = "email@email.net",
-  User = cnf_user_repo:register(Name, Passsword, Email),
+  User = cnf_user_repo:register(UserName, Passsword, Email),
   Session = cnf_session_repo:register(cnf_user:id(User)),
   Token = binary_to_list(cnf_session:token(Session)),
   Header = #{ <<"Content-Type">> => <<"application/json">>

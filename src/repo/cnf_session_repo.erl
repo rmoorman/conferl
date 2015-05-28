@@ -19,7 +19,7 @@
 -export([unregister/1]).
 -export([find_by_user/1]).
 -export([find_by_token/1]).
--export([is_valid/1]).
+-export([is_valid/2]).
 
 -spec register(non_neg_integer()) -> cnf_session:session().
 register(UserId) ->
@@ -50,10 +50,13 @@ find_by_token(Token) ->
 -spec generate_token() -> binary().
 generate_token() -> erlang:list_to_binary(uuid:uuid_to_string(uuid:get_v4())).
 
--spec is_valid(binary()) -> boolean().
-is_valid(Token) ->
+-spec is_valid(string(), binary()) -> boolean().
+is_valid(UserName, Token) ->
   try
     Session = find_by_token(Token),
+    UserId = cnf_session:user_id(Session),
+    User = cnf_user_repo:find(UserId),
+    UserName = cnf_user:user_name(User),
     {ok, MaxSessionDays} = application:get_env(conferl, max_session_days),
     UpdatedTime = cnf_session:updated_at(Session),
     Now = calendar:universal_time(),

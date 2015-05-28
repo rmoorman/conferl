@@ -24,6 +24,7 @@
 -export([delete_user/1]).
 -export([get_user/1]).
 -export([post_session/1]).
+-export([delete_user_attack/1]).
 
 -type config() :: [{atom(), term()}].
 
@@ -87,6 +88,33 @@ delete_user(Config) ->
   #{status_code := 204} = Response,
   notfound = cnf_user_repo:find(cnf_user:id(RegistedUser)),
   Config.
+
+
+-spec delete_user_attack(config()) -> config().
+delete_user_attack(Config) ->
+  Name = "Doge delete_user",
+  Passsword = "Such Password, Many security",
+  UserNameAttacker = "Doge Such Hacker",
+  PassswordHacker = "Such Swordfish, Many cracker",
+  Email = "email@email.net",
+  RegistedUser = cnf_user_repo:register(Name, Passsword, Email),
+  Session = cnf_session_repo:register(cnf_user:id(RegistedUser)),
+  Token = binary_to_list(cnf_session:token(Session)),
+  RegistedUserhacker =
+    cnf_user_repo:register(UserNameAttacker, PassswordHacker, Email),
+  SessionHacker = cnf_session_repo:register(cnf_user:id(RegistedUserhacker)),
+  TokenHacker = binary_to_list(cnf_session:token(SessionHacker)),
+
+  Header = #{ <<"Content-Type">> => <<"application/json">>
+            , basic_auth => {UserNameAttacker, Token}},
+  Body = #{},
+  JsonBody = jiffy:encode(Body),
+  Respuesta =
+    cnf_test_utils:api_call(delete, "/me", Header, JsonBody),
+    {ok, Response} = Respuesta,
+  #{status_code := 401} = Response, %% Error HTTP 401 Unauthorized
+  Config.
+
 
 -spec get_user(config()) -> config().
 get_user(Config) ->

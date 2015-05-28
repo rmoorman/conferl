@@ -42,7 +42,7 @@ is_authorized_by_password(Req, State) ->
 
 -spec validation_by_token(string(), binary()) -> map().
 validation_by_token(UserName, Token) ->
-  true = cnf_session_repo:is_valid(Token),
+  true = cnf_session_repo:is_valid(UserName, Token),
   #{user_name => UserName, token => Token}.
 
 -spec validation_by_password(string(), string()) -> map().

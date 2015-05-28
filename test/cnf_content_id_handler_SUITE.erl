@@ -79,7 +79,7 @@ test_get_ok(Config) ->
   Session = cnf_session_repo:register(cnf_user:id(User)),
   Token = binary_to_list(cnf_session:token(Session)),
   Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {"get_ok", Token}},
+            , basic_auth => {UserName, Token}},
   Content =
     cnf_content_repo:register("http://inaka.net/get_ok", cnf_user:id(User)),
   Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
@@ -96,7 +96,7 @@ test_handle_delete_ok(Config) ->
   Session = cnf_session_repo:register(cnf_user:id(User)),
   Token = binary_to_list(cnf_session:token(Session)),
   Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {"delete_ok", Token}},
+            , basic_auth => {UserName, Token}},
   Content =
     cnf_content_repo:register("http://inaka.net/delete_ok", cnf_user:id(User)),
   Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),

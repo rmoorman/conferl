@@ -49,12 +49,12 @@ all() ->
 %% @doc definion of init_per_testcases
 
 -spec init_per_suite(config()) -> config().
-init_per_suite(_Config) ->
+init_per_suite(Config) ->
   application:ensure_all_started(sumo_db),
   application:ensure_all_started(shotgun),
   sumo:create_schema(),
   lager:start(),
-  [].
+  Config.
 
 -spec end_per_suite(config()) -> config().
 end_per_suite(Config) ->

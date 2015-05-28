@@ -58,12 +58,8 @@ is_valid(Token) ->
     UpdatedTime = cnf_session:updated_at(Session),
     Now = calendar:universal_time(),
     Diff = calendar:time_difference(UpdatedTime, Now),
-    case Diff of
-      {DiffDays, _Time} when DiffDays < MaxSessionDays ->
-        true;
-      _WhenOthers ->
-        false
-    end
+    {DiffDays, _} = calendar:time_difference(UpdatedTime, Now),
+    DiffDays < MaxSessionDays
   catch
-    throw:notfound -> false
+    _Type:_Excep -> false
   end.

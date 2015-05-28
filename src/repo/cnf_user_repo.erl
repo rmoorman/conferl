@@ -51,10 +51,10 @@ find_by_name(UserName) ->
     [User] -> User
   end.
 
--spec is_registered(string(), string()) -> ok.
+-spec is_registered(string(), string()) -> true.
 is_registered(UserName, Password) ->
   try find_by_name(UserName) of
-    #{password := Password} -> ok;
+    #{password := Password} -> true;
     _WrongPass -> throw(wrong_password)
   catch
     throw:notfound -> throw(not_registered)

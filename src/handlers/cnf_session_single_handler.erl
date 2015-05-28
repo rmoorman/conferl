@@ -49,8 +49,8 @@ is_authorized(Req, State) ->
   {boolean(), cowboy_req:req(), state()}.
 delete_resource(Req, State) ->
   {Token, Req1} = cowboy_req:binding(token, Req),
-  #{login := VerifyiedLogin} = State,
-  User = cnf_user_repo:find_by_name(VerifyiedLogin),
+  #{login := VerifyiedUserName} = State,
+  User = cnf_user_repo:find_by_name(VerifyiedUserName),
   Session = cnf_session_repo:find_by_token(Token),
   true = cnf_session:user_id(Session) == cnf_user:id(User),
   cnf_session_repo:unregister(binary_to_list(Token)),

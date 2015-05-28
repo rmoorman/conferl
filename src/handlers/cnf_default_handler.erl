@@ -8,6 +8,7 @@
 -export([forbidden/2]).
 -export([is_authorized_by_token/2]).
 -export([is_authorized_by_password/2]).
+-export([is_authorized_generic/3]).
 
 -type state() :: #{}.
 %% cowboy
@@ -33,11 +34,31 @@ forbidden(Req, State) ->
 -spec is_authorized_by_token(cowboy_req:req(), state()) ->
   {boolean() | {boolean(), binary()}, cowboy_req:req(), state()}.
 is_authorized_by_token(Req, State) ->
+  is_authorized_generic(fun validation_by_token/2, Req, State).
+
+-spec is_authorized_by_password(cowboy_req:req(), state()) ->
+  {boolean() | {boolean(), binary()}, cowboy_req:req(), state()}.
+is_authorized_by_password(Req, State) ->
+  is_authorized_generic(fun validation_by_password/2, Req, State).
+
+-spec validation_by_token(string(), binary()) -> map().
+validation_by_token(Login, Token) ->
+  true = cnf_session_repo:is_valid(Token),
+  #{login => Login, token => Token}.
+
+-spec validation_by_password(string(), string()) -> map().
+validation_by_password(Login, Password) ->
+  true = cnf_user_repo:is_registered(Login, Password),
+  #{login => Login}.
+
+-spec is_authorized_generic(fun(), cowboy_req:req(), state() ) ->
+  {boolean() | {boolean(), binary()}, cowboy_req:req(), state()}.
+is_authorized_generic(ValidationFun, Req, State) ->
   case cowboy_req:parse_header(<<"authorization">>, Req) of
-    {ok, {<<"basic">>, {Login, Token}}, _} ->
+    {ok, {<<"basic">>, {Login, Authentification}}, _} ->
       try
-        true = cnf_session_repo:is_valid(Token),
-        {true, Req, #{login => Login, token => Token}}
+        NewState = ValidationFun(Login, Authentification),
+        {true, Req, NewState}
       catch
         _Type:_Excep -> {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
       end;
@@ -45,17 +66,3 @@ is_authorized_by_token(Req, State) ->
       {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
   end.
 
--spec is_authorized_by_password(cowboy_req:req(), state()) ->
-  {boolean() | {boolean(), binary()}, cowboy_req:req(), state()}.
-is_authorized_by_password(Req, State) ->
-  case cowboy_req:parse_header(<<"authorization">>, Req) of
-    {ok, {<<"basic">>, {Login, Password}}, _} ->
-      try cnf_user_repo:is_registered(Login, Password) of
-        ok -> NewState = #{login => Login},
-          {true, Req, NewState}
-      catch
-        _Type:Exception ->
-          cnf_utils:handle_exception(Exception, Req, State)
-      end;
-    _ -> {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
-  end.

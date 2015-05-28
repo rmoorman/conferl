@@ -31,14 +31,8 @@ datetime_to_binary({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->
   H = integer_to_list(Hi),
   N = integer_to_list(Ni),
   %% epgsql uses {Hour, Minute, Second.Microsecond}
-  S = format_seconds(Si),
-  iolist_to_binary([Y, "-", M, "-", D, "T", H, ":", N, ":", S]).
-
--spec format_seconds(integer()) -> [[any()] | char()].
-format_seconds(Seconds) when is_float(Seconds) ->
-  io_lib:format("~.2f",[Seconds]);
-format_seconds(Seconds) when is_integer(Seconds) ->
-  io_lib:format("~.2f",[float(Seconds)]).
+  S = integer_to_list(Si),
+  iolist_to_binary([Y, "-", M, "-", D, "T", H, ":", N, ":", S, ".000000Z"]).
 
 -spec handle_exception(atom(), cowboy_req:req(), term()) ->
   {halt , cowboy_req:req(), term()}

@@ -125,7 +125,7 @@ created_at(Vote) ->
 
 -spec created_at(vote(), tuple()) -> vote().
 created_at(Vote, CreatedAt) ->
-  Vote#{ reated_at => CreatedAt}.
+  Vote#{created_at => CreatedAt}.
 
 -spec updated_at(vote()) -> tuple().
 updated_at(Vote) ->

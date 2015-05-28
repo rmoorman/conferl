@@ -34,11 +34,12 @@ start(_StartType, _StartArgs) ->
   [
       {<<"/status">>, cnf_status_handler, []}
     , {<<"/contents/">>, cnf_contents_handler, []}
-    , {<<"/content/:content_id">>, cnf_content_id_handler, []}
-    , {<<"/sessions/[:token]">>, cnf_session_handler, []}
-    , {<<"/users/">>, cnf_users_post_handler, []}
-    , {<<"/users/:user_id">>, cnf_user_get_id_handler, []}
-    , {<<"/me/">>, cnf_user_delete_id_handler, []}
+    , {<<"/contents/:content_id">>, cnf_content_single_handler, []}
+    , {<<"/sessions/">>, cnf_sessions_handler, []}
+    , {<<"/sessions/:token">>, cnf_session_single_handler, []}
+    , {<<"/users/">>, cnf_users_handler, []}
+    , {<<"/users/:user_id">>, cnf_user_single_handler, []}
+    , {<<"/me/">>, cnf_me_handler, []}
     %% Add here new endpoints
   ],
   Dispatch = cowboy_router:compile( [{'_' , EndPoints}]),

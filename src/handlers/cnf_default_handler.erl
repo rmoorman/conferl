@@ -6,7 +6,8 @@
 -export([content_types_accepted/2]).
 -export([content_types_provided/2]).
 -export([forbidden/2]).
--export([is_authorized/2]).
+-export([is_authorized_by_token/2]).
+-export([is_authorized_by_password/2]).
 
 -type state() :: #{}.
 %% cowboy
@@ -29,9 +30,9 @@ content_types_provided(Req, State) ->
 forbidden(Req, State) ->
   {false, Req, State}.
 
--spec is_authorized(cowboy_req:req(), state()) ->
+-spec is_authorized_by_token(cowboy_req:req(), state()) ->
   {boolean() | {boolean(), binary()}, cowboy_req:req(), state()}.
-is_authorized(Req, State) ->
+is_authorized_by_token(Req, State) ->
   case cowboy_req:parse_header(<<"authorization">>, Req) of
     {ok, {<<"basic">>, {Login, Token}}, _} ->
       try
@@ -42,4 +43,19 @@ is_authorized(Req, State) ->
       end;
     _WhenOthers ->
       {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
+  end.
+
+-spec is_authorized_by_password(cowboy_req:req(), state()) ->
+  {boolean() | {boolean(), binary()}, cowboy_req:req(), state()}.
+is_authorized_by_password(Req, State) ->
+  case cowboy_req:parse_header(<<"authorization">>, Req) of
+    {ok, {<<"basic">>, {Login, Password}}, _} ->
+      try cnf_user_repo:is_registered(Login, Password) of
+        ok -> NewState = #{login => Login},
+          {true, Req, NewState}
+      catch
+        _Type:Exception ->
+          cnf_utils:handle_exception(Exception, Req, State)
+      end;
+    _ -> {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
   end.

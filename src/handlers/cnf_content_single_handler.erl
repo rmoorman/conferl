@@ -12,7 +12,7 @@
 % specific language governing permissions and limitations
 % under the License.
 
--module(cnf_content_id_handler).
+-module(cnf_content_single_handler).
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
@@ -24,13 +24,14 @@
          , rest_terminate/2
          , content_types_accepted/2
          , content_types_provided/2
-         , is_authorized/2
+         , is_authorized_by_token/2
          ]}
        ]).
 
 -export([allowed_methods/2]).
 -export([handle_get/2]).
 -export([delete_resource/2]).
+-export([is_authorized/2]).
 
 -type state() :: #{}.
 
@@ -40,6 +41,11 @@ allowed_methods(Req, State) ->
    , <<"OPTIONS">>]
   , Req
   , State}.
+
+-spec is_authorized(cowboy_req:req(), state()) ->
+  {boolean() | {boolean(), binary()}, cowboy_req:req(), state()}.
+is_authorized(Req, State) ->
+  is_authorized_by_token(Req, State).
 
 -spec handle_get(cowboy_req:req(), state()) ->
   {list(), cowboy_req:req(), state()}.

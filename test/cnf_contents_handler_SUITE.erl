@@ -120,16 +120,16 @@ test_get_qs_ok(Config) ->
   BodyRespInaka = jiffy:decode(JsonBodyRespInaka, [return_maps]),
   UrlTwitter = "/contents/?domain=" ++  DomainTwitter,
   F1 = fun(DomainMap) ->
-         #{<<"domain">> := Domain1} = DomainMap,
-         Domain1 == <<"inaka.net">>
+         #{<<"domain">> := Domain} = DomainMap,
+         Domain = <<"inaka.net">>
        end,
   ok = lists:foreach(F1, BodyRespInaka),
   {ok, ResponseTwitter} = cnf_test_utils:api_call(get, UrlTwitter, Header),
   #{body := JsonBodyRespTwitter} = ResponseTwitter,
   BodyRespTwitter = jiffy:decode(JsonBodyRespTwitter, [return_maps]),
   F2 = fun(DomainMap) ->
-         #{<<"domain">> := Domain1} = DomainMap,
-         Domain1 == <<"twitter.com">>
+         #{<<"domain">> := Domain} = DomainMap,
+         Domain = <<"twitter.com">>
        end,
   ok = lists:foreach(F2, BodyRespTwitter),
   #{status_code := 200} = ResponseTwitter,

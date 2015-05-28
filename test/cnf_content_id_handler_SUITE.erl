@@ -82,7 +82,7 @@ test_get_ok(Config) ->
             , basic_auth => {"get_ok", Token}},
   Content =
     cnf_content_repo:register("http://inaka.net/get_ok", cnf_user:id(User)),
-  Url = "/content/" ++  integer_to_list(cnf_content:id(Content)),
+  Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
   {ok, Response} = cnf_test_utils:api_call(get, Url, Header),
   #{status_code := 200} = Response,
   Config.
@@ -99,7 +99,7 @@ test_handle_delete_ok(Config) ->
             , basic_auth => {"delete_ok", Token}},
   Content =
     cnf_content_repo:register("http://inaka.net/delete_ok", cnf_user:id(User)),
-  Url = "/content/" ++  integer_to_list(cnf_content:id(Content)),
+  Url = "/contents/" ++  integer_to_list(cnf_content:id(Content)),
   {ok, Response} = cnf_test_utils:api_call(delete, Url, Header),
   #{status_code := 204} = Response,
   Config.

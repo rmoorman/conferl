@@ -11,8 +11,7 @@
 % KIND, either express or implied.  See the License for the
 % specific language governing permissions and limitations
 % under the License.
-
--module(cnf_user_delete_id_handler).
+-module(cnf_users_handler).
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
@@ -24,24 +23,34 @@
          , rest_terminate/2
          , content_types_accepted/2
          , content_types_provided/2
-         , is_authorized/2
          ]}
        ]).
 
--export([delete_resource/2]).
+-export([handle_post/2]).
 -export([allowed_methods/2]).
 
 -type state() :: #{}.
 
 allowed_methods(Req, State) ->
-  {[ <<"DELETE">>
+  {[ <<"POST">>
    , <<"OPTIONS">>]
   , Req
   , State}.
 
--spec delete_resource(cowboy_req:req(), state()) ->
-  {boolean(), cowboy_req:req(), state()}.
-delete_resource(Req, State) ->
-  #{login := VerifyiedLogin} = State,
-  cnf_user_repo:unregister(binary_to_list(VerifyiedLogin)),
-  {true, Req, State}.
+
+-spec handle_post(cowboy_req:req(), state()) ->
+  {true, cowboy_req:req(), state()}.
+handle_post(Req, State) ->
+  {ok, JsonRequestBody, Req1} = cowboy_req:body(Req),
+  #{<<"user_name">> := UserName
+   , <<"email">> := Email
+   , <<"password">> := Password} = jiffy:decode(JsonRequestBody, [return_maps]),
+  try
+    RegistedUser = cnf_user_repo:register(UserName, Password, Email) ,
+    JsonResponseBody = cnf_user:to_json(RegistedUser),
+    Req2 = cowboy_req:set_resp_body(JsonResponseBody, Req1),
+    {true, Req2, State}
+  catch
+    _Type:Exception ->
+      cnf_utils:handle_exception(Exception, Req, State)
+  end.

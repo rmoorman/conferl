@@ -47,7 +47,7 @@
 %%
 
 -spec sumo_wakeup(sumo:doc()) -> session().
-sumo_wakeup(Data) -> Data.
+sumo_wakeup(Data) -> truncate_seconds(Data).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(session()) -> sumo:doc().
@@ -102,3 +102,14 @@ updated_at(Session) ->
 to_json(Session)->
   Body = #{token => cnf_session:token(Session)},
   jiffy:encode(Body).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Private Api
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%
+-spec truncate_seconds(session()) -> session().
+truncate_seconds(Session) ->
+  CreatedAt = cnf_utils:truncate_seconds(created_at(Session)),
+  UpdatedAt = cnf_utils:truncate_seconds(updated_at(Session)),
+  Session#{updated_at => UpdatedAt, created_at => CreatedAt}.

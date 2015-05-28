@@ -19,7 +19,7 @@
 -export([unregister/1]).
 -export([find_by_user/1]).
 -export([find_by_token/1]).
--export([is_valid/1]).
+-export([is_valid/2]).
 
 -spec register(non_neg_integer()) -> cnf_session:session().
 register(UserId) ->
@@ -31,26 +31,38 @@ register(UserId) ->
 unregister(Token) ->
   sumo:delete_by(cnf_session, [{token, Token}]).
 
--spec find_by_user(non_neg_integer()) -> [cnf_session:session()].
+-spec find_by_user(non_neg_integer()) -> cnf_session:session().
 find_by_user(UserId) ->
-  sumo:find_by(cnf_session, [{user_id, UserId}]).
+  Result = sumo:find_by(cnf_session, [{user_id, UserId}]),
+  case Result of
+    [] -> throw(notfound);
+    [User] -> User
+  end.
 
--spec find_by_token(binary()) -> [cnf_session:session()].
+-spec find_by_token(binary()) -> cnf_session:session().
 find_by_token(Token) ->
-  sumo:find_by(cnf_session, [{token, Token}]).
+  Result =  sumo:find_by(cnf_session, [{token, Token}]),
+  case Result of
+    [] -> throw(notfound);
+    [User] -> User
+  end.
 
 -spec generate_token() -> binary().
 generate_token() -> erlang:list_to_binary(uuid:uuid_to_string(uuid:get_v4())).
 
--spec is_valid(cnf_session:session()) -> boolean().
-is_valid(Session) ->
-  {ok, MaxSessionDays} = application:get_env(conferl, http_port),
-  UpdatedTime = cnf_session:updated_at(Session),
-  Now = calendar:universal_time(),
-  Diff = calendar:time_difference(UpdatedTime, Now),
-  case Diff of
-    {DiffDays, _Time} when DiffDays < MaxSessionDays ->
-      true;
-    _WhenOthers ->
-      false
+-spec is_valid(string(), binary()) -> boolean().
+is_valid(UserName, Token) ->
+  try
+    Session = find_by_token(Token),
+    UserId = cnf_session:user_id(Session),
+    User = cnf_user_repo:find(UserId),
+    UserName = cnf_user:user_name(User),
+    {ok, MaxSessionDays} = application:get_env(conferl, max_session_days),
+    UpdatedTime = cnf_session:updated_at(Session),
+    Now = calendar:universal_time(),
+    Diff = calendar:time_difference(UpdatedTime, Now),
+    {DiffDays, _} = calendar:time_difference(UpdatedTime, Now),
+    DiffDays < MaxSessionDays
+  catch
+    _Type:_Excep -> false
   end.

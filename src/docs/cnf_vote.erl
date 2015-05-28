@@ -56,7 +56,7 @@
 %%
 
 -spec sumo_wakeup(sumo:doc()) -> vote().
-sumo_wakeup(Data) -> thumb_wakeup(Data).
+sumo_wakeup(Data) -> truncate_seconds(thumb_wakeup(Data)).
 
 %% @doc Part of the sumo_doc behavior.
 -spec sumo_sleep(vote()) -> sumo:doc().
@@ -125,7 +125,7 @@ created_at(Vote) ->
 
 -spec created_at(vote(), tuple()) -> vote().
 created_at(Vote, CreatedAt) ->
-  Vote#{ reated_at => CreatedAt}.
+  Vote#{created_at => CreatedAt}.
 
 -spec updated_at(vote()) -> tuple().
 updated_at(Vote) ->
@@ -164,3 +164,9 @@ doc_to_binary_date(Vote) ->
   CreatedAtBinary = cnf_utils:datetime_to_binary(created_at(Vote)),
   UpdatedAtBinary = cnf_utils:datetime_to_binary(updated_at(Vote)),
   Vote#{created_at => CreatedAtBinary, updated_at => UpdatedAtBinary}.
+
+-spec truncate_seconds(vote()) -> vote().
+truncate_seconds(Vote) ->
+  CreatedAt = cnf_utils:truncate_seconds(created_at(Vote)),
+  UpdatedAt = cnf_utils:truncate_seconds(updated_at(Vote)),
+  Vote#{updated_at => UpdatedAt, created_at => CreatedAt}.

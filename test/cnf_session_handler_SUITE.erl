@@ -74,12 +74,12 @@ end_per_testcase(_Function, Config) ->
 
 -spec post_session(config()) -> config().
 post_session(Config) ->
-  Name = "Doge post_session",
+  UserName = "Doge post_session",
   Passsword = "passsword",
   Email = "email@email.net",
-  cnf_user_repo:register_user(Name, Passsword, Email),
+  cnf_user_repo:register(UserName, Passsword, Email),
   Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {Name, Passsword}},
+            , basic_auth => {UserName, Passsword}},
   Body = #{},
   JsonBody = jiffy:encode(Body),
   {ok, Response} =
@@ -92,12 +92,12 @@ post_session(Config) ->
 
 -spec post_multiple_session(config()) -> term().
 post_multiple_session(_Config) ->
-  Name = "Doge post_multiple_session",
+  UserName = "Doge post_multiple_session",
   Passsword = "passsword",
   Email = "email@email.net",
-  cnf_user_repo:register_user(Name, Passsword, Email),
+  cnf_user_repo:register(UserName, Passsword, Email),
   Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {Name, Passsword}},
+            , basic_auth => {UserName, Passsword}},
   Body = #{},
   JsonBody = jiffy:encode(Body),
   {ok, Token1} = create_token(Header, JsonBody),
@@ -118,31 +118,35 @@ create_token(Header, JsonBody) ->
 
 -spec post_session_bad(config()) -> config().
 post_session_bad(Config) ->
-  Name = "No registered Doge",
+  UserName = "No registered Doge",
   Passsword = "passsword",
   Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {Name, Passsword}},
+            , basic_auth => {UserName, Passsword}},
   Body = #{},
   JsonBody = jiffy:encode(Body),
-  {ok, Response} =
-    cnf_test_utils:api_call(post, "/sessions", Header, JsonBody),
+  PostResponse = cnf_test_utils:api_call(post, "/sessions", Header, JsonBody),
+  {ok, Response} = PostResponse,
   #{status_code := 401} = Response,
   Config.
 
 -spec delete_session(config()) -> config().
 delete_session(Config) ->
-  Name = "Doge delete_session",
+  UserName = "Doge delete_session",
   Passsword = "passsword",
   Email = "email@email.net",
-  RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
+  RegistedUser = cnf_user_repo:register(UserName, Passsword, Email),
   Session = cnf_session_repo:register(cnf_user:id(RegistedUser)),
-  Token = cnf_session:token(Session),
-  Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {Name, Passsword}},
+  Token = binary_to_list(cnf_session:token(Session)),
+  Header = #{<<"Content-Type">> => <<"application/json">>
+            , basic_auth => {UserName, Passsword}},
   Body = #{},
   JsonBody = jiffy:encode(Body),
   {ok, Response} =
     cnf_test_utils:api_call(delete, "/sessions/" ++ Token, Header, JsonBody),
   #{status_code := 204} = Response,
-  [] = cnf_session_repo:find_by_user(cnf_session:user_id(Session)),
+  try cnf_session_repo:find_by_user(cnf_session:user_id(Session)) of
+    _Content -> ct:fail("Unexpected result (!)")
+  catch
+    throw:notfound -> ok
+  end,
   Config.

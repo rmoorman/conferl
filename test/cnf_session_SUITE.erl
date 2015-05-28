@@ -72,10 +72,10 @@ end_per_testcase(_Function, Config) ->
 
 -spec create_session(config()) ->  config().
 create_session(Config) ->
-  Name = <<"Doge create_session">>,
+  UserName = <<"Doge create_session">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
-  RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
+  RegistedUser = cnf_user_repo:register(UserName, Passsword, Email),
   Session = cnf_session_repo:register(cnf_user:id(RegistedUser)),
   #{user_id := _Id
    , token := _Token
@@ -85,29 +85,33 @@ create_session(Config) ->
 
 -spec delete_session(config()) ->  config().
 delete_session(Config) ->
-  Name = <<"Doge delete_session">>,
+  UserName = <<"Doge delete_session">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
-  RegistedUser = cnf_user_repo:register_user(Name, Passsword, Email),
+  RegistedUser = cnf_user_repo:register(UserName, Passsword, Email),
   Session = cnf_session_repo:register(cnf_user:id(RegistedUser)),
   1  = cnf_session_repo:unregister(cnf_session:token(Session)),
-  [] = cnf_session_repo:find_by_user(cnf_session:user_id(Session)),
+  try cnf_session_repo:find_by_user(cnf_session:user_id(Session)) of
+    _Content -> ct:fail("Unexpected result (!)")
+  catch
+    throw:notfound -> ok
+  end,
   Config.
 
 -spec test_find_by_token(config()) ->  config().
 test_find_by_token(Config) ->
-  Name1 = <<"Doge 1">>,
-  Name2 = <<"Doge 2">>,
-  Name3 = <<"Doge 3">>,
+  UserName1 = <<"Doge 1">>,
+  UserName2 = <<"Doge 2">>,
+  UserName3 = <<"Doge 3">>,
   Passsword = <<"passsword">>,
   Email = <<"email">>,
-  RegistedUser1 = cnf_user_repo:register_user(Name1, Passsword, Email),
-  RegistedUser2 = cnf_user_repo:register_user(Name2, Passsword, Email),
-  RegistedUser3 = cnf_user_repo:register_user(Name3, Passsword, Email),
+  RegistedUser1 = cnf_user_repo:register(UserName1, Passsword, Email),
+  RegistedUser2 = cnf_user_repo:register(UserName2, Passsword, Email),
+  RegistedUser3 = cnf_user_repo:register(UserName3, Passsword, Email),
   Session1 = cnf_session_repo:register(cnf_user:id(RegistedUser1)),
   Session2 = cnf_session_repo:register(cnf_user:id(RegistedUser2)),
   Session3 = cnf_session_repo:register(cnf_user:id(RegistedUser3)),
-  cnf_session_repo:find_by_token(cnf_session:token(Session1)),
-  cnf_session_repo:find_by_token(cnf_session:token(Session2)),
-  cnf_session_repo:find_by_token(cnf_session:token(Session3)),
+  Session1 = cnf_session_repo:find_by_token(cnf_session:token(Session1)),
+  Session2 = cnf_session_repo:find_by_token(cnf_session:token(Session2)),
+  Session3 = cnf_session_repo:find_by_token(cnf_session:token(Session3)),
   Config.

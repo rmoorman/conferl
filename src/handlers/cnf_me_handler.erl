@@ -12,7 +12,7 @@
 % specific language governing permissions and limitations
 % under the License.
 
--module(cnf_session_handler).
+-module(cnf_me_handler).
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
@@ -24,55 +24,30 @@
          , rest_terminate/2
          , content_types_accepted/2
          , content_types_provided/2
+         , is_authorized_by_token/2
          ]}
        ]).
 
--export([handle_post/2]).
--export([allowed_methods/2]).
 -export([delete_resource/2]).
+-export([allowed_methods/2]).
 -export([is_authorized/2]).
 
 -type state() :: #{}.
 
 allowed_methods(Req, State) ->
   {[ <<"DELETE">>
-   , <<"POST">>
    , <<"OPTIONS">>]
   , Req
   , State}.
 
 -spec is_authorized(cowboy_req:req(), state()) ->
-    {tuple(), cowboy_req:req(), state()}.
+  {boolean() | {boolean(), binary()}, cowboy_req:req(), state()}.
 is_authorized(Req, State) ->
-  case cowboy_req:parse_header(<<"authorization">>, Req) of
-    {ok, {<<"basic">>, {Login, Password}}, _} ->
-      try cnf_user_repo:is_registered(Login, Password) of
-        ok -> {true, Req, Login}
-      catch
-        _Type:Exception ->
-          cnf_utils:handle_exception(Exception, Req, State)
-      end;
-    _ -> {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
-  end.
-
--spec handle_post(cowboy_req:req(), state()) ->
-  {true, cowboy_req:req(), state()}
-  | {tuple(), cowboy_req:req(), state()}.
-handle_post(Req, State) ->
-  case cowboy_req:parse_header(<<"authorization">>, Req) of
-    {ok, {<<"basic">>, {Login, _Password}}, _} ->
-      User = cnf_user_repo:find_by_name(Login),
-      Session = cnf_session_repo:register(cnf_user:id(User)),
-      JsonBody = cnf_session:to_json(Session),
-      Req1 = cowboy_req:set_resp_body(JsonBody, Req),
-      {true, Req1, State};
-    _WhenOthers ->
-      {{false, <<"Basic realm=\"conferl\"">>}, Req, State}
-  end.
+  is_authorized_by_token(Req, State).
 
 -spec delete_resource(cowboy_req:req(), state()) ->
   {boolean(), cowboy_req:req(), state()}.
 delete_resource(Req, State) ->
-  {Token, Req1} = cowboy_req:binding(token, Req),
-  cnf_session_repo:unregister(Token),
-  {true, Req1, State}.
+  #{user_name := VerifyiedUserName} = State,
+  cnf_user_repo:unregister(binary_to_list(VerifyiedUserName)),
+  {true, Req, State}.

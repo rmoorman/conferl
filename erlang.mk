@@ -705,7 +705,7 @@ ELVIS_CONFIG ?= $(CURDIR)/elvis.config
 ELVIS ?= $(CURDIR)/elvis
 export ELVIS
 
-ELVIS_URL ?= https://github.com/inaka/elvis/releases/download/0.2.5-beta/elvis
+ELVIS_URL ?= https://github.com/inaka/elvis/releases/download/0.2.3/elvis
 ELVIS_CONFIG_URL ?= https://github.com/inaka/elvis/releases/download/0.2.3/elvis.config
 ELVIS_OPTS ?=
 

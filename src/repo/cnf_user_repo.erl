@@ -15,14 +15,14 @@
 
 -author('David Cao <david.cao@inakanetworks.com>').
 
--export([register_user/3]).
--export([unregister_user/1]).
+-export([register/3]).
+-export([unregister/1]).
 -export([find/1]).
 -export([find_by_name/1]).
 -export([is_registered/2]).
 
--spec register_user(string(), string(), string()) -> cnf_user:user().
-register_user(UserName, Password, Email) ->
+-spec register(string(), string(), string()) -> cnf_user:user().
+register(UserName, Password, Email) ->
   try find_by_name(UserName) of
     _   -> throw(duplicated_user)
   catch
@@ -31,8 +31,8 @@ register_user(UserName, Password, Email) ->
       sumo:persist(cnf_user, NewUser)
   end.
 
--spec unregister_user(string()) -> non_neg_integer().
-unregister_user(UserName) ->
+-spec unregister(string()) -> non_neg_integer().
+unregister(UserName) ->
   Result = sumo:delete_by(cnf_user, [{user_name, UserName}]),
   case Result of
     0  -> throw(notfound);
@@ -51,10 +51,10 @@ find_by_name(UserName) ->
     [User] -> User
   end.
 
--spec is_registered(string(), string()) -> ok.
+-spec is_registered(string(), string()) -> true.
 is_registered(UserName, Password) ->
   try find_by_name(UserName) of
-    #{password := Password} -> ok;
+    #{password := Password} -> true;
     _WrongPass -> throw(wrong_password)
   catch
     throw:notfound -> throw(not_registered)

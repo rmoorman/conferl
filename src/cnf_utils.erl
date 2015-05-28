@@ -17,6 +17,11 @@
 
 -export([handle_exception/3]).
 -export([datetime_to_binary/1]).
+-export([truncate_seconds/1]).
+
+-spec truncate_seconds(tuple()) -> tuple().
+truncate_seconds({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->
+  {{Yi, Mi, Di}, {Hi, Ni, trunc(Si)}}.
 
 -spec datetime_to_binary(tuple()) -> binary().
 datetime_to_binary({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->
@@ -26,8 +31,8 @@ datetime_to_binary({{Yi, Mi, Di}, {Hi, Ni, Si}}) ->
   H = integer_to_list(Hi),
   N = integer_to_list(Ni),
   %% epgsql uses {Hour, Minute, Second.Microsecond}
-  S = io_lib:format("~.2f",[Si]),
-  iolist_to_binary([Y, "-", M, "-", D, "T", H, ":", N, ":", S]).
+  S = integer_to_list(Si),
+  iolist_to_binary([Y, "-", M, "-", D, "T", H, ":", N, ":", S, ".000000Z"]).
 
 -spec handle_exception(atom(), cowboy_req:req(), term()) ->
   {halt , cowboy_req:req(), term()}
@@ -46,7 +51,6 @@ handle_exception(not_found, Req, State) ->
   {halt, Req1, State};
 handle_exception(Reason, Req, State) ->
   lager:error("~p. Stack Trace: ~p", [Reason, erlang:get_stacktrace()]),
-  lager:error("~p. handle_exception! Reason ~p", [Reason]),
   {ok, Req1} =
     try cowboy_req:reply(501, Req)
     catch

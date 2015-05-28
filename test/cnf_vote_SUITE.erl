@@ -98,6 +98,7 @@ test_fetch_vote(Config) ->
   VotedMesId = cnf_vote:id(VotedMessage),
   VotedFetched1 = cnf_vote_repo:fetch_vote(VotedMesId),
   VotedFetched2 = cnf_vote_repo:fetch_vote(UserId, MessageId),
+  VotedFetched1 = VotedFetched2,
   Config.
 
 -spec test_counts_votes_message(config()) -> config().

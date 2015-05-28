@@ -79,7 +79,6 @@ delete_user(Config) ->
   Token = binary_to_list(cnf_session:token(Session)),
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {Name, Token}},
-            lager:error("delete_user-Header ~p", [Header]),
   Body = #{},
   JsonBody = jiffy:encode(Body),
   Respuesta =

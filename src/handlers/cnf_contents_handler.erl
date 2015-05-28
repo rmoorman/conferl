@@ -46,8 +46,10 @@ allowed_methods(Req, State) ->
 handle_post(Req, State) ->
   {ok, JsonBody, Req1} = cowboy_req:body(Req),
   Body = jiffy:decode(JsonBody, [return_maps]),
-  #{<<"url">> := Url, <<"user_id">> := UserId} = Body,
+  #{<<"url">> := Url} = Body,
   try
+    #{token := Token} = State,
+    UserId = cnf_session:user_id(cnf_session_repo:find_by_token(Token)),
     Content = cnf_content_repo:register(binary_to_list(Url), UserId),
     Id = cnf_content:id(Content),
     {Host, Req2} = cowboy_req:url(Req1),

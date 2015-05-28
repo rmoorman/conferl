@@ -141,7 +141,7 @@ delete_session(Config) ->
             , basic_auth => {Name, Passsword}},
   Body = #{},
   JsonBody = jiffy:encode(Body),
-  Response =
+  {ok, Response} =
     cnf_test_utils:api_call(delete, "/sessions/" ++ Token, Header, JsonBody),
   #{status_code := 204} = Response,
   try cnf_session_repo:find_by_user(cnf_session:user_id(Session)) of

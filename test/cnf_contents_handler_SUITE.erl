@@ -77,8 +77,7 @@ test_handle_post_ok(Config) ->
   Token = binary_to_list(cnf_session:token(Session)),
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {"post_ok", Token}},
-  Body = #{ url => <<"http://inaka.net/post_ok">>
-          , user_id => cnf_user:id(User)},
+  Body = #{ url => <<"http://inaka.net/post_ok">>},
   JsonBody = jiffy:encode(Body),
   {ok, Response} =
   cnf_test_utils:api_call(post, "/contents", Header,  JsonBody),
@@ -95,8 +94,7 @@ test_handle_post_duplicated(Config) ->
   Token = binary_to_list(cnf_session:token(Session)),
   Header = #{<<"Content-Type">> => <<"application/json">>
             , basic_auth => {"post_dupl", Token}},
-  Body = #{ url => <<"http://inaka.net/post_dup">>
-          , user_id => cnf_user:id(User)},
+  Body = #{ url => <<"http://inaka.net/post_dup">>},
   JsonBody = jiffy:encode(Body),
   cnf_content_repo:register("http://inaka.net/post_dup", cnf_user:id(User)),
   {ok, Response} =

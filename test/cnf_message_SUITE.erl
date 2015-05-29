@@ -77,7 +77,7 @@ top_message_create(Config) ->
   [cnf_message_repo:write_top(C, M, U)
     || {C, M, U} <- TopMessages],
   ContentId = proplists:get_value(top_messages_content_id, Config),
-  PersistedTopMessage = cnf_message_repo:list(ContentId),
+  PersistedTopMessage = cnf_message_repo:find_by_content(ContentId),
   true = all_are_top(PersistedTopMessage),
   ok.
 

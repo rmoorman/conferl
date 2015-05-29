@@ -45,6 +45,8 @@
 -export([is_top_message/1]).
 -export([updated_at/1]).
 -export([updated_at/2]).
+-export([score/1]).
+-export([score/2]).
 -export([to_json/1]).
 
 -behavior(sumo_doc).
@@ -73,6 +75,7 @@ sumo_schema() ->
     sumo:new_field(response_id , integer,  []),
     sumo:new_field(message_text, string ,  [{length, 1024}, not_null]),
     sumo:new_field(user_id     , integer,  [not_null]),
+    sumo:new_field(score       , integer,  [not_null]),
     sumo:new_field(created_at  , datetime, [not_null]),
     sumo:new_field(updated_at  , datetime, [not_null])
   ]).
@@ -91,6 +94,7 @@ new(ContentId, ResponseId, MessageText, User) ->
     , response_id  => ResponseId
     , message_text => MessageText
     , user_id      => User
+    , score        => 0
     , created_at   => Now
     , updated_at   => Now
     }.
@@ -140,6 +144,14 @@ updated_at(Message) ->
 -spec updated_at(message(), tuple()) -> message().
 updated_at(Message, UpdatedAt) ->
   Message#{updated_at => UpdatedAt}.
+
+-spec score(message()) -> tuple().
+score(Message) ->
+  maps:get(score, Message).
+
+-spec score(message(), tuple()) -> message().
+score(Message, Score) ->
+  Message#{score => Score}.
 
 -spec is_top_message(message()) -> boolean().
 is_top_message(Message) ->

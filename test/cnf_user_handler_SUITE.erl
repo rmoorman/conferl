@@ -115,7 +115,6 @@ delete_user_attack(Config) ->
   #{status_code := 401} = Response, %% Error HTTP 401 Unauthorized
   Config.
 
-
 -spec get_user(config()) -> config().
 get_user(Config) ->
   UserName = "Doge get_user",
@@ -130,7 +129,6 @@ get_user(Config) ->
   {ok, Response} = cnf_test_utils:api_call(get, Url, Header),
   #{status_code := 200} = Response,
   Config.
-
 
 -spec post_session(config()) -> config().
 post_session(Config) ->

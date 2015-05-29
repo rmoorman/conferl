@@ -39,6 +39,8 @@ start(_StartType, _StartArgs) ->
     , {<<"/sessions/:token">>, cnf_session_single_handler, []}
     , {<<"/users/">>, cnf_users_handler, []}
     , {<<"/users/:user_id">>, cnf_user_single_handler, []}
+    , {<<"/messages/">>, cnf_messages_handler, []}
+    , {<<"/messages/:messages_id">>, cnf_single_message_handler, []}
     , {<<"/me/">>, cnf_me_handler, []}
     %% Add here new endpoints
   ],

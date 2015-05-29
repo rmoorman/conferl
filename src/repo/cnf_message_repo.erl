@@ -20,11 +20,15 @@
 -export([write_reply/4]).
 -export([delete/1]).
 -export([delete_by_content_id/1]).
--export([list/1]).
+-export([find/1]).
+-export([find_by_content/1]).
 -export([list_replies/1]).
 -export([list_top_level/1]).
 -export([list_by_user/1]).
 -export([delete_all/0]).
+-export([custom_query/2]).
+-export([add_score/1]).
+-export([dec_score/1]).
 
 
 -spec write(cnf_messages:message()) -> cnf_messages:message().
@@ -64,8 +68,12 @@ delete(Id) ->
 delete_by_content_id(ContentId) ->
   sumo:delete_by(cnf_message, [{content_id, ContentId}]).
 
--spec list(integer()) -> [cnf_messages:message()].
- list(ContentId) ->
+-spec find(pos_integer()) -> cnf_messages:message().
+ find(MessageId) ->
+  sumo:find(cnf_message, MessageId).
+
+-spec find_by_content(integer()) -> [cnf_messages:message()].
+ find_by_content(ContentId) ->
   sumo:find_by(cnf_message, [{content_id, ContentId}]).
 
 -spec list_replies(pos_integer()) -> [cnf_messages:message()].
@@ -85,3 +93,20 @@ list_by_user(UserId) -> sumo:find_by(cnf_message, [{user, UserId}]).
 -spec delete_all() -> integer().
   delete_all() -> sumo:delete_all(cnf_message).
 
+-spec custom_query([tuple()],[tuple()]) -> [cnf_messages:message()].
+custom_query(ParameterList,OrderString) ->
+ lager:error("ParameterList ~p - OrderString ", [ParameterList,OrderString]),
+  sumo:find_by(cnf_message, ParameterList, OrderString, 0,0).
+
+
+-spec add_score(integer()) -> cnf_messages:message().
+ add_score(MessageId) ->
+  Msg = sumo:find(cnf_message, MessageId),
+  Score = cnf_message:score(Msg),
+  sumo:persist(cnf_message, cnf_message:score(Msg, Score + 1)).
+
+-spec dec_score(integer()) -> cnf_messages:message().
+ dec_score(MessageId) ->
+  Msg = sumo:find(cnf_message, MessageId),
+  Score = cnf_message:score(Msg),
+  sumo:persist(cnf_message, cnf_message:score(Msg, Score - 1)).

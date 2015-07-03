@@ -339,21 +339,20 @@ test_post_message_ok(Config) ->
   UserId = cnf_user:id(User),
   ReplyerUser = cnf_user_repo:register(ReplyerUserName, Passsword, Email),
   ReplyerUserId = cnf_user:id(ReplyerUser),
-
   Session = cnf_session_repo:register(ReplyerUserId),
   Token = binary_to_list(cnf_session:token(Session)),
-
   Content = cnf_content_repo:register("http://lol.net/post", cnf_user:id(User)),
   ContentId = cnf_content:id(Content),
   MsgTop = cnf_message_repo:write_top(ContentId, Mgs, UserId),
   MsgTopId = cnf_message:id(MsgTop),
   Header = #{ <<"Content-Type">> => <<"application/json">>
-            , basic_auth => {ReplyerUserName, Token}},
+            , basic_auth => {ReplyerUserName, Token}
+            },
   Body =
   #{ in_reply_to => MsgTopId
-    , message => ReplayMgs
-    , content => ContentId
-  },
+   , message => ReplayMgs
+   , content => ContentId
+   },
   JsonBody = jiffy:encode(Body),
   {ok, Response} =
   cnf_test_utils:api_call(post, "/messages", Header,  JsonBody),

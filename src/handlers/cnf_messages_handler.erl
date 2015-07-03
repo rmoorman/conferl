@@ -72,65 +72,64 @@ handle_post(Req, State) ->
 -spec handle_get(cowboy_req:req(), state()) ->
   {list(), cowboy_req:req(), state()}.
 handle_get(Req, State) ->
-  OptionList =
+  OptionQueryList =
     [ <<"all_msg_content">>
     , <<"all_rply_content">>
     , <<"top_msg_content">>
     , <<"all_msg_user">>
+    ],
+  OptionQueryL =
+  fun(Option, {ReqFold, WhereList}) ->
+    {QueryStringVal, NewReq} =
+      cowboy_req:qs_val(Option, ReqFold, <<"undefined">>),
+    case {Option, QueryStringVal} of
+      { _Option , <<"undefined">>} ->
+        { NewReq, WhereList};
+      {<<"all_msg_content">>, Value}   ->
+        ContentId = list_to_integer(binary_to_list(Value)),
+        { NewReq, WhereList ++ {content_id, ContentId}};
+      {<<"top_msg_content">>, Value} ->
+        ContentId = list_to_integer(binary_to_list(Value)),
+        { NewReq, WhereList ++ [{content_id, ContentId}, {response_id, null}]};
+      {<<"all_rply_content">>, Value}  ->
+         ContentId = list_to_integer(binary_to_list(Value)),
+        { NewReq
+        , WhereList ++ [{content_id, ContentId}, {response_id, not_null}]};
+      {<<"all_msg_user">>, Value} ->
+        UserId = list_to_integer(binary_to_list(Value)),
+        { NewReq, WhereList ++ [{user_id, UserId}]};
+       _WhenOthers ->
+        { NewReq, WhereList}
+    end
+  end,
+  OptionOrderL =
+    [
     , <<"sort_created_at">>
     , <<"sort_by_score">>
     ],
-  CustomQsFun =
-    fun(Option, {ReqFold, WhereList, OrderList}) ->
-      {QueryStringVal, NewReq} =
-        cowboy_req:qs_val(Option, ReqFold, <<"undefined">>),
-      case {Option, QueryStringVal} of
-        {_Option, <<"undefined">>} ->
-          { NewReq
-          , WhereList
-          , OrderList};
-        {<<"all_msg_content">>, Value}   ->
-          ContentId = list_to_integer(binary_to_list(Value)),
-          { NewReq
-          , WhereList ++ {content_id, ContentId}
-          , OrderList};
-        {<<"top_msg_content">>, Value} ->
-          ContentId = list_to_integer(binary_to_list(Value)),
-          { NewReq
-          , WhereList ++ [{content_id, ContentId}, {response_id, null}]
-          , OrderList};
-        {<<"all_rply_content">>, Value}  ->
-           ContentId = list_to_integer(binary_to_list(Value)),
-          { NewReq
-          , WhereList ++ [{content_id, ContentId}, {response_id, not_null}]
-          , OrderList};
-        {<<"all_msg_user">>, Value} ->
-          UserId = list_to_integer(binary_to_list(Value)),
-          { NewReq
-          , WhereList ++ [{user_id, UserId}]
-          , OrderList};
-        {<<"sort_created_at">> , <<"true">>} ->
-          {NewReq
-          , WhereList
-          , OrderList ++ {created_at, desc}};
-        {<<"sort_by_score">> , <<"true">>} ->
-          { NewReq
-          , WhereList
-          , OrderList ++ {score, desc}};
-         _WhenOthers ->
-          { NewReq
-          , WhereList
-          , OrderList}
-      end
-    end,
-  {Req2, QueryString, OrderString} =
-    lists:foldr(CustomQsFun, {Req, [], []}, OptionList),
+  CustomOrderFun =
+  fun(Option, {ReqFold, OrderList}) ->
+    {QueryStringVal, NewReq} =
+      cowboy_req:qs_val(Option, ReqFold, <<"undefined">>),
+    case {Option, QueryStringVal} of
+      { _Option , <<"undefined">>} ->
+        { NewReq, OrderList};
+      {<<"sort_created_at">> , <<"true">>} ->
+        {NewReq, OrderList ++ {created_at, desc}};
+      {<<"sort_by_score">> , <<"true">>} ->
+        { NewReq, OrderList ++ {score, desc}};
+       _WhenOthers ->
+        { NewReq, OrderList}
+    end
+  end,
+  {Req2, OrderString} = lists:foldr(CustomOrderFun, {Req, []}, OptionOrderL),
+  {Req3, QueryString} = lists:foldr(CustomQuerysFun, {Req2, []}, OptionQueryL),
   RequestContent = cnf_message_repo:custom_query(QueryString, OrderString),
   Fun1 =
     fun (Message) ->
       ListVotes = cnf_vote_repo:list_votes(cnf_message:id(Message)),
       Message#{ votes => ListVotes}
     end,
- RequestContent2 = lists:map(Fun1, RequestContent),
+  RequestContent2 = lists:map(Fun1, RequestContent),
   Body = cnf_content:to_json(RequestContent2),
-  {Body, Req2, State}.
+  {Body, Req3, State}.

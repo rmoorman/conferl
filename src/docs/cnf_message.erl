@@ -145,11 +145,11 @@ updated_at(Message) ->
 updated_at(Message, UpdatedAt) ->
   Message#{updated_at => UpdatedAt}.
 
--spec score(message()) -> tuple().
+-spec score(message()) -> integer().
 score(Message) ->
   maps:get(score, Message).
 
--spec score(message(), tuple()) -> message().
+-spec score(message(), integer()) -> message().
 score(Message, Score) ->
   Message#{score => Score}.
 

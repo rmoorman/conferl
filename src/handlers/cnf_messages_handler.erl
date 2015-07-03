@@ -72,13 +72,13 @@ handle_post(Req, State) ->
 -spec handle_get(cowboy_req:req(), state()) ->
   {list(), cowboy_req:req(), state()}.
 handle_get(Req, State) ->
-  OptionQueryList =
+  OptionQueryL =
     [ <<"all_msg_content">>
     , <<"all_rply_content">>
     , <<"top_msg_content">>
     , <<"all_msg_user">>
     ],
-  OptionQueryL =
+  CustomQuerysFun =
   fun(Option, {ReqFold, WhereList}) ->
     {QueryStringVal, NewReq} =
       cowboy_req:qs_val(Option, ReqFold, <<"undefined">>),
@@ -103,8 +103,7 @@ handle_get(Req, State) ->
     end
   end,
   OptionOrderL =
-    [
-    , <<"sort_created_at">>
+    [ <<"sort_created_at">>
     , <<"sort_by_score">>
     ],
   CustomOrderFun =

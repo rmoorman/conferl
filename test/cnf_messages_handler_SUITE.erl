@@ -28,8 +28,8 @@
 -export([test_get_qs_top_msg_content/1]).
 -export([test_get_qs_all_msg_user/1]).
 -export([test_get_qs_sort_by_score/1]).
-
-
+-export([test_get_qs_sort_created_at/1]).
+-export([test_post_message_ok/1]).
 
 -type config() :: [{atom(), term()}].
 
@@ -66,7 +66,7 @@ init_per_suite(Config) ->
 end_per_suite(Config) ->
   sumo:delete_all(cnf_user),
   sumo:delete_all(cnf_message),
-  sumo:delete_all(cnf_sesion),
+  sumo:delete_all(cnf_session),
   Config.
 
 %% @doc definion of init_per_testcases
@@ -131,7 +131,7 @@ test_get_qs_all_msg_content(Config) ->
   ContentId = cnf_content:id(Content),
   MsgList =
     [cnf_message_repo:write_top(ContentId, Mgs, UserId)
-    || _ <- lists:seq(1,5)],
+    || _ <- lists:seq(1, 5)],
   [cnf_message_repo:write_reply(ContentId, cnf_message:id(RplyId), Mgs, UserId)
   || RplyId <- MsgList],
   Header = #{ <<"Content-Type">> => <<"application/json">>
@@ -159,12 +159,12 @@ test_get_qs_all_rply_content(Config) ->
   Session = cnf_session_repo:register(cnf_user:id(User)),
   Token = binary_to_list(cnf_session:token(Session)),
   UserId = cnf_user:id(User),
-  Content = cnf_content_repo:register("http://inaka.net/all_rply_content", UserId),
+  Content = cnf_content_repo:register("http://inaka.net/all_rply", UserId),
   ContId = cnf_content:id(Content),
   TopMsg = cnf_message_repo:write_top(ContId, Mgs, UserId),
   ReplayId = cnf_message:id(TopMsg),
   [cnf_message_repo:write_reply(ContId, ReplayId, ReplayMgs, UserId)
-    || _ <- lists:seq(1,5)],
+    || _ <- lists:seq(1, 5)],
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {UserName, Token}},
   Url = "/messages/?all_rply_content=" ++  integer_to_list(ContId),
@@ -190,12 +190,15 @@ test_get_qs_top_msg_content(Config) ->
   Session = cnf_session_repo:register(cnf_user:id(User)),
   Token = binary_to_list(cnf_session:token(Session)),
   UserId = cnf_user:id(User),
-  Content = cnf_content_repo:register("http://inaka.net/op_msg_content", UserId),
+  Content = cnf_content_repo:register("http://inaka.net/top_msg", UserId),
   ContId = cnf_content:id(Content),
   MsgList =
     [cnf_message_repo:write_top(ContId, TopMgs, UserId)
-    || _ <- lists:seq(1,5)],
-  [cnf_message_repo:write_reply(ContId, cnf_message:id(RplyId), ReplayMgs, UserId)
+    || _ <- lists:seq(1, 5)],
+  [cnf_message_repo:write_reply(ContId
+                                , cnf_message:id(RplyId)
+                                , ReplayMgs
+                                , UserId)
   || RplyId <- MsgList],
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {UserName, Token}},
@@ -230,8 +233,11 @@ test_get_qs_all_msg_user(Config) ->
   ContId = cnf_content:id(Content),
   MsgList =
     [cnf_message_repo:write_top(ContId, TopMgs, UserId)
-    || _ <- lists:seq(1,5)],
-  [cnf_message_repo:write_reply(ContId, cnf_message:id(RplyId), ReplayMgs, AnotherUserId)
+    || _ <- lists:seq(1, 5)],
+  [cnf_message_repo:write_reply(ContId
+                                , cnf_message:id(RplyId)
+                                , ReplayMgs
+                                , AnotherUserId)
   || RplyId <- MsgList],
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {UserName, Token}},
@@ -240,7 +246,6 @@ test_get_qs_all_msg_user(Config) ->
   #{status_code := 200} = Response,
   #{body := JsonBodyResp} = Response,
   BodyRespList = jiffy:decode(JsonBodyResp, [return_maps]),
-  lager:error("all_msg_user => BodyRespList ~p" ,[BodyRespList]),
   Fun = fun(MsgMap) ->
          #{<<"user_id">> := Id} = MsgMap,
          Id = UserId
@@ -261,16 +266,102 @@ test_get_qs_sort_by_score(Config) ->
   UserId = cnf_user:id(User),
   Content = cnf_content_repo:register("http://inaka.net/sort_by_score", UserId),
   ContId = cnf_content:id(Content),
-  [cnf_message_repo:write(cnf_message:score(cnf_message:new(ContId, undefined, Mgs, UserId),Votes)) || Votes <- lists:seq(1,50,10)],
+  [cnf_message_repo:write(
+    cnf_message:score(
+      cnf_message:new(ContId, undefined, Mgs, UserId), Votes))
+  || Votes <- lists:seq(1, 50, 10)],
   Header = #{ <<"Content-Type">> => <<"application/json">>
             , basic_auth => {UserName, Token}},
-  Url = "/messages/?all_msg_content=" ++ integer_to_list(ContId) ++"&sort_by_score=" ++  "true",
+  Url =
+    "/messages/?all_msg_content=" ++
+     integer_to_list(ContId) ++
+     "&sort_by_score=" ++
+     "true",
   {ok, Response} = cnf_test_utils:api_call(get, Url, Header),
   #{status_code := 200} = Response,
   #{body := JsonBodyResp} = Response,
   BodyRespList = jiffy:decode(JsonBodyResp, [return_maps]),
-  Fun1 = fun(M) ->
-           maps:get(<<"score">>, M)
+  FunOrder = fun(M1, M2) ->
+            maps:get(<<"score">>, M1) >= maps:get(<<"score">>, M2)
          end,
-  [41,31,21,11,1] = lists:map(Fun1, BodyRespList ),
+  OrderedRespList = lists:sort(FunOrder, BodyRespList),
+  OrderedRespList = BodyRespList,
+  Config.
+
+-spec test_get_qs_sort_created_at(config()) -> config().
+test_get_qs_sort_created_at(Config) ->
+  UserName = "Doge sort_created_at",
+  Passsword = "passsword",
+  Email = "email@email.net",
+  Mgs = "Such message, very Popular",
+  User = cnf_user_repo:register(UserName, Passsword, Email),
+  Session = cnf_session_repo:register(cnf_user:id(User)),
+  Token = binary_to_list(cnf_session:token(Session)),
+  UserId = cnf_user:id(User),
+  Content = cnf_content_repo:register("http://inaka.net/created_at", UserId),
+  ContId = cnf_content:id(Content),
+  [cnf_message_repo:write(
+    cnf_message:created_at(
+      cnf_message:new( ContId
+                     , undefined
+                     , Mgs
+                     , UserId)
+      , {{Year, 5, 29}, {21, 6, 20}}))
+  || Year <- lists:seq(2000, 2060, 10)],
+  Header = #{ <<"Content-Type">> => <<"application/json">>
+            , basic_auth => {UserName, Token}},
+  Url =
+    "/messages/?all_msg_content=" ++
+    integer_to_list(ContId) ++
+    "&sort_created_at=" ++
+    "true",
+  {ok, Response} = cnf_test_utils:api_call(get, Url, Header),
+  #{status_code := 200} = Response,
+  #{body := JsonBodyResp} = Response,
+  BodyRespList = jiffy:decode(JsonBodyResp, [return_maps]),
+  FunOrder =
+    fun(M1, M2) ->
+            maps:get(<<"created_at">>, M1) >= maps:get(<<"created_at">>, M2)
+    end,
+  OrderedRespList = lists:sort(FunOrder, BodyRespList),
+  OrderedRespList = BodyRespList,
+  Config.
+
+-spec test_post_message_ok(config()) -> config().
+test_post_message_ok(Config) ->
+  UserName = "Doge Top Post",
+  ReplyerUserName = "Doge Rply Top Post",
+  Passsword = "passsword",
+  Email = "email@email.net",
+  Mgs = "Such message, very Popular",
+  ReplayMgs = "Such message, very Replay",
+  User = cnf_user_repo:register(UserName, Passsword, Email),
+  UserId = cnf_user:id(User),
+  ReplyerUser = cnf_user_repo:register(ReplyerUserName, Passsword, Email),
+  ReplyerUserId = cnf_user:id(ReplyerUser),
+
+  Session = cnf_session_repo:register(ReplyerUserId),
+  Token = binary_to_list(cnf_session:token(Session)),
+
+  Content = cnf_content_repo:register("http://lol.net/post", cnf_user:id(User)),
+  ContentId = cnf_content:id(Content),
+  MsgTop = cnf_message_repo:write_top(ContentId, Mgs, UserId),
+  MsgTopId = cnf_message:id(MsgTop),
+  Header = #{ <<"Content-Type">> => <<"application/json">>
+            , basic_auth => {ReplyerUserName, Token}},
+  Body =
+  #{ in_reply_to => MsgTopId
+    , message => ReplayMgs
+    , content => ContentId
+  },
+  JsonBody = jiffy:encode(Body),
+  {ok, Response} =
+  cnf_test_utils:api_call(post, "/messages", Header,  JsonBody),
+  #{status_code := 200} = Response,
+  #{body := JsonBodyResp} = Response,
+  BodyRespList = jiffy:decode(JsonBodyResp, [return_maps]),
+  BodyRespList#{ <<"content_id">> := ContentId
+               , <<"message_text">> := ReplayMgs
+               , <<"user_id">> := ReplyerUserId
+               },
   Config.

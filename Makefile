@@ -1,6 +1,6 @@
 PROJECT = conferl
 
-DEPS = lager cowboy sync sumo_db mixer jiffy xref_runner uuid
+DEPS = lager cowboy sync sumo_db mixer jiffy xref_runner uuid katanna
 
 TEST_DEPS = shotgun
 
@@ -13,6 +13,8 @@ dep_jiffy       = git git://github.com/davisp/jiffy.git      0.11.3
 dep_shotgun     = git git://github.com/inaka/shotgun.git     0.1.10
 dep_xref_runner = git git://github.com/inaka/xref_runner.git 0.2.2
 dep_uuid        = git git://github.com/okeuday/uuid.git      v1.5.0
+dep_recon       = git git://github.com/ferd/recon.git  master
+dep_katanna     = git https://github.com/inaka/erlang-katana 0.2.7
 
 PLT_APPS := inets
 DIALYZER_DIRS := ebin/

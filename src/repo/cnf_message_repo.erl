@@ -93,19 +93,17 @@ list_by_user(UserId) -> sumo:find_by(cnf_message, [{user, UserId}]).
 -spec delete_all() -> integer().
   delete_all() -> sumo:delete_all(cnf_message).
 
--spec custom_query([tuple()],[tuple()]) -> [cnf_messages:message()].
-custom_query(ParameterList,OrderString) ->
- lager:error("ParameterList ~p - OrderString ", [ParameterList,OrderString]),
-  sumo:find_by(cnf_message, ParameterList, OrderString, 0,0).
+-spec custom_query([tuple()], [tuple()]) -> [cnf_messages:message()].
+custom_query(ParameterList, OptionString) ->
+  sumo:find_by(cnf_message, ParameterList, OptionString, 0, 0).
 
-
--spec add_score(integer()) -> cnf_messages:message().
+-spec add_score(pos_integer()) -> cnf_messages:message().
  add_score(MessageId) ->
   Msg = sumo:find(cnf_message, MessageId),
   Score = cnf_message:score(Msg),
   sumo:persist(cnf_message, cnf_message:score(Msg, Score + 1)).
 
--spec dec_score(integer()) -> cnf_messages:message().
+-spec dec_score(pos_integer()) -> cnf_messages:message().
  dec_score(MessageId) ->
   Msg = sumo:find(cnf_message, MessageId),
   Score = cnf_message:score(Msg),

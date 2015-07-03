@@ -50,7 +50,7 @@ all() ->
 %% @doc definion of init_per_testcases
 
 -spec init_per_suite(config()) -> config().
-init_per_suite(Config) ->
+init_per_suite(_Config) ->
   application:ensure_all_started(sumo_db),
   sumo:create_schema(),
   get_top_messages_conf().

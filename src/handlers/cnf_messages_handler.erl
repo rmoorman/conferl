@@ -52,16 +52,18 @@ is_authorized(Req, State) ->
 handle_post(Req, State) ->
   {ok, JsonBody, Req1} = cowboy_req:body(Req),
   Body = jiffy:decode(JsonBody, [return_maps]),
-  #{<<"url">> := Url} = Body,
+  #{ <<"in_reply_to">> := ReplayMsgId
+   , <<"message">> :=  Message
+   , <<"content">> :=  ContentId} = Body,
   try
     #{token := Token} = State,
-    UserId = cnf_session:user_id(cnf_session_repo:find_by_token(Token)),
-    Content = cnf_content_repo:register(binary_to_list(Url), UserId),
-    Id = cnf_content:id(Content),
-    {Host, Req2} = cowboy_req:url(Req1),
-    Location = [Host, <<"/">>, list_to_binary(integer_to_list(Id))],
-    Req3 = cowboy_req:set_resp_header(<<"Location">>, Location, Req2),
-    {true, Req3, State}
+    UserId  =
+      cnf_session:user_id(cnf_session_repo:find_by_token(Token)),
+    MsgResponse =
+      cnf_message_repo:write_reply(ContentId, ReplayMsgId, Message, UserId),
+    JsonRespBody = cnf_message:to_json(MsgResponse),
+    Req2 = cowboy_req:set_resp_body(JsonRespBody, Req1),
+    {true, Req2, State}
   catch
     _Type:Exception ->
       cnf_utils:handle_exception(Exception, Req, State)
@@ -70,7 +72,7 @@ handle_post(Req, State) ->
 -spec handle_get(cowboy_req:req(), state()) ->
   {list(), cowboy_req:req(), state()}.
 handle_get(Req, State) ->
-  QsOptionList =
+  OptionList =
     [ <<"all_msg_content">>
     , <<"all_rply_content">>
     , <<"top_msg_content">>
@@ -78,37 +80,51 @@ handle_get(Req, State) ->
     , <<"sort_created_at">>
     , <<"sort_by_score">>
     ],
-  CustomQueryFun =
+  CustomQsFun =
     fun(Option, {ReqFold, WhereList, OrderList}) ->
       {QueryStringVal, NewReq} =
         cowboy_req:qs_val(Option, ReqFold, <<"undefined">>),
       case {Option, QueryStringVal} of
         {_Option, <<"undefined">>} ->
-          {NewReq, WhereList, OrderList};
-        {<<"all_msg_content">> , Val}   ->
-          ContentId = list_to_integer(binary_to_list(Val)),
-          {NewReq, WhereList ++ {content_id, ContentId},OrderList};
-        {<<"top_msg_content">> , Val} ->
-          ContentId = list_to_integer(binary_to_list(Val)),
           { NewReq
-          , WhereList ++ [{content_id, ContentId},{response_id, null}]
+          , WhereList
           , OrderList};
-        {<<"all_rply_content">>, Val}  ->
-           ContentId = list_to_integer(binary_to_list(Val)),
-          {NewReq, WhereList ++ [{content_id, ContentId},{response_id, not_null}], OrderList};
-        {<<"all_msg_user">>    , Val} ->
-          UserId = list_to_integer(binary_to_list(Val)),
-          {NewReq, WhereList ++ [{user_id, UserId}], OrderList};
+        {<<"all_msg_content">>, Value}   ->
+          ContentId = list_to_integer(binary_to_list(Value)),
+          { NewReq
+          , WhereList ++ {content_id, ContentId}
+          , OrderList};
+        {<<"top_msg_content">>, Value} ->
+          ContentId = list_to_integer(binary_to_list(Value)),
+          { NewReq
+          , WhereList ++ [{content_id, ContentId}, {response_id, null}]
+          , OrderList};
+        {<<"all_rply_content">>, Value}  ->
+           ContentId = list_to_integer(binary_to_list(Value)),
+          { NewReq
+          , WhereList ++ [{content_id, ContentId}, {response_id, not_null}]
+          , OrderList};
+        {<<"all_msg_user">>, Value} ->
+          UserId = list_to_integer(binary_to_list(Value)),
+          { NewReq
+          , WhereList ++ [{user_id, UserId}]
+          , OrderList};
         {<<"sort_created_at">> , <<"true">>} ->
-          {NewReq, WhereList, OrderList ++ {created_at, desc}};
+          {NewReq
+          , WhereList
+          , OrderList ++ {created_at, desc}};
         {<<"sort_by_score">> , <<"true">>} ->
-          {NewReq,WhereList, OrderList ++ {score, desc}};
+          { NewReq
+          , WhereList
+          , OrderList ++ {score, desc}};
          _WhenOthers ->
-          {NewReq, WhereList, OrderList}
+          { NewReq
+          , WhereList
+          , OrderList}
       end
     end,
-  {Req2, QueryString,OrderString} = lists:foldr(CustomQueryFun, {Req,[], []}, QsOptionList),
-  lager:error("QueryString ~p - OrderString ", [QueryString,OrderString]),
+  {Req2, QueryString, OrderString} =
+    lists:foldr(CustomQsFun, {Req, [], []}, OptionList),
   RequestContent = cnf_message_repo:custom_query(QueryString, OrderString),
   Fun1 =
     fun (Message) ->
@@ -118,8 +134,3 @@ handle_get(Req, State) ->
  RequestContent2 = lists:map(Fun1, RequestContent),
   Body = cnf_content:to_json(RequestContent2),
   {Body, Req2, State}.
-
-
-
-
-
